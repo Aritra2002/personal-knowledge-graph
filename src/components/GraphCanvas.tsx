@@ -1,0 +1,623 @@
+import React, { useRef, useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import type { Note, Link, Category } from '../db';
+import { updateNote } from '../db/helpers';
+import { HelpCircle, PanelLeft } from 'lucide-react';
+import { cosineSimilarity } from '../utils/vectorSearch';
+
+interface GraphCanvasProps {
+  notes: Note[];
+  links: Link[];
+  categories: Category[];
+  activeNote: Note | null;
+  onSelectNote: (note: Note | null) => void;
+  onCreateNote: (x: number, y: number) => void;
+  searchQuery: string;
+  selectedTags: string[];
+  dateRange: [number, number] | null;
+  physicsConfig: { linkDistance: number; chargeStrength: number };
+  isSidebarOpen: boolean;
+  onOpenSidebar: () => void;
+  nlpClustering?: boolean;
+}
+
+interface SimNode extends d3.SimulationNodeDatum {
+  id: number;
+  title: string;
+  category: string;
+  tags: string[];
+  createdAt: number;
+  color?: string;
+  isDimmed: boolean;
+  radius: number;
+  visits: number;
+}
+
+export const GraphCanvas: React.FC<GraphCanvasProps> = ({
+  notes,
+  links,
+  categories,
+  activeNote,
+  onSelectNote,
+  onCreateNote,
+  searchQuery,
+  selectedTags,
+  dateRange,
+  physicsConfig,
+  isSidebarOpen,
+  onOpenSidebar,
+  nlpClustering
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 600, height: 600 });
+  const [transform, setTransform] = useState(d3.zoomIdentity);
+  const [showHelp, setShowHelp] = useState(false);
+
+  // Maintain persistent node positions across re-renders
+  const nodesRef = useRef<SimNode[]>([]);
+  const simulationRef = useRef<d3.Simulation<SimNode, undefined> | null>(null);
+  const prevTopology = useRef({ nodes: 0, links: 0, linkDist: 0, charge: 0 });
+
+  // Handle window resizing
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setDimensions({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height
+        });
+      }
+    });
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // Sync simulation nodes and links
+  useEffect(() => {
+    if (dimensions.width === 0 || dimensions.height === 0) return;
+
+    // Create the simulation if it doesn't exist
+    if (!simulationRef.current) {
+      const sim = d3.forceSimulation<SimNode>()
+        .force('link', d3.forceLink<SimNode, d3.SimulationLinkDatum<SimNode>>().id(d => d.id).distance(physicsConfig.linkDistance).strength(0.05))
+        .force('nlpLink', d3.forceLink<SimNode, d3.SimulationLinkDatum<SimNode>>().id(d => d.id).distance(physicsConfig.linkDistance * 1.5).strength(0.01))
+        .force('charge', d3.forceManyBody().strength(physicsConfig.chargeStrength))
+        .force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
+        .force('collision', d3.forceCollide().radius(45));
+      simulationRef.current = sim;
+    } else {
+      // Update forces if config changed
+      const sim = simulationRef.current;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      if (linkForce) linkForce.distance(physicsConfig.linkDistance);
+      const chargeForce = sim.force('charge') as d3.ForceManyBody<SimNode>;
+      if (chargeForce) chargeForce.strength(physicsConfig.chargeStrength);
+    }
+
+    const sim = simulationRef.current;
+    sim.force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
+
+    // Determine matching dim states based on search, tags, and date range
+    const lowerQuery = searchQuery.toLowerCase().trim();
+    
+    const linkCounts: Record<number, number> = {};
+    const neighborhood = new Set<number>();
+    
+    if (activeNote) {
+      neighborhood.add(activeNote.id!);
+    }
+
+    links.forEach(l => {
+      linkCounts[l.targetId] = (linkCounts[l.targetId] || 0) + 1;
+      linkCounts[l.sourceId] = (linkCounts[l.sourceId] || 0) + 1;
+      
+      if (activeNote) {
+        if (l.sourceId === activeNote.id) neighborhood.add(l.targetId);
+        if (l.targetId === activeNote.id) neighborhood.add(l.sourceId);
+      }
+    });
+
+    const processedNodes: SimNode[] = notes.map((note) => {
+      const existing = nodesRef.current.find(n => n.id === note.id);
+      
+      // Check search match
+      const searchMatch = !lowerQuery || 
+        note.title.toLowerCase().includes(lowerQuery) || 
+        note.content.toLowerCase().includes(lowerQuery) ||
+        note.tags.some(t => t.toLowerCase().includes(lowerQuery));
+
+      // Check tag matches
+      const tagMatch = selectedTags.length === 0 || 
+        selectedTags.every(t => note.tags.includes(t));
+
+      // Check date match
+      const dateMatch = !dateRange || 
+        (note.createdAt >= dateRange[0] && note.createdAt <= dateRange[1]);
+
+      let isDimmed = !(searchMatch && tagMatch && dateMatch);
+      if (activeNote && !neighborhood.has(note.id!)) {
+        isDimmed = true;
+      }
+
+      const degree = linkCounts[note.id!] || 0;
+      const radius = 10 + Math.min(20, degree * 1.5);
+
+      return {
+        id: note.id!,
+        title: note.title,
+        category: note.category,
+        tags: note.tags,
+        createdAt: note.createdAt,
+        color: note.color,
+        isDimmed,
+        radius,
+        visits: note.visits || 0,
+        // Retain existing coordinates or load DB coordinates
+        x: existing?.x ?? note.fx ?? (dimensions.width / 2 + (Math.random() - 0.5) * 50),
+        y: existing?.y ?? note.fy ?? (dimensions.height / 2 + (Math.random() - 0.5) * 50),
+        vx: existing?.vx ?? 0,
+        vy: existing?.vy ?? 0,
+        fx: note.fx ?? null,
+        fy: note.fy ?? null
+      };
+    });
+
+    nodesRef.current = processedNodes;
+    sim.nodes(processedNodes);
+
+    // Sync links
+    // Map links sourceId and targetId into matching Node references
+    const validLinks = links
+      .map(l => {
+        const sourceNode = processedNodes.find(n => n.id === l.sourceId);
+        const targetNode = processedNodes.find(n => n.id === l.targetId);
+        if (sourceNode && targetNode) {
+          return {
+            id: l.id,
+            source: sourceNode,
+            target: targetNode
+          };
+        }
+        return null;
+      })
+      .filter((l): l is { id: number | undefined; source: SimNode; target: SimNode } => l !== null);
+
+    // NLP Clustering: separate force links between semantically similar notes
+    if (nlpClustering) {
+      const notesWithEmbeddings = notes.filter(n => n.embedding);
+      const nlpLinks: { source: SimNode; target: SimNode }[] = [];
+      for (let i = 0; i < notesWithEmbeddings.length; i++) {
+        for (let j = i + 1; j < notesWithEmbeddings.length; j++) {
+          const a = notesWithEmbeddings[i];
+          const b = notesWithEmbeddings[j];
+          if (!a.embedding || !b.embedding) continue;
+          const score = cosineSimilarity(a.embedding, b.embedding);
+          if (score > 0.65) {
+            const sourceNode = processedNodes.find(n => n.id === a.id);
+            const targetNode = processedNodes.find(n => n.id === b.id);
+            if (sourceNode && targetNode && !validLinks.some(l => l.source.id === a.id && l.target.id === b.id || l.source.id === b.id && l.target.id === a.id)) {
+              nlpLinks.push({ source: sourceNode, target: targetNode });
+            }
+          }
+        }
+      }
+      const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, any>;
+      if (nlpLinkForce) {
+        nlpLinkForce.links(nlpLinks);
+      }
+    } else {
+      const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, any>;
+      if (nlpLinkForce) {
+        nlpLinkForce.links([]);
+      }
+    }
+
+    const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+    if (linkForce) {
+      linkForce.links(validLinks);
+    }
+
+    const currentTopology = {
+      nodes: notes.length,
+      links: links.length,
+      linkDist: physicsConfig.linkDistance,
+      charge: physicsConfig.chargeStrength
+    };
+
+    const shouldRestart = 
+      prevTopology.current.nodes !== currentTopology.nodes ||
+      prevTopology.current.links !== currentTopology.links ||
+      prevTopology.current.linkDist !== currentTopology.linkDist ||
+      prevTopology.current.charge !== currentTopology.charge;
+
+    if (shouldRestart) {
+      sim.alpha(0.2).restart();
+      prevTopology.current = currentTopology;
+    }
+  }, [notes, links, dimensions, physicsConfig, searchQuery, selectedTags, dateRange, activeNote, categories]);
+
+  // Main Canvas Rendering Loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+      ctx.save();
+
+      // Apply zoom & pan transformations
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.k, transform.k);
+
+      const sim = simulationRef.current;
+      if (!sim) {
+        ctx.restore();
+        return;
+      }
+
+      const activeNodeId = activeNote?.id;
+      const currentNodes = nodesRef.current;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      const currentLinks = linkForce ? (linkForce.links() as { source: SimNode; target: SimNode }[]) : [];
+
+      // 1. Draw Links
+      currentLinks.forEach((link) => {
+        const source = link.source;
+        const target = link.target;
+
+        if (source.x === undefined || source.y === undefined || target.x === undefined || target.y === undefined) return;
+
+        const isSourceActive = source.id === activeNodeId;
+        const isTargetActive = target.id === activeNodeId;
+        const isConnectionActive = isSourceActive || isTargetActive;
+
+        ctx.beginPath();
+        ctx.moveTo(source.x, source.y);
+        ctx.lineTo(target.x, target.y);
+
+        // Styling
+        if (source.isDimmed || target.isDimmed) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([]);
+        } else if (isConnectionActive) {
+          // Glow highlighting for connected notes
+          const activeColor = activeNote?.color || categories.find(c => c.id === activeNote?.category)?.color || '#818cf8';
+          ctx.strokeStyle = activeColor;
+          ctx.lineWidth = 2;
+          // Dashed animation offset for flows
+          const dashOffset = (Date.now() / 80) % 20;
+          ctx.setLineDash([6, 4]);
+          ctx.lineDashOffset = -dashOffset;
+        } else {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([]);
+        }
+
+        ctx.stroke();
+      });
+
+      // Reset dash for nodes drawing
+      ctx.setLineDash([]);
+
+      // 2. Draw Nodes
+      currentNodes.forEach((node) => {
+        if (node.x === undefined || node.y === undefined) return;
+
+        const isActive = node.id === activeNodeId;
+        const opacity = node.isDimmed ? 0.15 : 1.0;
+
+        ctx.save();
+        ctx.globalAlpha = opacity;
+
+        // Choose color based on category, or override with custom node.color
+        const categoryObj = categories.find(c => c.id === node.category);
+        let color = categoryObj?.color || '#818cf8'; // Default Indigo
+        
+        // Custom color override
+        if (node.color) color = node.color;
+
+        // Render Glow (Only if not dimmed)
+        if (!node.isDimmed) {
+          // Heatmap effect: more visits = larger/brighter glow
+          const heatmapIntensity = Math.min(20, node.visits * 2);
+          ctx.shadowBlur = isActive ? 18 + heatmapIntensity : 8 + heatmapIntensity;
+          ctx.shadowColor = color; // Aura matches node color
+        }
+
+        // Draw Circle
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, isActive ? node.radius + 4 : node.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Draw pinned ring
+        if (node.fx !== null && node.fx !== undefined) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, isActive ? node.radius + 8 : node.radius + 4, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+
+        // Draw Active Ring highlight
+        if (isActive) {
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.radius + 10, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+
+        // 3. Draw Labels
+        ctx.shadowBlur = 0; // Clear shadow properties for text
+        ctx.shadowColor = 'transparent';
+        ctx.font = '500 12px Inter';
+        ctx.fillStyle = isActive ? '#ffffff' : '#e5e7eb';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        // Text Stroke background for readability
+        ctx.strokeStyle = '#0b0f19';
+        ctx.lineWidth = 3;
+        ctx.strokeText(node.title, node.x, node.y + (isActive ? 24 : 16));
+        ctx.fillText(node.title, node.x, node.y + (isActive ? 24 : 16));
+
+        ctx.restore();
+      });
+
+      ctx.restore();
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [dimensions, transform, activeNote, searchQuery, selectedTags, dateRange, categories]);
+
+  const stateRef = useRef({ transform, notes, activeNote, onCreateNote, onSelectNote });
+  useEffect(() => {
+    stateRef.current = { transform, notes, activeNote, onCreateNote, onSelectNote };
+  });
+
+  // Bind D3 Drag, Zoom, and Clicks
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Zoom setup
+    const zoomBehavior = d3.zoom<HTMLCanvasElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .filter((event) => {
+        // Standard D3 zoom filter (ignore right-click)
+        if (event.ctrlKey || event.button) return false;
+        
+        // If it's a mouse down, check if we're hitting a node. If we are, ignore the zoom!
+        if (event.type === 'mousedown' || event.type === 'touchstart') {
+          const rect = canvas.getBoundingClientRect();
+          const clientX = event.type === 'touchstart' ? event.touches[0].clientX : event.clientX;
+          const clientY = event.type === 'touchstart' ? event.touches[0].clientY : event.clientY;
+          
+          const clickX = clientX - rect.left;
+          const clickY = clientY - rect.top;
+          const currentTransform = d3.zoomTransform(canvas);
+          const simX = (clickX - currentTransform.x) / currentTransform.k;
+          const simY = (clickY - currentTransform.y) / currentTransform.k;
+          
+          const clickedNode = nodesRef.current.find((node) => {
+            if (node.x === undefined || node.y === undefined) return false;
+            const dx = node.x - simX;
+            const dy = node.y - simY;
+            return Math.sqrt(dx * dx + dy * dy) < node.radius + 5;
+          });
+          
+          // Prevent panning if hovering over a node
+          if (clickedNode) return false;
+        }
+        
+        return true;
+      })
+      .on('zoom', (event) => {
+        setTransform(event.transform);
+      });
+
+    // Click handler for node selection / creation
+    const handleCanvasClick = (event: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+
+      // Translate canvas click coordinates to D3 simulation world coordinates
+      const currentTransform = d3.zoomTransform(canvas);
+      const simX = (clickX - currentTransform.x) / currentTransform.k;
+      const simY = (clickY - currentTransform.y) / currentTransform.k;
+
+      // Find if we clicked on a node (radius detection)
+      const state = stateRef.current;
+      const clickedNode = nodesRef.current.find((node) => {
+        if (node.x === undefined || node.y === undefined) return false;
+        const dx = node.x - simX;
+        const dy = node.y - simY;
+        const clickRadius = node.id === state.activeNote?.id ? node.radius + 4 : node.radius;
+        return Math.sqrt(dx * dx + dy * dy) < clickRadius;
+      });
+
+      if (clickedNode) {
+        // Trigger select note
+        const note = state.notes.find(n => n.id === clickedNode.id);
+        if (note) state.onSelectNote(note);
+      } else {
+        // Clicked empty space: Unselect active note
+        state.onSelectNote(null);
+      }
+    };
+
+    // Double click to create or release node
+    const handleCanvasDblClick = (event: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+
+      const currentTransform = d3.zoomTransform(canvas);
+      const simX = (clickX - currentTransform.x) / currentTransform.k;
+      const simY = (clickY - currentTransform.y) / currentTransform.k;
+
+      const clickedNode = nodesRef.current.find((node) => {
+        if (node.x === undefined || node.y === undefined) return false;
+        const dx = node.x - simX;
+        const dy = node.y - simY;
+        return Math.sqrt(dx * dx + dy * dy) < node.radius + 5;
+      });
+
+      if (clickedNode) {
+        // Unpin node
+        if (clickedNode.fx !== null) {
+          updateNote(clickedNode.id, { fx: null, fy: null });
+        }
+      } else {
+        // Double-clicked empty space: Create Note
+        stateRef.current.onCreateNote(simX, simY);
+      }
+    };
+
+    // Drag setup
+    const dragBehavior = d3.drag<HTMLCanvasElement, unknown>()
+      .subject((event) => {
+        if (!canvasRef.current) return undefined;
+        // Use d3.pointer to properly get coordinates relative to the canvas for both mouse and touch events
+        const [mouseX, mouseY] = d3.pointer(event, canvasRef.current);
+        const currentTransform = d3.zoomTransform(canvasRef.current);
+        const simX = (mouseX - currentTransform.x) / currentTransform.k;
+        const simY = (mouseY - currentTransform.y) / currentTransform.k;
+        
+        const foundNode = nodesRef.current.find((node) => {
+          if (node.x === undefined || node.y === undefined) return false;
+          const dx = node.x - simX;
+          const dy = node.y - simY;
+          return Math.sqrt(dx * dx + dy * dy) < node.radius + 5;
+        });
+
+        if (foundNode && foundNode.x !== undefined && foundNode.y !== undefined) {
+          return {
+            x: foundNode.x * currentTransform.k + currentTransform.x,
+            y: foundNode.y * currentTransform.k + currentTransform.y,
+            node: foundNode
+          };
+        }
+        return undefined;
+      })
+      .on('start', (event) => {
+        if (!simulationRef.current) return;
+        event.subject.node.fx = event.subject.node.x;
+        event.subject.node.fy = event.subject.node.y;
+      })
+      .on('drag', (event) => {
+        if (!canvasRef.current) return;
+        // event.x and event.y are screen coordinates now
+        const currentTransform = d3.zoomTransform(canvasRef.current);
+        const simX = (event.x - currentTransform.x) / currentTransform.k;
+        const simY = (event.y - currentTransform.y) / currentTransform.k;
+        
+        event.subject.node.fx = simX;
+        event.subject.node.fy = simY;
+        event.subject.node.x = simX;
+        event.subject.node.y = simY;
+      })
+      .on('end', async (event) => {
+        if (!simulationRef.current) return;
+        if (!event.active) simulationRef.current.alphaTarget(0);
+        // Persist pinned coordinate values to database
+        await updateNote(event.subject.node.id, {
+          fx: event.subject.node.fx,
+          fy: event.subject.node.fy
+        });
+      });
+
+    // Call both behaviors
+    d3.select(canvas).call(dragBehavior as any);
+    d3.select(canvas).call(zoomBehavior);
+
+    canvas.addEventListener('click', handleCanvasClick);
+    canvas.addEventListener('dblclick', handleCanvasDblClick);
+
+    return () => {
+      canvas.removeEventListener('click', handleCanvasClick);
+      canvas.removeEventListener('dblclick', handleCanvasDblClick);
+    };
+  }, []);
+
+
+  return (
+    <div className="graph-container" ref={containerRef} id="graph-container-root">
+      <canvas
+        ref={canvasRef}
+        width={dimensions.width}
+        height={dimensions.height}
+        className="graph-canvas"
+      />
+
+      {/* Floating Canvas Controls */}
+      <div className="canvas-controls" style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10 }}>
+        {!isSidebarOpen && (
+          <button
+            className="canvas-btn"
+            onClick={onOpenSidebar}
+            title="Open Sidebar"
+            aria-label="Open Sidebar"
+          >
+            <PanelLeft size={16} /> Sidebar
+          </button>
+        )}
+        <button
+          className="canvas-btn"
+          onClick={() => setShowHelp(!showHelp)}
+          title="Show controls help"
+          aria-label="Controls help"
+        >
+          <HelpCircle size={16} /> Help
+        </button>
+      </div>
+
+      {/* Help Modal Popup */}
+      {showHelp && (
+        <div className="canvas-help-box glass-panel">
+          <h3>Canvas Controls</h3>
+          <ul>
+            <li><strong>Drag Empty Space</strong>: Pan the view</li>
+            <li><strong>Scroll Mouse</strong>: Zoom in / out</li>
+            <li><strong>Drag Node</strong>: Move and pin note in place</li>
+            <li><strong>Double-Click Node</strong>: Unpin note (make it float)</li>
+            <li><strong>Double-Click Empty Space</strong>: Create a new note here</li>
+            <li><strong>Click Node</strong>: Open note in sidebar</li>
+          </ul>
+          <h3 style={{ marginTop: '16px' }}>Note Syntax</h3>
+          <ul>
+            <li><strong>[[Title]]</strong>: Link to another note (creates graph connection)</li>
+            <li><strong>**text**</strong>: Bold formatting</li>
+            <li><strong>*text*</strong>: Italic formatting</li>
+            <li><strong># text</strong>: Large heading</li>
+            <li><strong>## text</strong>: Medium heading</li>
+            <li><strong>- text</strong>: Bulleted list</li>
+            <li><strong>`code`</strong>: Inline code snippet</li>
+            <li><strong>```language</strong>: Multi-line code block</li>
+            <li><strong>[Text](url)</strong>: External hyperlink</li>
+            <li><strong>&gt; text</strong>: Blockquote</li>
+            <li><strong>~~text~~</strong>: Strikethrough</li>
+            <li><strong>- [ ] text</strong>: Task list checkbox</li>
+          </ul>
+          <button className="help-close-btn" onClick={() => setShowHelp(false)}>Close</button>
+        </div>
+      )}
+    </div>
+  );
+};

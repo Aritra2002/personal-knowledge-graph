@@ -1,0 +1,763 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../db';
+import type { Note, Link, Category } from '../db';
+import { updateNote, deleteNote } from '../db/helpers';
+import { useDebounce } from '../hooks/useDebounce';
+import { X, Trash2, Eye, Edit3, Tag, Folder, Bold, Italic, Heading, Code, Link as LinkIcon, Wand2, PlusCircle, FileText, SplitSquareHorizontal } from 'lucide-react';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
+import { ColorPicker } from './ColorPicker';
+import { callAI } from '../utils/aiClient';
+import { processFileForOCR } from '../utils/ocr';
+import { ConfirmModal } from './ConfirmModal';
+import { useToast } from './ToastContext';
+import { UploadCloud, PenTool, Volume2, VolumeX, Mic, MicOff, Loader2, Sparkles } from 'lucide-react';
+import { Excalidraw } from '@excalidraw/excalidraw';
+import { cosineSimilarity } from '../utils/vectorSearch';
+
+interface EditorPanelProps {
+  note: Note | null;
+  links: Link[];
+  categories: Category[];
+  onClose: () => void;
+  onNoteDeleted: () => void;
+  onJumpToNote: (title: string) => void;
+  onSplitRight?: (title: string) => void;
+}
+
+export const EditorPanel: React.FC<EditorPanelProps> = ({
+  note,
+  links,
+  categories,
+  onClose,
+  onNoteDeleted,
+  onJumpToNote,
+  onSplitRight
+}) => {
+  const { showToast } = useToast();
+  const allNotes = useLiveQuery(() => db.notes.toArray()) || [];
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [category, setCategory] = useState('general');
+  const [nodeColor, setNodeColor] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [isWhiteboard, setIsWhiteboard] = useState<boolean>(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  
+  // Force preview mode when opening a different note
+  useEffect(() => {
+    setEditMode(false);
+    setIsPlaying(false);
+    import('../utils/speech').then(m => m.stopSpeaking());
+  }, [note?.id]);
+  const [isOcrLoading, setIsOcrLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [slashMenuPos, setSlashMenuPos] = useState<{top: number, left: number} | null>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  const connectedNodeIds = new Set(
+    links
+      .filter(l => l.sourceId === note?.id || l.targetId === note?.id)
+      .map(l => l.sourceId === note?.id ? l.targetId : l.sourceId)
+  );
+
+  // Load note values when selected note changes
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+      setCategory(note.category || 'general');
+      setNodeColor(note.color || '');
+      setTagsInput(note.tags ? note.tags.join(', ') : '');
+      setIsWhiteboard(note.isExcalidraw || false);
+    }
+  }, [note]);
+
+  // Debounced auto-save functions
+  const debouncedSaveContent = useDebounce(async (id: number, val: string) => {
+    await updateNote(id, { content: val });
+  }, 500);
+
+  const debouncedSaveTags = useDebounce(async (id: number, tagsStr: string) => {
+    const tagsArray = tagsStr
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t.length > 0);
+    await updateNote(id, { tags: tagsArray });
+  }, 800);
+
+  // Immediate save on blur or specific field updates
+  const handleTitleBlur = async () => {
+    if (!note || !title.trim()) return;
+    try {
+      const cleanTitle = title.trim();
+      await updateNote(note.id!, { title: cleanTitle });
+    } catch (err: any) {
+      showToast(err.message || 'Error updating title', 'error');
+      setTitle(note.title); // Reset on error
+    }
+  };
+
+  const handleCategoryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setCategory(val);
+    if (note) {
+      await updateNote(note.id!, { category: val });
+    }
+  };
+
+  const handleColorChange = async (color: string) => {
+    setNodeColor(color);
+    if (note) {
+      await updateNote(note.id!, { color: color });
+    }
+  };
+
+  const handleColorReset = async () => {
+    setNodeColor('');
+    if (note) {
+      await updateNote(note.id!, { color: '' });
+    }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setContent(val);
+    if (note) {
+      debouncedSaveContent(note.id!, val);
+    }
+  };
+
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setTagsInput(val);
+    if (note) {
+      debouncedSaveTags(note.id!, val);
+    }
+  };
+
+  const handleDelete = () => {
+    if (!note) return;
+    setShowDeleteConfirm(true);
+  };
+
+  const executeDelete = async () => {
+    if (!note) return;
+    await deleteNote(note.id!);
+    setShowDeleteConfirm(false);
+    onNoteDeleted();
+  };
+
+  const insertText = (before: string, after: string = '') => {
+    const textarea = document.getElementById('editor-note-body') as HTMLTextAreaElement;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const newText = text.substring(0, start) + before + text.substring(start, end) + after + text.substring(end);
+    setContent(newText);
+    if (note) debouncedSaveContent(note.id!, newText);
+    
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + before.length, end + before.length);
+    }, 0);
+  };
+
+  const handleAiAutoTag = async () => {
+    if (!note) return;
+    try {
+      setIsAiLoading(true);
+      const allTitles = allNotes.map(n => n.title).filter(t => t !== note.title);
+
+      const systemPrompt = `You are an AI assistant for a personal knowledge graph.
+Given a note's title, its content, and a list of existing note titles in the graph, suggest:
+1. Up to 3 relevant comma-separated tags.
+2. Up to 3 existing note titles that should be linked.
+Return exactly and ONLY in this format (do not use markdown blocks, just the text):
+TAGS: tag1, tag2
+LINKS: [[NoteTitle1]] [[NoteTitle2]]`;
+
+      const userPrompt = `Existing Note Titles: ${allTitles.join(', ')}
+Current Note Title: ${note.title}
+Current Note Content: ${content}`;
+
+      const response = await callAI(systemPrompt, userPrompt);
+      
+      // Parse the response, expecting "TAGS: a, b" and "LINKS: [[c]]"
+      const lines = response.split('\n');
+      let tagsToAdd = '';
+      let linksToAdd = '';
+      
+      for (const line of lines) {
+        if (line.startsWith('TAGS:')) {
+          tagsToAdd = line.replace('TAGS:', '').trim();
+        } else if (line.startsWith('LINKS:')) {
+          linksToAdd = line.replace('LINKS:', '').trim();
+        }
+      }
+
+      if (tagsToAdd) {
+        const newTagsString = tagsInput ? `${tagsInput}, ${tagsToAdd}` : tagsToAdd;
+        setTagsInput(newTagsString);
+        await updateNote(note.id!, { tags: newTagsString.split(',').map(t => t.trim()).filter(Boolean) });
+      }
+
+      if (linksToAdd) {
+        const newContent = content.trim() ? `${content}\n\nRelated: ${linksToAdd}` : `Related: ${linksToAdd}`;
+        setContent(newContent);
+        await updateNote(note.id!, { content: newContent });
+      }
+      
+    } catch (e: any) {
+      showToast(e.message, 'error');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  const handleAiSummarize = async () => {
+    if (!note || !content.trim()) return;
+    try {
+      setIsAiLoading(true);
+      const systemPrompt = `You are an AI assistant for a personal knowledge graph.
+Please provide a concise summary (TL;DR) of the provided note content. The summary should be a single brief paragraph.
+Return exactly and ONLY the summary text, with no markdown code blocks or conversational filler.`;
+
+      const userPrompt = `Note Content:\n${content}`;
+      const response = await callAI(systemPrompt, userPrompt);
+      
+      const newContent = `> **AI Summary:** ${response.trim()}\n\n${content}`;
+      setContent(newContent);
+      await updateNote(note.id!, { content: newContent });
+    } catch (e: any) {
+      showToast(e.message, 'error');
+    } finally {
+      setIsAiLoading(false);
+    }
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+    setSlashMenuPos(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === '/') {
+      // Basic block emulation using slash menu
+      // Get cursor coordinates (roughly)
+      // Very basic approximation for demo
+      setSlashMenuPos({ top: 40, left: 20 });
+    } else if (e.key === 'Escape') {
+      setSlashMenuPos(null);
+    }
+  };
+
+  const handleSlashCommand = (cmd: string) => {
+    insertText(cmd);
+    setSlashMenuPos(null);
+  };
+
+  // Setup wiki-link clicking and PrismJS syntax highlighting in preview mode
+  useEffect(() => {
+    if (!editMode && previewRef.current) {
+      Prism.highlightAllUnder(previewRef.current);
+      
+      const links = previewRef.current.querySelectorAll('a');
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        // Handle wiki-link triggers or custom clicks
+        if (href && href.startsWith('wiki://')) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetTitle = decodeURIComponent(href.replace('wiki://', ''));
+            if ((e.metaKey || e.ctrlKey || e.altKey) && onSplitRight) {
+              onSplitRight(targetTitle);
+            } else {
+              onJumpToNote(targetTitle);
+            }
+          });
+        }
+      });
+    }
+  }, [editMode, content]);
+
+  // Convert [[Wiki Links]] in markdown content into custom links for rendering
+  const getRenderedContent = () => {
+    if (!content) return '<p style="color: var(--text-secondary); font-style: italic; user-select: none;">No content yet. Write something...</p>';
+    
+    // Replace [[Wiki Note Name]] with a custom link schema <a href="wiki://Wiki%20Note%20Name">Wiki Note Name</a>
+    const processedContent = content.replace(/\[\[(.*?)\]\]/g, (_, p1) => {
+      const cleanTitle = p1.trim();
+      return `[${cleanTitle}](wiki://${encodeURIComponent(cleanTitle)})`;
+    });
+
+    try {
+      // Safely parse and sanitize markdown
+      const rawHtml = marked.parse(processedContent) as string;
+      return DOMPurify.sanitize(rawHtml);
+    } catch (e) {
+      return '<p>Error rendering markdown.</p>';
+    }
+  };
+  if (!note) {
+    return (
+      <div className="editor-placeholder" style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', top: '16px', right: '16px' }}>
+          <button className="icon-button" onClick={onClose} aria-label="Close Sidebar" title="Close Sidebar" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+            <X size={20} />
+          </button>
+        </div>
+        <div className="placeholder-content" style={{ textAlign: 'center', marginBottom: '32px', userSelect: 'none' }}>
+          <Edit3 size={48} className="placeholder-icon" style={{ marginBottom: '16px', opacity: 0.5, margin: '0 auto' }} />
+          <h2>AetherMind Workspace</h2>
+          <p style={{ maxWidth: '300px', margin: '0 auto', marginBottom: '24px' }}>Select a node in the graph, search for a topic, or double-click empty space on the canvas to create a new note.</p>
+          <button 
+            className="primary-btn" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '8px',
+              width: '100%',
+              maxWidth: '220px',
+              margin: '0 auto',
+              padding: '12px 24px',
+              fontSize: '1.05rem',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, var(--node-work), var(--node-personal))',
+              border: 'none',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+            }}
+            onClick={() => {
+              let newTitle = "New Node";
+              let counter = 1;
+              while (allNotes.some(n => n.title.toLowerCase() === newTitle.toLowerCase())) {
+                newTitle = `New Node (${counter})`;
+                counter++;
+              }
+              onJumpToNote(newTitle);
+            }}
+          >
+            <PlusCircle size={20} />
+            Create New Node
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const categoryObj = categories.find(c => c.id === category);
+  const categoryColor = categoryObj ? categoryObj.color : '#818cf8';
+
+  return (
+    <div className="editor-panel glass-panel" id="editor-panel-root">
+      {/* Panel Header */}
+      <div className="editor-header">
+        <div className="category-indicator" style={{ backgroundColor: categoryColor }}></div>
+        <span className="note-status-badge">Note Saved</span>
+        <div className="header-actions">
+          <button 
+            className={`icon-btn ${isWhiteboard ? 'active' : ''}`} 
+            onClick={async () => {
+              const newIsWhiteboard = !isWhiteboard;
+              setIsWhiteboard(newIsWhiteboard);
+              if (note) await updateNote(note.id!, { isExcalidraw: newIsWhiteboard });
+            }}
+            aria-label="Toggle Whiteboard" 
+            title="Toggle Whiteboard Mode"
+          >
+            <PenTool size={18} style={{ color: isWhiteboard ? 'var(--node-amber)' : 'inherit' }} />
+          </button>
+          <button className="icon-btn ai-btn" onClick={handleAiSummarize} disabled={isAiLoading || !content.trim()} aria-label="Summarize with AI" title="Auto-Summarize Note (AI)">
+            <FileText size={18} className={isAiLoading ? 'spin-pulse' : ''} style={{ color: 'var(--node-amber)' }} />
+          </button>
+          <button className="icon-btn ai-btn" onClick={handleAiAutoTag} disabled={isAiLoading} aria-label="Auto-Tag with AI" title="Auto-Tag & Suggest Links (AI)">
+            <Wand2 size={18} className={isAiLoading ? 'spin-pulse' : ''} style={{ color: 'var(--node-amber)' }} />
+          </button>
+          <button className="icon-btn delete-btn" onClick={handleDelete} aria-label="Delete note" title="Delete note">
+            <Trash2 size={18} />
+          </button>
+          <button className="icon-btn close-btn" onClick={onClose} aria-label="Close panel" title="Close panel">
+            <X size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Editor Fields */}
+      <div className="editor-fields">
+        <input
+          type="text"
+          id="editor-note-title"
+          className="note-title-input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          placeholder="Untitled Note"
+        />
+
+        <div className="meta-row">
+          <div className="meta-field">
+            <Folder size={14} className="meta-icon" />
+            <select
+              id="editor-note-category"
+              className="meta-select"
+              value={category}
+              onChange={handleCategoryChange}
+            >
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="meta-field">
+            <ColorPicker
+              color={nodeColor}
+              defaultColor={categoryColor}
+              onChange={handleColorChange}
+              onReset={handleColorReset}
+            />
+          </div>
+
+          <div className="meta-field flex-grow">
+            <Tag size={14} className="meta-icon" />
+            <input
+              type="text"
+              id="editor-note-tags"
+              className="meta-input"
+              value={tagsInput}
+              onChange={handleTagsChange}
+              placeholder="tags (comma separated)"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Edit / Preview Toggle (Only show if NOT whiteboard) */}
+      {!isWhiteboard && (
+        <div className="editor-tabs">
+          <button
+            className={`tab-btn ${editMode ? 'active' : ''}`}
+            onClick={() => setEditMode(true)}
+          >
+            <Edit3 size={14} /> Edit
+          </button>
+          <button
+            className={`tab-btn ${!editMode ? 'active' : ''}`}
+            onClick={() => setEditMode(false)}
+          >
+            <Eye size={14} /> Preview
+          </button>
+        </div>
+      )}
+
+      {/* Main Body Viewport */}
+      <div className="editor-body" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {isWhiteboard ? (
+          <div style={{ flex: 1, position: 'relative', width: '100%', minHeight: '400px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+            <Excalidraw 
+              initialData={content ? JSON.parse(content) : null}
+              onChange={(elements: any, _appState: any, files: any) => {
+                if (note) {
+                  debouncedSaveContent(note.id!, JSON.stringify({ elements, files }));
+                }
+              }}
+              theme="dark"
+            />
+          </div>
+        ) : editMode ? (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button className="icon-btn" onClick={() => insertText('**', '**')} aria-label="Bold" title="Bold"><Bold size={14} /></button>
+              <button className="icon-btn" onClick={() => insertText('_', '_')} aria-label="Italic" title="Italic"><Italic size={14} /></button>
+              <button className="icon-btn" onClick={() => insertText('### ')} aria-label="Heading" title="Heading"><Heading size={14} /></button>
+              <button className="icon-btn" onClick={() => insertText('```\n', '\n```')} aria-label="Code Block" title="Code Block"><Code size={14} /></button>
+              <button className="icon-btn" onClick={() => insertText('[[', ']]')} aria-label="Wiki Link" title="Wiki Link"><LinkIcon size={14} /></button>
+              
+              <button 
+                className="icon-btn" 
+                onClick={() => fileInputRef.current?.click()} 
+                title="Extract Text from Image or PDF"
+                disabled={isOcrLoading}
+              >
+                <UploadCloud size={14} className={isOcrLoading ? 'spin-pulse' : ''} style={{ color: isOcrLoading ? 'var(--node-amber)' : 'inherit' }} />
+              </button>
+              <button 
+                className="icon-btn" 
+                onClick={async () => {
+                  if (isRecording) {
+                    if (mediaRecorderRef.current) {
+                      mediaRecorderRef.current.stop();
+                      setIsRecording(false);
+                    }
+                  } else {
+                    try {
+                      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                      const mediaRecorder = new MediaRecorder(stream);
+                      mediaRecorderRef.current = mediaRecorder;
+                      audioChunksRef.current = [];
+
+                      mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                          audioChunksRef.current.push(e.data);
+                        }
+                      };
+
+                      mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                        setIsTranscribing(true);
+                        try {
+                          const { transcribeAudioBlob } = await import('../utils/speech');
+                          const text = await transcribeAudioBlob(audioBlob);
+                          if (text) {
+                            insertText(text + ' ');
+                          }
+                        } catch (err: any) {
+                          showToast('Transcription error: ' + err.message, 'error');
+                        } finally {
+                          setIsTranscribing(false);
+                        }
+                        stream.getTracks().forEach(track => track.stop());
+                      };
+
+                      mediaRecorder.start();
+                      setIsRecording(true);
+                    } catch (err: any) {
+                      showToast('Microphone error: ' + err.message, 'error');
+                    }
+                  }
+                }} 
+                title={isRecording ? "Stop Recording" : "Record Dictation"}
+                disabled={isTranscribing}
+              >
+                {isTranscribing ? <Loader2 size={14} className="spin-pulse" /> : isRecording ? <MicOff size={14} color="red" /> : <Mic size={14} />}
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                accept="image/*,application/pdf"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setIsOcrLoading(true);
+                  try {
+                    const text = await processFileForOCR(file);
+                    insertText(`\n\n> **Extracted from ${file.name}:**\n${text}\n\n`);
+                  } catch (err: any) {
+                    showToast('OCR Error: ' + err.message, 'error');
+                  } finally {
+                    setIsOcrLoading(false);
+                    e.target.value = '';
+                  }
+                }}
+              />
+
+
+            </div>
+            <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <textarea
+                ref={textareaRef}
+                id="editor-note-body"
+                className="note-textarea"
+                value={content}
+                onChange={handleContentChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your markdown notes here. Use [[Double Brackets]] to link nodes. Type '/' for block commands..."
+                style={{ flex: 1 }}
+              />
+              {slashMenuPos && (
+                <div style={{
+                  position: 'absolute',
+                  top: slashMenuPos.top,
+                  left: slashMenuPos.left,
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  padding: '4px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  zIndex: 100
+                }}>
+                  <div style={{ fontSize: '10px', color: 'var(--text-secondary)', padding: '4px 8px', textTransform: 'uppercase' }}>Blocks</div>
+                  <button className="slash-cmd-btn" onClick={() => handleSlashCommand('### ')} style={{ textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }}>H3 Heading</button>
+                  <button className="slash-cmd-btn" onClick={() => handleSlashCommand('- [ ] ')} style={{ textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }}>Todo List</button>
+                  <button className="slash-cmd-btn" onClick={() => handleSlashCommand('> ')} style={{ textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }}>Quote</button>
+                  <button className="slash-cmd-btn" onClick={() => handleSlashCommand('```\n\n```')} style={{ textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text-primary)', padding: '6px 8px', borderRadius: '4px', cursor: 'pointer' }}>Code Block</button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center' }}>
+              <button 
+                className="icon-btn" 
+                onClick={async () => {
+                  const { speakText, stopSpeaking } = await import('../utils/speech');
+                  if (isPlaying) {
+                    stopSpeaking();
+                    setIsPlaying(false);
+                  } else {
+                    setIsPlaying(true);
+                    speakText(content);
+                  }
+                }} 
+                title={isPlaying ? "Stop Reading" : "Read Aloud"}
+              >
+                {isPlaying ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                <span style={{ fontSize: '12px', marginLeft: '4px' }}>{isPlaying ? "Stop Reading" : "Read Aloud"}</span>
+              </button>
+            </div>
+            <div
+              ref={previewRef}
+              id="editor-note-preview"
+              className="note-preview markdown-body"
+              dangerouslySetInnerHTML={{ __html: getRenderedContent() }}
+              style={{ flex: 1, overflowY: 'auto' }}
+            />
+          </div>
+        )}
+        
+        {note.embedding && allNotes.some(n => n.id !== note.id && n.embedding) && (
+          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Sparkles size={14} style={{ color: 'var(--node-indigo)' }} />
+              <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Related Notes
+              </h4>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {allNotes
+                .filter(n => n.id !== note.id && n.embedding)
+                .map(n => ({ note: n, score: cosineSimilarity(note.embedding!, n.embedding!) }))
+                .filter(({ score }) => score > 0.4)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5)
+                .map(({ note: n, score }) => (
+                  <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: '16px', fontSize: '0.85rem' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--node-indigo)' }}></div>
+                    <span style={{ cursor: 'pointer' }} onClick={() => onJumpToNote(n.title)}>{n.title}</span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginLeft: '2px' }}>{Math.round(score * 100)}%</span>
+                  </div>
+                ))}
+              {allNotes.filter(n => n.id !== note.id && n.embedding).length > 0 &&
+                allNotes.filter(n => n.id !== note.id && n.embedding).map(n => ({ note: n, score: cosineSimilarity(note.embedding!, n.embedding!) })).filter(({ score }) => score > 0.4).length === 0 && (
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No strong semantic matches.</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Connections
+            </h4>
+            <select 
+              className="connect-select"
+              value=""
+              onChange={async (e) => {
+                const targetId = parseInt(e.target.value, 10);
+                if (targetId && note?.id) {
+                  const currentIds = note.linkedNoteIds || [];
+                  if (!currentIds.includes(targetId)) {
+                    await updateNote(note.id, { linkedNoteIds: [...currentIds, targetId] });
+                  }
+                  e.target.value = '';
+                }
+              }}
+              style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer', outline: 'none' }}
+            >
+              <option value="">Add Connection...</option>
+              {allNotes.filter(n => n.id !== note.id && !connectedNodeIds.has(n.id!)).map(n => (
+                <option key={n.id} value={n.id}>{n.title}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {connectedNodeIds.size === 0 ? (
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No connected notes.</span>
+            ) : (
+              Array.from(connectedNodeIds).map(id => {
+                const targetNode = allNotes.find(n => n.id === id);
+                if (!targetNode) return null;
+                return (
+                  <div key={id} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '16px', fontSize: '0.85rem', transition: 'all 0.2s ease' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: `var(--node-${targetNode.category === 'work' ? 'emerald' : targetNode.category === 'ideas' ? 'amber' : 'indigo'})` }}></div>
+                    <span style={{ cursor: 'pointer' }} onClick={() => onJumpToNote(targetNode.title)}>{targetNode.title}</span>
+                    
+                    {onSplitRight && (
+                      <button onClick={(e) => { e.stopPropagation(); onSplitRight(targetNode.title); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, marginLeft: '4px' }} title="Open in split view" aria-label="Open in split view">
+                        <SplitSquareHorizontal size={12} />
+                      </button>
+                    )}
+
+                    <button onClick={async () => {
+                      // Remove outgoing links from this note
+                      const newIds = (note.linkedNoteIds || []).filter(x => x !== id);
+                      // Escape target title for regex
+                      const escapedTargetTitle = targetNode.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                      const regex = new RegExp(`\\[\\[${escapedTargetTitle}\\]\\]`, 'g');
+                      const newContent = content.replace(regex, targetNode.title);
+                      
+                      // Remove incoming links from the target note to this note
+                      const targetIds = targetNode.linkedNoteIds || [];
+                      const isIncomingExplicit = targetIds.includes(note.id!);
+                      const escapedThisTitle = note.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                      const incomingRegex = new RegExp(`\\[\\[${escapedThisTitle}\\]\\]`, 'g');
+                      const isIncomingText = incomingRegex.test(targetNode.content);
+
+                      if (isIncomingExplicit || isIncomingText) {
+                         const newTargetIds = targetIds.filter(x => x !== note.id!);
+                         const newTargetContent = targetNode.content.replace(incomingRegex, note.title);
+                         await updateNote(targetNode.id!, { linkedNoteIds: newTargetIds, content: newTargetContent });
+                      }
+
+                      await updateNote(note.id!, { linkedNoteIds: newIds, content: newContent });
+                      setContent(newContent);
+                    }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }} title="Remove connection">
+                      <X size={12} />
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Note"
+        message={`Are you sure you want to delete "${note?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={executeDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </div>
+  );
+};
