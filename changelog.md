@@ -1,3 +1,12 @@
+# v1.18.0
+- **Responsive Overflow**: Added bounding sizes for sidebars and panels to avoid overflow off the screen.
+
+# v1.17.0
+- **Collapsible Search & Branding**: The search and filter overlay is now collapsible to save screen space, accompanied by fluid slide animations. Replaced default Vite logo with the official AetherMind Brain logo.
+
+# v1.16.0
+- **Responsive UI Overhaul**: Implemented responsive layouts. Components automatically resize and re-flow into a mobile-friendly layout on smaller screens. The sidebar converts into a fluid overlay, and the top navigation wraps dynamically.
+
 # v1.15.1
 - **UI Animation Overhaul**: Added fluid and bouncy CSS @keyframes (using spring-like cubic-beziers and blur filters) to all transition states globally.
 - **Sidebar Transition Fix**: Corrected missing width transitions for the right-sidebar toggle event.
@@ -70,4 +79,3 @@
 - Initial Release: Local-first personal knowledge graph using Dexie.js (IndexedDB).
 - Implemented D3.js Force-Directed Graph simulation for organic note navigation.
 - Basic note creation, editing, tagging, and category color customization.
-

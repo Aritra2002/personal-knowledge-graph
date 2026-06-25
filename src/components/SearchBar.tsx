@@ -9,6 +9,8 @@ interface SearchBarProps {
   setSelectedTags: (tags: string[]) => void;
   notes: Note[];
   categories: Category[];
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
@@ -17,7 +19,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   selectedTags,
   setSelectedTags,
   notes,
-  categories
+  categories,
+  isOpen = true,
+  onClose
 }) => {
   // Extract all unique tags across all notes
   const allTags = React.useMemo(() => {
@@ -46,7 +50,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="search-filter-panel glass-panel" id="search-filter-panel-root">
+    <div className={`search-filter-panel glass-panel ${isOpen ? 'open' : 'closed'}`} id="search-filter-panel-root">
+      {/* Header and Close button */}
+      <div className="search-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ fontWeight: 600, color: 'var(--text-color)', fontSize: '0.9rem' }}>Search & Filter</span>
+        {onClose && (
+          <button className="icon-only-btn" onClick={onClose} aria-label="Close search panel" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
       {/* Search Input */}
       <div className="search-bar-container">
         <Search size={16} className="search-icon" />

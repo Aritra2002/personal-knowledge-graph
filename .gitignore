@@ -125,3 +125,9 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
+
+# Custom ignores
+.vite/
+sync-server/node_modules/
+web-clipper/node_modules/
+

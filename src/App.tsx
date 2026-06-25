@@ -15,9 +15,10 @@ import { RenamePageModal } from './components/RenamePageModal';
 import { ReviewModal } from './components/ReviewModal';
 import { useToast } from './components/ToastContext';
 import { PromptModal } from './components/PromptModal';
-import { Brain, Plus, Settings, MessageSquare, Calendar, Sparkles, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { Brain, Plus, Settings, MessageSquare, Calendar, Sparkles, Edit2, Trash2, Loader2, Search } from 'lucide-react';
 import { initPluginManager } from './utils/pluginManager';
 import { saveSnapshot, loadSnapshot, getSnapshots, restoreSnapshot } from './utils/snapshotManager';
+import { syncManager } from './utils/syncManager';
 
 export default function App() {
   const { showToast } = useToast();
@@ -35,6 +36,7 @@ export default function App() {
   const [showDeletePageConfirm, setShowDeletePageConfirm] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(window.innerWidth > 768);
   const [currentPageId, setCurrentPageId] = useState<number>(1);
   const [sidebarWidth, setSidebarWidth] = useState(420);
   const [physicsConfig, setPhysicsConfig] = useState(() => {
@@ -139,6 +141,8 @@ export default function App() {
   useEffect(() => {
     seedDatabase();
     initPluginManager();
+    syncManager.connect();
+    return () => syncManager.disconnect();
   }, []);
 
   // Command Palette Listener
@@ -363,6 +367,18 @@ export default function App() {
       <main className="app-workspace">
         {/* Left Side: Graph Canvas & Overlay Filters */}
         <div className="left-viewport">
+          {/* Search Toggle Button */}
+          {!isSearchOpen && (
+            <button 
+              className="search-toggle-btn glass-panel" 
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Open search and filters"
+            >
+              <Search size={16} />
+              <span>Search</span>
+            </button>
+          )}
+
           {/* Floating Search Filter overlay */}
           <SearchBar
             searchQuery={searchQuery}
@@ -371,6 +387,8 @@ export default function App() {
             setSelectedTags={setSelectedTags}
             notes={notes}
             categories={categories}
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
           />
 
           {/* D3 Graph Canvas */}
@@ -407,11 +425,10 @@ export default function App() {
         <div 
           className={`right-sidebar ${isSidebarOpen ? 'open' : ''}`}
           style={{ 
-            width: isSidebarOpen ? `${sidebarWidth}px` : '0px', 
-            maxWidth: 'calc(100vw - 16px)',
+            '--sidebar-width': `${sidebarWidth}px`,
             display: 'flex',
             flexDirection: 'row'
-          }}
+          } as React.CSSProperties}
         >
           {isSidebarOpen && (
             <div className="sidebar-resizer" onMouseDown={startResizing} style={{ left: 0 }} />
@@ -424,7 +441,7 @@ export default function App() {
             </button>
           )}
 
-          <div style={{ flex: 1, minWidth: 0, height: '100%' }}>
+          <div style={{ flex: 1, minWidth: 0, minHeight: 0, height: '100%' }}>
             <EditorPanel
               note={activeNote}
               links={links}
@@ -443,7 +460,7 @@ export default function App() {
           </div>
 
           {secondaryNote && (
-            <div style={{ flex: 1, minWidth: 0, height: '100%', borderLeft: '1px solid var(--border-color)' }}>
+            <div style={{ flex: 1, minWidth: 0, minHeight: 0, height: '100%', borderLeft: '1px solid var(--border-color)' }}>
               <EditorPanel
                 note={secondaryNote}
                 links={links}
