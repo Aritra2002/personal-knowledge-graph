@@ -11,7 +11,8 @@ export class SyncManager {
     this.doc = new Y.Doc();
     this.roomName = roomName;
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    this.serverUrl = serverUrl || `ws://${host}:4234`;
+    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    this.serverUrl = serverUrl || `${protocol}//${host}:4234`;
   }
 
   public connect(): void {
