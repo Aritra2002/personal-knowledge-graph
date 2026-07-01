@@ -128,6 +128,11 @@ dist-ssr/
 
 # Custom ignores
 .vite/
-sync-server/node_modules/
-web-clipper/node_modules/
+
+# Backend sync server persistence
+sync-server/data/
+sync-server/.y-leveldb/
+sync-server/*.bin
+sync-server/*.db
+sync-server/*.sqlite
 

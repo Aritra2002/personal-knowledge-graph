@@ -44,8 +44,8 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose }) => {
 
       const userPrompt = `Retrieved Notes:\n<cache>\n${notesContext}\n</cache>\n\nQuestion: ${query}`;
       
-      await callAI(systemPrompt, userPrompt, (chunk) => {
-        setAiResponse(prev => (prev || '') + chunk);
+      await callAI(systemPrompt, userPrompt, (fullText) => {
+        setAiResponse(fullText);
       });
       
     } catch (e: any) {

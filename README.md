@@ -1,71 +1,100 @@
-# AetherMind
+<div align="center">
+  <img src="https://img.shields.io/badge/AetherMind-PKM-8A2BE2?style=for-the-badge&logo=react" alt="AetherMind Logo" />
+  <h1>✨ AetherMind ✨</h1>
+  <p><strong>A Next-Generation, Local-First Personal Knowledge Graph</strong></p>
 
-AetherMind is a Local-First Personal Knowledge Graph that uses CRDTs for seamless synchronization and local AI models for privacy-preserving features.
+  <p>
+    <img src="https://img.shields.io/badge/version-1.19.1-blue.svg?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/React-18-61DAFB.svg?style=flat-square&logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?style=flat-square&logo=typescript" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Vite-Powered-646CFF.svg?style=flat-square&logo=vite" alt="Vite" />
+  </p>
 
-## Features
+  <p>
+    <em>Seamless synchronization, unparalleled privacy, and dynamic AI-powered insights—all living locally on your device.</em>
+  </p>
+</div>
 
-- **Local-First Architecture:** Built on top of `yjs` and `y-websocket` to ensure your data stays on your device and syncs effortlessly.
-- **AI-Powered:** Integrates local AI models via `@xenova/transformers` for capabilities like Text-to-Speech, Voice Dictation, and smart organization.
-- **Graph Visualization:** A rich, interactive node-based graph view of your knowledge base.
-- **Responsive UI:** Fully responsive design that adapts beautifully from desktop monitors down to mobile screens.
-- **Plugin Ecosystem:** Load external JavaScript plugins dynamically to extend functionality.
-- **Markdown & Rich Text:** Full support for standard markdown, bidirectional linking (`[[Note Name]]`), code blocks, and lists.
+---
 
-## Prerequisites
+## 👑 The Vision
 
-- Node.js (v18 or higher recommended)
-- npm or yarn
+**AetherMind** is not just another note-taking app. It is a robust, local-first Personal Knowledge Graph engineered with CRDTs (`yjs`) to ensure your data is always yours. With deep, privacy-preserving AI integrations running directly on your machine or through secure proxies, AetherMind helps you cultivate ideas without compromising security.
 
-## Getting Started
+---
 
-### 1. Setup the Web Application
+## ✨ Premium Features
 
-Navigate to the project root and install the dependencies:
+*   🌍 **Local-First Architecture**: Built on state-of-the-art CRDTs using `yjs` and `y-websocket`. Your data stays on your device and syncs effortlessly without a centralized database.
+*   🧠 **Deep AI Integration**: Harness local AI models via `@xenova/transformers` for capabilities like Voice Dictation, Text-to-Speech, and smart semantic organization.
+*   🛡️ **Advanced AI Proxy Gateway**: Built-in backend proxy effortlessly bypasses strict WAF firewalls (e.g., AgentRouter, OpenRouter) by spoofing authorized client headers, giving you ultimate flexibility between local and cloud LLMs.
+*   🌌 **Interactive Graph Visualization**: Explore the cosmos of your thoughts with a rich, physics-based interactive node graph.
+*   📱 **Adaptive Responsive UI**: A meticulously crafted interface boasting fluid animations, glowing glassmorphism, and seamless mobile-to-desktop responsiveness.
+*   🔌 **Dynamic Plugin Ecosystem**: Dynamically load external JavaScript plugins to effortlessly extend your workspace functionality.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Master Repository Setup
+
+Clone the repository and install the primary frontend dependencies:
 
 ```bash
+git clone https://github.com/your-repo/personal-knowledge-graph.git
+cd personal-knowledge-graph
 npm install
 ```
 
-Start the Vite development server:
+Because AetherMind utilizes a powerful Node.js synchronization engine and AI proxy backend, you must also prepare the server environment:
+
+```bash
+cd sync-server
+npm install
+cd ..
+```
+
+### 2. Ignition
+
+AetherMind leverages `concurrently` to spin up the entire ecosystem simultaneously. No need for multiple terminal tabs!
 
 ```bash
 npm run dev
 ```
 
-### 2. Setup the Sync Server (Optional but recommended for multi-device sync)
+*   🎨 **The Web Application** will ignite on port `5173`.
+*   ⚙️ **The Sync Server & AI Gateway** will automatically mount on port `4234`.
 
-AetherMind comes with a dedicated `y-websocket` synchronization server located in the `sync-server` directory.
+---
 
-Navigate to the sync server directory:
+## ⚙️ Configuration & Architecture
 
-```bash
-cd sync-server
-npm install
-```
-
-Start the sync server:
-
-```bash
-npm start
-```
-The sync server runs on port `1234` by default. 
-
-### Configuration
-
-You can configure AetherMind using environment variables. Copy the `.env.example` file to `.env.local`:
+Customize your environment by copying the configuration template:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Adjust the values (like `VITE_SYNC_SERVER_URL` or `VITE_AI_GATEWAY_URL`) as needed.
+### Connecting to AI Providers
+AetherMind's proxy gateway gives you absolute control over your intelligence layer:
+1.  **Local LLMs:** Connect directly to LM Studio, Ollama, or llama.cpp for total offline privacy.
+2.  **Cloud Providers:** Connect to OpenAI, Anthropic, or AgentRouter. Navigate to the **AI Provider** tab in the Settings menu to configure endpoints and API keys.
 
-## Building for Production
+---
 
-To create a production build of the web application:
+## 🏗️ Building for Production
+
+Compile a highly-optimized, static production bundle ready for deployment anywhere:
 
 ```bash
 npm run build
 ```
+The compiled assets will be generated in the `dist/` directory, primed for deployment on platforms like Vercel, Netlify, or AWS.
 
-This will generate static files in the `dist` directory, which can be deployed to any static hosting service like Vercel, Netlify, or GitHub Pages.
+---
+
+## 🤖 Built by Vibe Coding
+
+> **AetherMind was proudly built by vibe coding with the assistance of [Antigravity AI](https://deepmind.google/technologies/gemini/).**
+
+From deep bug resolution in legacy binary decoders to crafting fluid UI animations and architecting proxy bypass networks, vibe coding empowered the entire development lifecycle, allowing Antigravity to operate as the principal synthetic software engineer and bring this vision to life effortlessly.

@@ -1,3 +1,13 @@
+# v1.19.1
+- **Sync Protocol Fix**: Rewrote the WebSocket client inside `syncManager.ts` to use the official `WebsocketProvider` from `y-websocket`. This fixes the critical `Unexpected end of array` crashes caused by raw Yjs buffers being incorrectly pushed to the backend server.
+- **Node v26 Compatibility**: Hardened the sync server by rolling back `y-websocket` to `v2.0.4` (restoring the `bin/utils` export) while pushing `lib0` to the bleeding-edge latest version to fix binary parser incompatibilities on modern Node versions.
+
+# v1.19.0
+- **AgentRouter WAF Bypass**: Integrated advanced header spoofing (`Originator: codex_cli_rs`, `Roo Code` signatures) into the AI proxy to seamlessly bypass strict client firewalls on third-party AI gateways like AgentRouter and OpenRouter.
+- **AI Summary UI Polish**: Refined the AI Summarize popup by removing redundant close buttons and applying the premium gradient style to the 'Insert into Note' button.
+- **Sync Server Automation**: Integrated `concurrently` so that running `npm run dev` automatically spins up both the Vite frontend and the backend sync server seamlessly, while fixing zombie port process locking.
+- **API URL Normalization**: Hardened URL path handling for custom AI base URLs, eliminating double `/v1/v1` path concatenation errors and gracefully handling missing model endpoints (`404` silencing).
+
 # v1.18.0
 - **Responsive Overflow**: Added bounding sizes for sidebars and panels to avoid overflow off the screen.
 

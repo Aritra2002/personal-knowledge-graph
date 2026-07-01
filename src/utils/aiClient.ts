@@ -29,7 +29,7 @@ export const callAI = async (
   onStream?: (chunk: string) => void
 ): Promise<string> => {
   const config = getAIConfig();
-  if (!config.apiKey) {
+  if (!config.apiKey && config.provider !== 'custom') {
     throw new Error('API Key is missing. Please add it in Settings.');
   }
   // If provider is not custom, baseUrl might be empty but we can fallback. However, for custom, baseUrl is required.
@@ -37,21 +37,39 @@ export const callAI = async (
     throw new Error('Base URL is missing for Custom Provider.');
   }
 
-  // Set default URLs if empty
+  let isCustom = config.provider === 'custom';
+  
+  // Normalize the URL in case the user missed the // (e.g., http:localhost:1234)
   let endpoint = config.baseUrl;
-  if (!endpoint) {
+  if (endpoint && endpoint.startsWith('http:') && !endpoint.startsWith('http://')) {
+    endpoint = endpoint.replace('http:', 'http://');
+  } else if (endpoint && endpoint.startsWith('https:') && !endpoint.startsWith('https://')) {
+    endpoint = endpoint.replace('https:', 'https://');
+  }
+
+  if (!endpoint && !isCustom) {
     switch (config.provider) {
       case 'anthropic': endpoint = 'https://api.anthropic.com/v1/messages'; break;
       case 'deepseek': endpoint = 'https://api.deepseek.com/v1/chat/completions'; break;
       case 'openai': endpoint = 'https://api.openai.com/v1/chat/completions'; break;
       case 'google': endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/' + config.model + ':streamGenerateContent'; break;
       case 'openrouter': endpoint = 'https://openrouter.ai/api/v1/chat/completions'; break;
+      case 'vercel': endpoint = 'https://gateway.ai.vercel.com/v1/chat/completions'; break;
       default: endpoint = 'https://api.openai.com/v1/chat/completions';
     }
-  } else {
+  } else if (endpoint) {
     // Append paths if they just provided the origin
     if (config.provider === 'anthropic' && !endpoint.includes('/v1/messages')) endpoint = endpoint.replace(/\/?$/, '') + '/v1/messages';
-    else if (config.provider !== 'google' && !endpoint.includes('/chat/completions')) endpoint = endpoint.replace(/\/?$/, '') + '/v1/chat/completions';
+    else if (config.provider === 'google' && !endpoint.includes(':streamGenerateContent') && !endpoint.includes('/chat/completions')) {
+      endpoint = endpoint.replace(/\/?$/, '') + '/models/' + (config.model || 'gemini-2.5-flash') + ':streamGenerateContent';
+    }
+    else if (config.provider !== 'google' && !endpoint.includes('/chat/completions')) {
+      if (endpoint.match(/\/v1\/?$/)) {
+        endpoint = endpoint.replace(/\/?$/, '') + '/chat/completions';
+      } else {
+        endpoint = endpoint.replace(/\/?$/, '') + '/v1/chat/completions';
+      }
+    }
   }
 
   let headers: Record<string, string> = {
@@ -60,7 +78,7 @@ export const callAI = async (
   let bodyPayload: any = {};
 
   if (config.provider === 'anthropic') {
-    headers['x-api-key'] = config.apiKey;
+    if (config.apiKey) headers['x-api-key'] = config.apiKey;
     headers['anthropic-version'] = '2023-06-01';
     headers['anthropic-dangerously-allow-browser'] = 'true';
     bodyPayload = {
@@ -71,17 +89,23 @@ export const callAI = async (
       max_tokens: 1024
     };
   } else if (config.provider === 'google') {
-    headers['x-goog-api-key'] = config.apiKey;
+    if (config.apiKey) headers['x-goog-api-key'] = config.apiKey;
     bodyPayload = {
       contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }]
     };
-    // Google uses query param sometimes, but header is cleaner
   } else {
     // Default OpenAI format
-    headers['Authorization'] = `Bearer ${config.apiKey}`;
+    if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
     if (config.provider === 'openrouter') {
       headers['HTTP-Referer'] = window.location.origin;
       headers['X-Title'] = 'AetherMind';
+    }
+    
+    if (isCustom) {
+      headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
+      headers['X-Title'] = 'Roo Code';
+      headers['User-Agent'] = 'Roo-Code';
+      headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
     }
     bodyPayload = {
       model: config.model || 'gpt-4o-mini',
@@ -94,10 +118,26 @@ export const callAI = async (
   }
 
   try {
-    const response = await fetch(endpoint, {
+    let fetchUrl = endpoint;
+    let fetchHeaders = headers;
+    let fetchBody = JSON.stringify(bodyPayload);
+
+    if (isCustom) {
+      // Use the proxy for custom to bypass CORS. Changed port to 4234 to avoid LM Studio collision on 1234.
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      fetchUrl = `http://${host}:4234/api/ai/proxy`;
+      fetchHeaders = { 'Content-Type': 'application/json' };
+      fetchBody = JSON.stringify({
+        url: endpoint,
+        headers,
+        body: bodyPayload
+      });
+    }
+
+    const response = await fetch(fetchUrl, {
       method: 'POST',
-      headers,
-      body: JSON.stringify(bodyPayload)
+      headers: fetchHeaders,
+      body: fetchBody
     });
 
     if (!response.ok) {
@@ -118,12 +158,7 @@ export const callAI = async (
         
         const chunk = decoder.decode(value, { stream: true });
         
-        // Google stream format is a JSON array of objects, or chunked JSON.
-        // It's not SSE by default for REST, but let's handle basic SSE for OpenAI/Anthropic
         if (config.provider === 'google') {
-           // Google REST streaming sends chunks that look like:
-           // "[\n{\n  \"candidates\": [ { \"content\": { \"parts\": [{ \"text\": \"hello\" }] } } ]\n},\n..."
-           // It's quite complex to parse manually without a proper parser, but we'll extract text heuristically.
            const textMatches = chunk.match(/"text":\s*"([^"]*)"/g);
            if (textMatches) {
              for (const match of textMatches) {
@@ -135,7 +170,6 @@ export const callAI = async (
              }
            }
         } else {
-          // SSE Parsing
           const lines = chunk.split('\n');
           for (const line of lines) {
             if (line.startsWith('data: ') && line !== 'data: [DONE]') {
@@ -155,7 +189,6 @@ export const callAI = async (
                   }
                 }
               } catch (e) {
-                // Ignore parse errors for incomplete chunks
               }
             }
           }
@@ -173,3 +206,56 @@ export const callAI = async (
     throw error;
   }
 };
+
+export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ id: string; name?: string }[]> {
+  try {
+    let base = baseUrl.replace(/\/+$/, "");
+    if (base && base.startsWith('http:') && !base.startsWith('http://')) base = base.replace('http:', 'http://');
+    else if (base && base.startsWith('https:') && !base.startsWith('https://')) base = base.replace('https:', 'https://');
+    
+    // Strip common suffixes so we can append /models correctly
+    base = base.replace(/\/chat\/completions$/, '');
+    base = base.replace(/\/v1$/, '');
+
+    const modelsUrl = `${base}/v1/models`;
+    const headers: Record<string, string> = {};
+    if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+    
+    // Spoof headers for custom provider (e.g. AgentRouter)
+    headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
+    headers['X-Title'] = 'Roo Code';
+    headers['User-Agent'] = 'Roo-Code';
+    headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const response = await fetch(`http://${host}:4234/api/ai/proxy/get`, { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url: modelsUrl, headers })
+    });
+
+    if (response.status === 404) {
+      // Many proxy providers don't implement /v1/models
+      return [];
+    }
+    
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      throw new Error(`AI API Error (${response.status}): ${JSON.stringify(err)}`);
+    }
+
+    const data = await response.json();
+    if (data.data && Array.isArray(data.data)) {
+      return data.data.map((m: { id: string; name?: string }) => ({
+        id: m.id,
+        name: m.name,
+      }));
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+

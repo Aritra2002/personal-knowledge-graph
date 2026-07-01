@@ -227,6 +227,8 @@ Current Note Content: ${content}`;
     }
   };
 
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+
   const handleAiSummarize = async () => {
     if (!note || !content.trim()) return;
     try {
@@ -238,18 +240,13 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
       const userPrompt = `Note Content:\n${content}`;
       const response = await callAI(systemPrompt, userPrompt);
       
-      const newContent = `> **AI Summary:** ${response.trim()}\n\n${content}`;
-      setContent(newContent);
-      await updateNote(note.id!, { content: newContent });
+      setAiSummary(response.trim());
     } catch (e: any) {
       showToast(e.message, 'error');
     } finally {
       setIsAiLoading(false);
+      setSlashMenuPos(null);
     }
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-    setSlashMenuPos(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -758,6 +755,65 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
         onConfirm={executeDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
+      {aiSummary !== null && (
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="glass-panel" style={{
+            background: 'var(--bg-secondary)',
+            padding: '24px',
+            borderRadius: '12px',
+            width: '80%',
+            maxWidth: '500px',
+            position: 'relative',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+          }}>
+            <button className="icon-btn close-btn" onClick={() => setAiSummary(null)} style={{ position: 'absolute', top: '16px', right: '16px' }}>
+              <X size={18} />
+            </button>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={20} style={{ color: 'var(--node-amber)' }} />
+              AI Summary
+            </h3>
+            <div style={{ lineHeight: '1.6', color: 'var(--text-primary)', marginBottom: '24px', maxHeight: '400px', overflowY: 'auto' }}>
+              {aiSummary}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+              <button className="primary-btn" onClick={() => {
+                const newContent = `> **AI Summary:** ${aiSummary}\n\n${content}`;
+                setContent(newContent);
+                if (note) updateNote(note.id!, { content: newContent });
+                setAiSummary(null);
+              }} style={{
+                width: '100%',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontWeight: '600',
+                fontSize: '1rem',
+                background: 'linear-gradient(135deg, var(--node-indigo), var(--node-emerald))',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                transition: 'transform 0.2s, box-shadow 0.2s'
+              }}>
+                <Sparkles size={18} />
+                Insert into Note
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

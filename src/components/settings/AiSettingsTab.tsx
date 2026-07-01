@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { getAIConfig, setAIConfig } from '../../utils/aiClient';
+import { getAIConfig, setAIConfig, detectModels } from '../../utils/aiClient';
 import type { AIConfig } from '../../utils/aiClient';
 
 export const AiSettingsTab: React.FC = () => {
   const [aiConfig, setLocalAIConfig] = useState<AIConfig>({ provider: 'openai', baseUrl: '', apiKey: '', model: '' });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
+  const [availableModels, setAvailableModels] = useState<{id: string; name?: string}[]>([]);
+  const [isDetecting, setIsDetecting] = useState(false);
 
   useEffect(() => {
     setLocalAIConfig(getAIConfig());
@@ -16,6 +18,22 @@ export const AiSettingsTab: React.FC = () => {
     setAIConfig(newConfig);
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 2000);
+  };
+
+  const handleDetectModels = async () => {
+    if (!aiConfig.baseUrl) return;
+    setIsDetecting(true);
+    try {
+      const models = await detectModels(aiConfig.baseUrl, aiConfig.apiKey);
+      setAvailableModels(models);
+      if (models.length > 0 && !aiConfig.model) {
+        handleAiConfigChange('model', models[0].id);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDetecting(false);
+    }
   };
 
   return (
@@ -100,14 +118,42 @@ export const AiSettingsTab: React.FC = () => {
 
         {['custom', 'vercel'].includes(aiConfig.provider) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Model Name</label>
-            <input
-              type="text"
-              value={aiConfig.model || ''}
-              onChange={(e) => handleAiConfigChange('model', e.target.value)}
-              placeholder={aiConfig.provider === 'vercel' ? 'e.g. openai:gpt-4o' : 'e.g. custom-model-name'}
-              style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
-            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Model Name</label>
+              {aiConfig.provider === 'custom' && (
+                <button 
+                  onClick={handleDetectModels}
+                  disabled={isDetecting || !aiConfig.baseUrl}
+                  style={{
+                    background: 'none', border: 'none', color: '#8b5cf6', fontSize: '0.8rem', cursor: 'pointer', padding: 0
+                  }}
+                >
+                  {isDetecting ? 'Detecting...' : 'Detect Models'}
+                </button>
+              )}
+            </div>
+            
+            {aiConfig.provider === 'custom' && availableModels.length > 0 ? (
+              <select
+                value={aiConfig.model || ''}
+                onChange={(e) => handleAiConfigChange('model', e.target.value)}
+                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
+              >
+                {availableModels.map(m => (
+                  <option key={m.id} value={m.id} style={{ background: '#111827' }}>
+                    {m.name || m.id}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={aiConfig.model || ''}
+                onChange={(e) => handleAiConfigChange('model', e.target.value)}
+                placeholder={aiConfig.provider === 'vercel' ? 'e.g. openai:gpt-4o' : 'e.g. custom-model-name'}
+                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
+              />
+            )}
           </div>
         )}
       </div>
