@@ -1,3 +1,8 @@
+# v1.19.3
+- **GitHub Pages Compatibility**: Added intelligent fallback logic to the AI Proxy and Sync features. Because GitHub Pages is static and cannot host the Node.js backend, the app now gracefully intercepts those connection attempts instead of timing out, displaying a clear alert to the user.
+- **Sync Fallback**: Automatically redirects to a public demo server (`wss://demos.yjs.dev/aethermind`) when hosted on `github.io` so that basic syncing operations continue to work without a custom backend.
+- **AgentRouter Authentication**: Improved error handling for 401 Unauthorized API responses. An explicit alert popup now alerts the user to supply a valid API key instead of silently failing in the console.
+
 # v1.19.2
 - **Mixed Content Security Fix**: Implemented dynamic protocol resolution for both the `y-websocket` client (`syncManager.ts`) and the AI Proxy (`aiClient.ts`). The app now gracefully upgrades `ws://` to `wss://` and `http://` to `https://` when loaded in a secure context (like GitHub Pages), preventing hard browser security crashes.
 
