@@ -4,7 +4,7 @@
   <p><strong>A Next-Generation, Local-First Personal Knowledge Graph</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/version-1.19.1-blue.svg?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/version-1.20.0-blue.svg?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/React-18-61DAFB.svg?style=flat-square&logo=react" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?style=flat-square&logo=typescript" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Vite-Powered-646CFF.svg?style=flat-square&logo=vite" alt="Vite" />
@@ -46,24 +46,15 @@ cd personal-knowledge-graph
 npm install
 ```
 
-Because AetherMind utilizes a powerful Node.js synchronization engine and AI proxy backend, you must also prepare the server environment:
-
-```bash
-cd sync-server
-npm install
-cd ..
-```
-
 ### 2. Ignition
 
-AetherMind leverages `concurrently` to spin up the entire ecosystem simultaneously. No need for multiple terminal tabs!
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-*   🎨 **The Web Application** will ignite on port `5173`.
-*   ⚙️ **The Sync Server & AI Gateway** will automatically mount on port `4234`.
+*   🚀 **The Web Application** will ignite on port `5173`.
 
 ---
 
