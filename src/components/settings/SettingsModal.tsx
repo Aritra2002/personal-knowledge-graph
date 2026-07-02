@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { X, Database, Brain, Wifi, Puzzle, Info, Calendar as CalendarIcon } from 'lucide-react';
+import { X, Database, Brain, Puzzle, Info, Calendar as CalendarIcon } from 'lucide-react';
 import packageJson from '../../../package.json';
 import { DataSettingsTab } from './DataSettingsTab';
 import { AiSettingsTab } from './AiSettingsTab';
-import { SyncSettingsTab } from './SyncSettingsTab';
 import { PluginSettingsTab } from './PluginSettingsTab';
 import { JournalCalendar } from '../JournalCalendar';
 import type { Category } from '../../db';
@@ -20,7 +19,7 @@ interface SettingsModalProps {
   onViewSnapshots?: () => void;
 }
 
-type TabType = 'data' | 'journal' | 'sync' | 'ai' | 'plugins' | 'about';
+type TabType = 'data' | 'journal' | 'ai' | 'plugins' | 'about';
 
 export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [activeTab, setActiveTab] = useState<TabType>('data');
@@ -42,9 +41,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             </button>
             <button className={`tab-btn ${activeTab === 'journal' ? 'active' : ''}`} onClick={() => setActiveTab('journal')} style={{ width: '100%', justifyContent: 'flex-start' }}>
               <CalendarIcon size={16} /> Journal
-            </button>
-            <button className={`tab-btn ${activeTab === 'sync' ? 'active' : ''}`} onClick={() => setActiveTab('sync')} style={{ width: '100%', justifyContent: 'flex-start' }}>
-              <Wifi size={16} /> Sync Server
             </button>
             <button className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`} onClick={() => setActiveTab('ai')} style={{ width: '100%', justifyContent: 'flex-start' }}>
               <Brain size={16} /> AI Integration
@@ -68,7 +64,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           <div style={{ flex: 1, padding: '24px 24px 24px 32px', overflowY: 'auto' }}>
             {activeTab === 'data' && <DataSettingsTab {...props} />}
             {activeTab === 'journal' && <JournalCalendar />}
-            {activeTab === 'sync' && <SyncSettingsTab />}
             {activeTab === 'ai' && <AiSettingsTab />}
             {activeTab === 'plugins' && <PluginSettingsTab />}
             {activeTab === 'about' && (

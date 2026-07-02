@@ -1,3 +1,9 @@
+# v1.20.0
+- **Local-First Architecture**: Completely removed the experimental Node.js sync server (`yjs` & `y-webrtc`) in favor of a purely offline, local-first architecture for improved privacy and reduced bundle size.
+- **Smart AI CORS Handling**: Fixed a critical CORS preflight issue where custom proxy headers (`Originator`, `User-Agent`) were incorrectly sent to direct browser endpoints. The AI Client now intelligently applies spoof headers only when communicating via the proxy URL or specifically to AgentRouter.
+- **Universal Model Configuration**: Unlocked the Model name input field and "Detect Models" button for all AI providers (OpenAI, DeepSeek, Anthropic, Google). Users can now directly specify or detect fine-tuned model IDs across any platform.
+- **UI Animations**: Added smooth CSS transitions to the search overlay toggle button.
+
 # v1.19.4
 - **Offline Mode Fix**: The public Yjs demo server fallback (`wss://demos.yjs.dev`) was rejecting connections on GitHub Pages. The app now detects GitHub Pages and gracefully falls back to *Offline/Single-Player Mode* instead of repeatedly failing to connect to a WebSocket.
 

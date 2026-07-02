@@ -18,7 +18,6 @@ import { PromptModal } from './components/PromptModal';
 import { Brain, Plus, Settings, MessageSquare, Calendar, Sparkles, Edit2, Trash2, Loader2, Search } from 'lucide-react';
 import { initPluginManager } from './utils/pluginManager';
 import { saveSnapshot, loadSnapshot, getSnapshots, restoreSnapshot } from './utils/snapshotManager';
-import { syncManager } from './utils/syncManager';
 
 export default function App() {
   const { showToast } = useToast();
@@ -141,8 +140,6 @@ export default function App() {
   useEffect(() => {
     seedDatabase();
     initPluginManager();
-    syncManager.connect();
-    return () => syncManager.disconnect();
   }, []);
 
   // Command Palette Listener
@@ -368,16 +365,14 @@ export default function App() {
         {/* Left Side: Graph Canvas & Overlay Filters */}
         <div className="left-viewport">
           {/* Search Toggle Button */}
-          {!isSearchOpen && (
-            <button 
-              className="search-toggle-btn glass-panel" 
-              onClick={() => setIsSearchOpen(true)}
-              aria-label="Open search and filters"
-            >
-              <Search size={16} />
-              <span>Search</span>
-            </button>
-          )}
+          <button 
+            className={`search-toggle-btn glass-panel ${isSearchOpen ? 'hidden' : ''}`}
+            onClick={() => setIsSearchOpen(true)}
+            aria-label="Open search and filters"
+          >
+            <Search size={16} />
+            <span>Search</span>
+          </button>
 
           {/* Floating Search Filter overlay */}
           <SearchBar

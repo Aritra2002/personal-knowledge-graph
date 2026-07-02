@@ -1,7 +1,7 @@
 {
   "name": "personal-knowledge-graph",
   "private": true,
-  "version": "1.19.4",
+  "version": "1.20.0",
   "homepage": "https://aritra2002.github.io/personal-knowledge-graph",
   "type": "module",
   "scripts": {
@@ -26,10 +26,7 @@
     "prismjs": "^1.30.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "tesseract.js": "^7.0.0",
-    "y-webrtc": "^10.3.0",
-    "y-websocket": "^3.0.0",
-    "yjs": "^13.6.31"
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

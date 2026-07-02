@@ -297,8 +297,14 @@ body {
   font-weight: 500;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  transition: all 0.2s;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s;
   animation: fadeIn 0.3s ease-out;
+}
+
+.search-toggle-btn.hidden {
+  transform: translateX(-20px);
+  opacity: 0;
+  visibility: hidden;
 }
 
 .search-toggle-btn:hover {

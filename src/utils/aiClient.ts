@@ -5,6 +5,7 @@ export interface AIConfig {
   baseUrl: string;
   apiKey: string;
   model: string;
+  proxyUrl?: string;
 }
 
 export const getAIConfig = (): AIConfig => {
@@ -102,10 +103,15 @@ export const callAI = async (
     }
     
     if (isCustom) {
-      headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
-      headers['X-Title'] = 'Roo Code';
-      headers['User-Agent'] = 'Roo-Code';
-      headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+      if (config.proxyUrl || config.baseUrl.includes('agentrouter')) {
+        headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
+        headers['X-Title'] = 'Roo Code';
+        headers['User-Agent'] = 'Roo-Code';
+        headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+      } else {
+        headers['HTTP-Referer'] = window.location.origin;
+        headers['X-Title'] = 'AetherMind';
+      }
     }
     bodyPayload = {
       model: config.model || 'gpt-4o-mini',
@@ -122,16 +128,11 @@ export const callAI = async (
     let fetchHeaders = headers;
     let fetchBody = JSON.stringify(bodyPayload);
 
-    if (isCustom) {
-      // Use the proxy for custom to bypass CORS. Changed port to 4234 to avoid LM Studio collision on 1234.
-      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https:' : 'http:';
+    if (isCustom && config.proxyUrl) {
+      // Use the provided proxy URL. If empty, it bypasses the proxy and fetches directly.
+      const baseProxyUrl = config.proxyUrl.replace(/\/+$/, "");
       
-      if (host.includes('github.io')) {
-        throw new Error("The built-in AI Proxy backend cannot run on GitHub Pages static hosting. Please run the app locally using 'npm run dev' to use custom cloud proxy features, or deploy the sync-server to a Node.js host.");
-      }
-
-      fetchUrl = `${protocol}//${host}:4234/api/ai/proxy`;
+      fetchUrl = `${baseProxyUrl}/api/ai/proxy`;
       fetchHeaders = { 'Content-Type': 'application/json' };
       fetchBody = JSON.stringify({
         url: endpoint,
@@ -230,26 +231,45 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
     const headers: Record<string, string> = {};
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
     
-    // Spoof headers for custom provider (e.g. AgentRouter)
-    headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
-    headers['X-Title'] = 'Roo Code';
-    headers['User-Agent'] = 'Roo-Code';
-    headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+    // To support detectModels from the UI, retrieve proxyUrl from LocalStorage
+    let proxyUrl = '';
+    try {
+      const stored = localStorage.getItem('aethermind_ai_config');
+      if (stored) {
+        proxyUrl = JSON.parse(stored).proxyUrl || '';
+      }
+    } catch (e) {}
 
-    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https:' : 'http:';
-    
-    if (host.includes('github.io')) {
-      throw new Error("The built-in AI Proxy backend cannot run on GitHub Pages static hosting. Please run the app locally using 'npm run dev' to use custom cloud proxy features, or deploy the sync-server to a Node.js host.");
+    if (proxyUrl || base.includes('agentrouter')) {
+      // Spoof headers for custom provider (e.g. AgentRouter)
+      headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
+      headers['X-Title'] = 'Roo Code';
+      headers['User-Agent'] = 'Roo-Code';
+      headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+    } else {
+      headers['HTTP-Referer'] = window.location.origin;
+      headers['X-Title'] = 'AetherMind';
     }
 
-    const response = await fetch(`${protocol}//${host}:4234/api/ai/proxy/get`, { 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ url: modelsUrl, headers })
-    });
+    let fetchPromise;
+    if (proxyUrl) {
+      const baseProxyUrl = proxyUrl.replace(/\/+$/, "");
+      fetchPromise = fetch(`${baseProxyUrl}/api/ai/proxy/get`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url: modelsUrl, headers })
+      });
+    } else {
+      // If no proxyUrl, fetch directly
+      fetchPromise = fetch(modelsUrl, {
+        method: 'GET',
+        headers
+      });
+    }
+
+    const response = await fetchPromise;
 
     if (response.status === 404) {
       // Many proxy providers don't implement /v1/models
