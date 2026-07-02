@@ -1,3 +1,6 @@
+# v1.19.2
+- **Mixed Content Security Fix**: Implemented dynamic protocol resolution for both the `y-websocket` client (`syncManager.ts`) and the AI Proxy (`aiClient.ts`). The app now gracefully upgrades `ws://` to `wss://` and `http://` to `https://` when loaded in a secure context (like GitHub Pages), preventing hard browser security crashes.
+
 # v1.19.1
 - **Sync Protocol Fix**: Rewrote the WebSocket client inside `syncManager.ts` to use the official `WebsocketProvider` from `y-websocket`. This fixes the critical `Unexpected end of array` crashes caused by raw Yjs buffers being incorrectly pushed to the backend server.
 - **Node v26 Compatibility**: Hardened the sync server by rolling back `y-websocket` to `v2.0.4` (restoring the `bin/utils` export) while pushing `lib0` to the bleeding-edge latest version to fix binary parser incompatibilities on modern Node versions.
