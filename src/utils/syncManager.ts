@@ -15,13 +15,18 @@ export class SyncManager {
     
     const isGithubPages = host.includes('github.io');
     const defaultServerUrl = isGithubPages 
-      ? 'wss://demos.yjs.dev/aethermind' // Public Yjs server for GitHub Pages fallback
+      ? '' // No default server for GitHub Pages - run in offline/single-player mode
       : `${protocol}//${host}:4234`;
 
     this.serverUrl = serverUrl || (import.meta.env && import.meta.env.VITE_SYNC_SERVER_URL) || defaultServerUrl;
   }
 
   public connect(): void {
+    if (!this.serverUrl) {
+      console.log('No sync server configured. Running in offline/single-player mode.');
+      return;
+    }
+    
     if (!this.provider) {
       this.provider = new WebsocketProvider(this.serverUrl, this.roomName, this.doc);
       this.provider.on('status', (event: any) => {

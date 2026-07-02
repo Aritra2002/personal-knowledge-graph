@@ -1,3 +1,6 @@
+# v1.19.4
+- **Offline Mode Fix**: The public Yjs demo server fallback (`wss://demos.yjs.dev`) was rejecting connections on GitHub Pages. The app now detects GitHub Pages and gracefully falls back to *Offline/Single-Player Mode* instead of repeatedly failing to connect to a WebSocket.
+
 # v1.19.3
 - **GitHub Pages Compatibility**: Added intelligent fallback logic to the AI Proxy and Sync features. Because GitHub Pages is static and cannot host the Node.js backend, the app now gracefully intercepts those connection attempts instead of timing out, displaying a clear alert to the user.
 - **Sync Fallback**: Automatically redirects to a public demo server (`wss://demos.yjs.dev/aethermind`) when hosted on `github.io` so that basic syncing operations continue to work without a custom backend.
