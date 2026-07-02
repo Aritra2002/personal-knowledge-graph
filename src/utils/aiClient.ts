@@ -125,7 +125,8 @@ export const callAI = async (
     if (isCustom) {
       // Use the proxy for custom to bypass CORS. Changed port to 4234 to avoid LM Studio collision on 1234.
       const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      fetchUrl = `http://${host}:4234/api/ai/proxy`;
+      const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https:' : 'http:';
+      fetchUrl = `${protocol}//${host}:4234/api/ai/proxy`;
       fetchHeaders = { 'Content-Type': 'application/json' };
       fetchBody = JSON.stringify({
         url: endpoint,
@@ -228,7 +229,8 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
     headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
 
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-    const response = await fetch(`http://${host}:4234/api/ai/proxy/get`, { 
+    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https:' : 'http:';
+    const response = await fetch(`${protocol}//${host}:4234/api/ai/proxy/get`, { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
