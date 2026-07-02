@@ -29,8 +29,9 @@ export const AiSettingsTab: React.FC = () => {
       if (models.length > 0 && !aiConfig.model) {
         handleAiConfigChange('model', models[0].id);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      alert(e.message || "Failed to detect models. Please check your API key and Base URL.");
     } finally {
       setIsDetecting(false);
     }

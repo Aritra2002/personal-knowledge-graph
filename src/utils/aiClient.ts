@@ -126,6 +126,11 @@ export const callAI = async (
       // Use the proxy for custom to bypass CORS. Changed port to 4234 to avoid LM Studio collision on 1234.
       const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
       const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https:' : 'http:';
+      
+      if (host.includes('github.io')) {
+        throw new Error("The built-in AI Proxy backend cannot run on GitHub Pages static hosting. Please run the app locally using 'npm run dev' to use custom cloud proxy features, or deploy the sync-server to a Node.js host.");
+      }
+
       fetchUrl = `${protocol}//${host}:4234/api/ai/proxy`;
       fetchHeaders = { 'Content-Type': 'application/json' };
       fetchBody = JSON.stringify({
@@ -142,6 +147,9 @@ export const callAI = async (
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Authentication failed (401 Unauthorized). Please ensure you have provided a valid API Key in the settings.");
+      }
       const errorText = await response.text();
       throw new Error(`AI API Error (${response.status}): ${errorText}`);
     }
@@ -230,6 +238,11 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
 
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https:' : 'http:';
+    
+    if (host.includes('github.io')) {
+      throw new Error("The built-in AI Proxy backend cannot run on GitHub Pages static hosting. Please run the app locally using 'npm run dev' to use custom cloud proxy features, or deploy the sync-server to a Node.js host.");
+    }
+
     const response = await fetch(`${protocol}//${host}:4234/api/ai/proxy/get`, { 
       method: 'POST',
       headers: {
@@ -244,6 +257,9 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
     }
     
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Authentication failed (401 Unauthorized). Please ensure you have provided a valid API Key in the settings.");
+      }
       const err = await response.json().catch(() => null);
       throw new Error(`AI API Error (${response.status}): ${JSON.stringify(err)}`);
     }

@@ -12,7 +12,13 @@ export class SyncManager {
     this.roomName = roomName;
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    this.serverUrl = serverUrl || `${protocol}//${host}:4234`;
+    
+    const isGithubPages = host.includes('github.io');
+    const defaultServerUrl = isGithubPages 
+      ? 'wss://demos.yjs.dev/aethermind' // Public Yjs server for GitHub Pages fallback
+      : `${protocol}//${host}:4234`;
+
+    this.serverUrl = serverUrl || (import.meta.env && import.meta.env.VITE_SYNC_SERVER_URL) || defaultServerUrl;
   }
 
   public connect(): void {
