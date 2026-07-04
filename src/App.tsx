@@ -17,6 +17,8 @@ import { useToast } from './components/ToastContext';
 import { PromptModal } from './components/PromptModal';
 import { MobileNav } from './components/MobileNav';
 import { NoteMiniCard } from './components/NoteMiniCard';
+import { DiscoveryDigestModal } from './components/DiscoveryDigestModal';
+import { VoiceRecorder } from './components/VoiceRecorder';
 import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Search, Menu } from 'lucide-react';
 
 function useViewport() {
@@ -52,6 +54,7 @@ export default function App() {
   const [showRenamePage, setShowRenamePage] = useState(false);
   const [showDeletePageConfirm, setShowDeletePageConfirm] = useState(false);
   const [showReview, setShowReview] = useState(false);
+  const [showDiscoveryDigest, setShowDiscoveryDigest] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const viewport = useViewport();
   const isDesktop = viewport === 'lg';
@@ -165,6 +168,16 @@ export default function App() {
   useEffect(() => {
     seedDatabase();
     initPluginManager();
+    
+    // Epic 3: Daily Digest Check
+    const lastDigestDate = localStorage.getItem('lastDigestDate');
+    const today = new Date().toISOString().split('T')[0];
+    if (lastDigestDate !== today) {
+      setTimeout(() => {
+        setShowDiscoveryDigest(true);
+        localStorage.setItem('lastDigestDate', today);
+      }, 1000);
+    }
   }, []);
 
   // Command Palette Listener
@@ -392,6 +405,7 @@ export default function App() {
               <button className="header-btn icon-only-btn" onClick={handleCreateDailyNote} title="Daily Note">
                 <Calendar size={16} />
               </button>
+              <VoiceRecorder pageId={currentPageId} onNoteCreated={(id) => handleSelectNote({ id })} />
               <button className="header-btn icon-only-btn primary-btn" onClick={() => setShowNewPage(true)} title="New Page">
                 <Plus size={16} />
               </button>
@@ -434,6 +448,7 @@ export default function App() {
               <button className="header-btn" onClick={handleCreateDailyNote}>
                 <Calendar size={16} /> Daily Note
               </button>
+              <VoiceRecorder pageId={currentPageId} onNoteCreated={(id) => handleSelectNote({ id })} />
               <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)}>
                 <Plus size={16} /> New Page
               </button>
@@ -608,6 +623,7 @@ export default function App() {
 
       {viewport === 'sm' && (
         <MobileNav 
+          pageId={currentPageId}
           activeTab={isSidebarOpen ? 'editor' : (isSearchOpen ? 'search' : (showMobileMenu ? 'menu' : 'graph'))}
           onTabChange={(tab) => {
             switch (tab) {
@@ -716,6 +732,13 @@ export default function App() {
           isDestructive
           onConfirm={confirmDeletePage}
           onCancel={() => setShowDeletePageConfirm(false)}
+        />
+      )}
+      {showDiscoveryDigest && (
+        <DiscoveryDigestModal 
+          isOpen={showDiscoveryDigest} 
+          onClose={() => setShowDiscoveryDigest(false)} 
+          notes={notes} 
         />
       )}
       {promptConfig && (

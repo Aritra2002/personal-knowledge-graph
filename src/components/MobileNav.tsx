@@ -1,12 +1,14 @@
 import React from 'react';
 import { Network, FileText, Search, Menu } from 'lucide-react';
+import { VoiceRecorder } from './VoiceRecorder';
 
 interface MobileNavProps {
+  pageId: number;
   activeTab: 'graph' | 'editor' | 'search' | 'menu';
   onTabChange: (tab: 'graph' | 'editor' | 'search' | 'menu') => void;
 }
 
-export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) => {
+export const MobileNav: React.FC<MobileNavProps> = ({ pageId, activeTab, onTabChange }) => {
   return (
     <div className="mobile-nav" style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, 
@@ -39,6 +41,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange }) 
         <Search size={20} style={{ transform: activeTab === 'search' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }} />
         <span style={{ fontSize: '10px' }}>Search</span>
       </button>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', transform: 'translateY(-10px)' }}>
+        <VoiceRecorder pageId={pageId} />
+      </div>
+
       <button 
         style={{ background: 'none', border: 'none', color: activeTab === 'menu' ? 'var(--accent-primary, #7c3aed)' : 'var(--text-secondary, #9ca3af)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
         onClick={() => onTabChange('menu')}

@@ -40,6 +40,7 @@ export interface Link {
   id?: number;
   sourceId: number;
   targetId: number;
+  explanation?: string;
 }
 
 export interface Category {
@@ -97,6 +98,11 @@ export class AetherMindDB extends Dexie {
     // Version 5: Graph Snapshots
     this.version(5).stores({
       snapshots: '++id, timestamp, pageId'
+    });
+
+    // Version 6: Link Explanations
+    this.version(6).stores({
+      links: '++id, sourceId, targetId, [sourceId+targetId], explanation'
     });
   }
 }

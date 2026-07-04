@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import type { Note, Link, Category } from '../db';
+import { db, type Note, type Link, type Category } from '../db';
 import { updateNote } from '../db/helpers';
 import { HelpCircle, PanelLeft, Download } from 'lucide-react';
 import { cosineSimilarity } from '../utils/vectorSearch';
+import { callAI } from '../utils/aiClient';
 
 interface GraphCanvasProps {
   notes: Note[];
@@ -54,6 +55,14 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   const [transform, setTransform] = useState(d3.zoomIdentity);
   const [showHelp, setShowHelp] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    loading: boolean;
+    text: string;
+    linkId?: number;
+  }>({ visible: false, x: 0, y: 0, loading: false, text: '' });
 
   const handleExport = async (format: 'svg' | 'png') => {
     setShowExportMenu(false);
@@ -437,9 +446,9 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     };
   }, [dimensions, transform, activeNote, searchQuery, selectedTags, dateRange, categories]);
 
-  const stateRef = useRef({ transform, notes, activeNote, onCreateNote, onSelectNote });
+  const stateRef = useRef({ transform, notes, links, activeNote, onCreateNote, onSelectNote });
   useEffect(() => {
-    stateRef.current = { transform, notes, activeNote, onCreateNote, onSelectNote };
+    stateRef.current = { transform, notes, links, activeNote, onCreateNote, onSelectNote };
   });
 
   // Bind D3 Drag, Zoom, and Clicks
@@ -526,6 +535,106 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         const clickY = event.clientY - rect.top;
         const isTouch = event.pointerType === 'touch';
         handlePointerClick(clickX, clickY, isTouch);
+      }
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.buttons > 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = event.clientX - rect.left;
+      const clientY = event.clientY - rect.top;
+
+      const currentTransform = d3.zoomTransform(canvas);
+      const simX = (clientX - currentTransform.x) / currentTransform.k;
+      const simY = (clientY - currentTransform.y) / currentTransform.k;
+
+      const isOverNode = nodesRef.current.some(node => {
+        if (node.x === undefined || node.y === undefined) return false;
+        const dx = node.x - simX;
+        const dy = node.y - simY;
+        return Math.sqrt(dx * dx + dy * dy) < node.radius + 5;
+      });
+
+      if (isOverNode) {
+        setTooltip(prev => prev.visible ? { ...prev, visible: false, linkId: undefined } : prev);
+        return;
+      }
+
+      const sim = simulationRef.current;
+      if (!sim) return;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      const currentLinks = linkForce ? (linkForce.links() as { id: number, source: SimNode; target: SimNode }[]) : [];
+
+      let closestLink: { id: number, source: SimNode; target: SimNode } | null = null;
+      let minDistance = 10 / currentTransform.k;
+
+      for (const link of currentLinks) {
+        if (link.source.x === undefined || link.source.y === undefined || link.target.x === undefined || link.target.y === undefined) continue;
+        
+        const A = simX - link.source.x;
+        const B = simY - link.source.y;
+        const C = link.target.x - link.source.x;
+        const D = link.target.y - link.source.y;
+        const dot = A * C + B * D;
+        const len_sq = C * C + D * D;
+        let param = -1;
+        if (len_sq !== 0) param = dot / len_sq;
+        let xx, yy;
+        if (param < 0) {
+          xx = link.source.x;
+          yy = link.source.y;
+        } else if (param > 1) {
+          xx = link.target.x;
+          yy = link.target.y;
+        } else {
+          xx = link.source.x + param * C;
+          yy = link.source.y + param * D;
+        }
+        const dx = simX - xx;
+        const dy = simY - yy;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestLink = link;
+        }
+      }
+
+      if (closestLink) {
+        setTooltip(prev => {
+          if (prev.visible && prev.linkId === closestLink!.id) {
+            return prev;
+          }
+          const linkId = closestLink!.id;
+          const sourceNode = closestLink!.source;
+          const targetNode = closestLink!.target;
+          
+          setTimeout(async () => {
+            const linkRecord = stateRef.current.links.find(l => l.id === linkId);
+            if (!linkRecord) return;
+
+            if (linkRecord.explanation) {
+              setTooltip(curr => curr.linkId === linkId ? { ...curr, loading: false, text: linkRecord.explanation! } : curr);
+              return;
+            }
+
+            try {
+              const systemPrompt = "You are a helpful assistant. Provide a single sentence explanation.";
+              const userPrompt = `Based on their titles, why are the notes "${sourceNode.title}" and "${targetNode.title}" linked?`;
+              const result = await callAI(systemPrompt, userPrompt);
+              
+              await db.links.update(linkId, { explanation: result });
+              
+              setTooltip(curr => curr.linkId === linkId ? { ...curr, loading: false, text: result } : curr);
+            } catch (e) {
+              setTooltip(curr => curr.linkId === linkId ? { ...curr, loading: false, text: "Error generating explanation." } : curr);
+            }
+          }, 0);
+
+          return { visible: true, x: event.clientX, y: event.clientY, loading: true, text: '', linkId: closestLink!.id };
+        });
+      } else {
+        setTooltip(prev => prev.visible ? { ...prev, visible: false, linkId: undefined } : prev);
       }
     };
 
@@ -618,11 +727,13 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     canvas.addEventListener('pointerdown', handlePointerDown);
     canvas.addEventListener('pointerup', handlePointerUp);
     canvas.addEventListener('dblclick', handleCanvasDblClick);
+    canvas.addEventListener('pointermove', handlePointerMove);
 
     return () => {
       canvas.removeEventListener('pointerdown', handlePointerDown);
       canvas.removeEventListener('pointerup', handlePointerUp);
       canvas.removeEventListener('dblclick', handleCanvasDblClick);
+      canvas.removeEventListener('pointermove', handlePointerMove);
     };
   }, []);
 
@@ -703,6 +814,36 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             <li><strong>- [ ] text</strong>: Task list checkbox</li>
           </ul>
           <button className="help-close-btn" onClick={() => setShowHelp(false)}>Close</button>
+        </div>
+      )}
+
+      {/* Tooltip for Link Explanation */}
+      {tooltip.visible && (
+        <div style={{
+          position: 'absolute',
+          top: tooltip.y + 15,
+          left: tooltip.x + 15,
+          background: 'rgba(20, 27, 50, 0.95)',
+          border: '1px solid rgba(124, 58, 237, 0.4)',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          color: 'white',
+          pointerEvents: 'none',
+          zIndex: 100,
+          maxWidth: '300px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+          fontSize: '14px',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          {tooltip.loading ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '12px', height: '12px', border: '2px solid #818cf8', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              Generating explanation...
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : (
+            <div>{tooltip.text}</div>
+          )}
         </div>
       )}
     </div>

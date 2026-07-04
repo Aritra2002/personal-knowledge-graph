@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
+import type { Note } from '../db';
 import { X, BrainCircuit } from 'lucide-react';
 import { marked } from 'marked';
 
@@ -9,17 +10,58 @@ interface ReviewModalProps {
 }
 
 export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
-  // Query notes that are due for review. If nextReview is undefined or <= Date.now()
-  const dueNotes = useLiveQuery(() => 
+  const liveDueNotes = useLiveQuery(() => 
     db.notes.filter(note => note.nextReview !== undefined && note.nextReview <= Date.now()).toArray()
-  ) || [];
+  );
 
+  const [reviewQueue, setReviewQueue] = useState<Note[]>([]);
+  const [isQueueInitialized, setIsQueueInitialized] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
+  useEffect(() => {
+    if (liveDueNotes && !isQueueInitialized) {
+      const sorted = [...liveDueNotes].sort((a, b) => (a.nextReview || 0) - (b.nextReview || 0));
+      const queue: Note[] = [];
+      const remaining = new Set(sorted.map(n => n.id!));
+      const noteMap = new Map(sorted.map(n => [n.id!, n]));
+
+      while (remaining.size > 0) {
+        let minReview = Infinity;
+        let nextId = -1;
+        for (const id of remaining) {
+          const rev = noteMap.get(id)!.nextReview || 0;
+          if (rev < minReview) {
+            minReview = rev;
+            nextId = id;
+          }
+        }
+
+        const processQueue = [nextId];
+        while (processQueue.length > 0) {
+          const id = processQueue.shift()!;
+          if (remaining.has(id)) {
+            const node = noteMap.get(id)!;
+            queue.push(node);
+            remaining.delete(id);
+            if (node.linkedNoteIds) {
+              for (const linkedId of node.linkedNoteIds) {
+                if (remaining.has(linkedId)) {
+                  processQueue.push(linkedId);
+                }
+              }
+            }
+          }
+        }
+      }
+      setReviewQueue(queue);
+      setIsQueueInitialized(true);
+    }
+  }, [liveDueNotes, isQueueInitialized]);
+
   // If we run out of notes to review, we're done
-  const isDone = currentIndex >= dueNotes.length;
-  const currentNote = dueNotes[currentIndex];
+  const isDone = isQueueInitialized && currentIndex >= reviewQueue.length;
+  const currentNote = reviewQueue[currentIndex];
 
   const handleGrade = async (grade: number) => {
     if (!currentNote || currentNote.id === undefined) return;
@@ -88,7 +130,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
               )}
               
               <div style={{ textAlign: 'center', marginTop: '15px', color: 'var(--text-secondary)' }}>
-                {currentIndex + 1} of {dueNotes.length} due
+                {currentIndex + 1} of {reviewQueue.length} due
               </div>
             </div>
           )}

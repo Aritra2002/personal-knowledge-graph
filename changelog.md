@@ -1,3 +1,12 @@
+## [1.22.0] — 2026-07-04
+
+### 🧠 AI Intelligence Layer
+- **AI Connection Discovery**: After writing a note, the system silently scans your graph and suggests potential links with a 1-sentence reason, helping you discover hidden connections.
+- **"Why Connected?" Edge Explanations**: Hovering over any edge on the Graph Canvas now generates and caches an AI explanation of the semantic relationship between those two connected ideas.
+- **Daily Discovery Digest**: Upon first opening the app each day, a new modal surprises you with a fascinating connection between a forgotten note (> 1 month old) and a recent thought.
+- **100% Local Voice Input**: Added a microphone button that transcribes your speech completely offline directly in the browser (via Web Worker `Xenova/whisper-tiny.en`), turning your voice into new graph nodes without compromising privacy. Also added an instant Cloud (SpeechRecognition) fallback option in Settings.
+- **Graph-Aware Spaced Repetition**: Review sessions are now clustered intelligently. When you review a note, its overdue linked neighbors are interleaved next, allowing you to study concepts in natural associative flows rather than randomly.
+
 ## [1.21.0] — 2026-07-03
 
 ### ✨ Royal UI Overhaul

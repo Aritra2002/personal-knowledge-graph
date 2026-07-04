@@ -16,6 +16,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { useToast } from './ToastContext';
 import { UploadCloud, PenTool, Volume2, VolumeX, Mic, MicOff, Loader2, Sparkles } from 'lucide-react';
 import { cosineSimilarity } from '../utils/vectorSearch';
+import { ConnectionDiscovery } from './ConnectionDiscovery';
 
 const Excalidraw = React.lazy(() => import('@excalidraw/excalidraw').then(module => ({ default: module.Excalidraw })));
 
@@ -840,6 +841,10 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
             </div>
           </div>
         </div>
+      )}
+      
+      {!editMode && content.trim().length > 50 && note.id && (
+        <ConnectionDiscovery noteId={note.id} content={content} />
       )}
     </div>
   );
