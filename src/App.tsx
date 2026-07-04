@@ -19,7 +19,7 @@ import { MobileNav } from './components/MobileNav';
 import { NoteMiniCard } from './components/NoteMiniCard';
 import { DiscoveryDigestModal } from './components/DiscoveryDigestModal';
 import { VoiceRecorder } from './components/VoiceRecorder';
-import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Search, Menu } from 'lucide-react';
+import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Search, Compass } from 'lucide-react';
 
 function useViewport() {
   const [viewport, setViewport] = useState<'sm' | 'md' | 'lg'>('lg');
@@ -168,16 +168,6 @@ export default function App() {
   useEffect(() => {
     seedDatabase();
     initPluginManager();
-    
-    // Epic 3: Daily Digest Check
-    const lastDigestDate = localStorage.getItem('lastDigestDate');
-    const today = new Date().toISOString().split('T')[0];
-    if (lastDigestDate !== today) {
-      setTimeout(() => {
-        setShowDiscoveryDigest(true);
-        localStorage.setItem('lastDigestDate', today);
-      }, 1000);
-    }
   }, []);
 
   // Command Palette Listener
@@ -371,11 +361,6 @@ export default function App() {
                 {pages.find(p => p.id === currentPageId)?.title || 'AetherMind'}
               </button>
             </div>
-            <div className="header-controls">
-              <button className="header-btn icon-only-btn" onClick={() => setShowMobileMenu(!showMobileMenu)}>
-                <Menu size={20} />
-              </button>
-            </div>
           </>
         )}
         {viewport === 'md' && (
@@ -398,6 +383,9 @@ export default function App() {
             <div className="header-controls" style={{ marginLeft: 'auto' }}>
               <button className="header-btn icon-only-btn" onClick={() => setShowReview(true)} title="Review">
                 <Brain size={16} />
+              </button>
+              <button className="header-btn icon-only-btn" onClick={() => setShowDiscoveryDigest(true)} title="Discovery Digest">
+                <Compass size={16} />
               </button>
               <button className="header-btn icon-only-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} title="Ask AI">
                 <Sparkles size={16} />
@@ -441,6 +429,9 @@ export default function App() {
             <div className="header-controls" style={{ marginLeft: 'auto' }}>
               <button className="header-btn" onClick={() => setShowReview(true)}>
                 <Brain size={16} /> Review
+              </button>
+              <button className="header-btn" onClick={() => setShowDiscoveryDigest(true)}>
+                <Compass size={16} /> Discovery Digest
               </button>
               <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }}>
                 <Sparkles size={16} /> Ask AI
@@ -606,6 +597,9 @@ export default function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button className="header-btn" onClick={() => { setShowReview(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
               <Brain size={18} /> Review
+            </button>
+            <button className="header-btn" onClick={() => { setShowDiscoveryDigest(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+              <Compass size={18} /> Discovery Digest
             </button>
             <button className="header-btn" onClick={() => { setShowAskAi(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', color: 'var(--node-amber, #f59e0b)', width: '100%' }}>
               <Sparkles size={18} /> Ask AI
