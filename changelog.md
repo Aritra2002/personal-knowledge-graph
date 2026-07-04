@@ -7,6 +7,9 @@
 - **100% Local Voice Input**: Added a microphone button that transcribes your speech completely offline directly in the browser (via Web Worker `Xenova/whisper-tiny.en`), turning your voice into new graph nodes without compromising privacy. Also added an instant Cloud (SpeechRecognition) fallback option in Settings.
 - **Graph-Aware Spaced Repetition**: Review sessions are now clustered intelligently. When you review a note, its overdue linked neighbors are interleaved next, allowing you to study concepts in natural associative flows rather than randomly.
 
+### 🔧 Improvements
+- Replaced the text-based `⌘K` search hint in the header with a dedicated, clickable Search icon button for better accessibility.
+
 ## [1.21.0] — 2026-07-03
 
 ### ✨ Royal UI Overhaul
