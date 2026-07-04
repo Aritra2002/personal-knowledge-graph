@@ -3,12 +3,12 @@
 ## [1.25.0] - 2026-07-05
 
 ### 📱 Mobile View UX Fixes
-- **Graph Dragging Fix**: Resolved issue where long-pressing a node on mobile would trigger the context menu and interrupt drag operations by adding strict touch-action and contextmenu preventions.
+- **Graph Dragging Fix**: Implemented native long-press gesture (hold for 500ms) to easily unpin and free-move nodes on touch screens, circumventing the lack of double-click. Resolved associated context menu interruptions.
 - **Mobile Page Management**: Replaced placeholder page title pill in mobile header with a fully functional dropdown selector to easily switch between graph pages. Added edit and delete buttons to mobile view.
 - **Review Modal Crash Fix**: Fixed a silent initialization crash in the Spaced Repetition Review modal on slower devices by adding a robust loading state when checking for due notes.
 
 
-## [1.24.0] — 2026-07-04
+## [1.24.0] - 2026-07-04
 
 ### ✨ System Audit & Refactoring
 - **Complete Codebase Audit**: Successfully audited and cleaned up the entire project directory.
@@ -16,6 +16,12 @@
 - **Performance Fixes**: Fixed cascading `setState` render loops in complex modals (`AskAiModal`, `CommandPalette`, `ColorPicker`, `DiscoveryDigestModal`).
 - **Dependency Cleanups**: Fixed extensive `react-hooks/exhaustive-deps` missing dependencies across `App.tsx` and `GraphCanvas.tsx`.
 - **Removed Tech Debt**: Cleaned up legacy scripts, redundant console logs, and intermediate test files from the root.
+
+### 📱 Mobile UI Enhancements
+- **New Mobile Navigation**: Replaced the mobile search bar with a dedicated quick-add node button for better accessibility.
+- **Menu Animations**: Added fluid slide animations to the mobile menu and resolved initial touch drag responsiveness.
+- **Graph Controls**: Intelligently hid bulky GraphCanvas controls (zoom/help boxes) on mobile screens for an unobstructed view.
+- **Bug Fixes**: Resolved layout collapse in settings scroll, timeline scrubber clipping, and mobile nav button bounding sizes.
 
 ## [1.23.0] — 2026-07-04
 
