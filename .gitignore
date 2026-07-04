@@ -129,3 +129,6 @@ dist-ssr/
 # Custom ignores
 .vite/
 .agents/
+.gstack/
+test_*.py
+mobile_*.png
