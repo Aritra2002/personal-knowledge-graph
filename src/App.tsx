@@ -451,9 +451,6 @@ export default function App() {
               <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)}>
                 <Plus size={16} /> New Page
               </button>
-              <button className="header-btn icon-only-btn" onClick={() => setIsSearchOpen(true)} aria-label="Search" title="Search">
-                <Search size={18} />
-              </button>
               <button className="header-btn icon-only-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
                 <Settings size={18} />
               </button>

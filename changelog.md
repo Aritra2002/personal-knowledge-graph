@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1] - 2026-07-05
+
+### 🐛 Bug Fixes
+- **Desktop Header UI**: Removed the redundant search button icon from the top-right desktop header, since the primary floating search button provides the same functionality.
+
+
+
 ## [1.25.0] - 2026-07-05
 
 ### 📱 Mobile View UX Fixes
