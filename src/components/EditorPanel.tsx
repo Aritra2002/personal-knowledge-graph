@@ -292,10 +292,10 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
       links.forEach(link => {
         const href = link.getAttribute('href');
         // Handle wiki-link triggers or custom clicks
-        if (href && href.startsWith('wiki://')) {
+        if (href && href.startsWith('#wiki-')) {
           const listener = (e: MouseEvent) => {
             e.preventDefault();
-            const targetTitle = decodeURIComponent(href.replace('wiki://', ''));
+            const targetTitle = decodeURIComponent(href.replace('#wiki-', ''));
             if ((e.metaKey || e.ctrlKey || e.altKey) && onSplitRight) {
               onSplitRight(targetTitle);
             } else {
@@ -319,10 +319,10 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
   const getRenderedContent = () => {
     if (!content) return '<p style="color: var(--text-secondary); font-style: italic; user-select: none;">No content yet. Write something...</p>';
     
-    // Replace [[Wiki Note Name]] with a custom link schema <a href="wiki://Wiki%20Note%20Name">Wiki Note Name</a>
+    // Replace [[Wiki Note Name]] with a custom link schema <a href="#wiki-Wiki%20Note%20Name">Wiki Note Name</a>
     const processedContent = content.replace(/\[\[(.*?)\]\]/g, (_, p1) => {
       const cleanTitle = p1.trim();
-      return `[${cleanTitle}](wiki://${encodeURIComponent(cleanTitle)})`;
+      return `[${cleanTitle}](#wiki-${encodeURIComponent(cleanTitle)})`;
     });
 
     try {

@@ -570,6 +570,10 @@ export default function App() {
           note={activeNote}
           category={categories.find(c => c.id === activeNote.category)}
           onOpenEditor={() => setIsSidebarOpen(true)}
+          onJumpToNote={(title) => {
+            const target = notes.find(n => n.title.toLowerCase() === title.toLowerCase());
+            if (target) handleSelectNote(target);
+          }}
           onAskAi={() => setShowAskAi(true)}
           onClose={() => handleSelectNote(null)}
         />

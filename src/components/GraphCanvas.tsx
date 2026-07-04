@@ -529,6 +529,8 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           });
 
           if (clickedNode && clickedNode.fx !== null) {
+            clickedNode.fx = null;
+            clickedNode.fy = null;
             updateNote(clickedNode.id, { fx: null, fy: null });
             if (navigator.vibrate) navigator.vibrate(50);
           }
@@ -755,11 +757,16 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       })
       .on('start', (event) => {
         if (!simulationRef.current) return;
+        event.subject.node.__originalFx = event.subject.node.fx;
+        event.subject.node.__originalFy = event.subject.node.fy;
+        event.subject.node.__wasDragged = false;
+        
         event.subject.node.fx = event.subject.node.x;
         event.subject.node.fy = event.subject.node.y;
       })
       .on('drag', (event) => {
         if (!canvasRef.current) return;
+        event.subject.node.__wasDragged = true;
         // event.x and event.y are screen coordinates now
         const currentTransform = d3.zoomTransform(canvasRef.current);
         const simX = (event.x - currentTransform.x) / currentTransform.k;
@@ -773,11 +780,19 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       .on('end', async (event) => {
         if (!simulationRef.current) return;
         if (!event.active) simulationRef.current.alphaTarget(0);
-        // Persist pinned coordinate values to database
-        await updateNote(event.subject.node.id, {
-          fx: event.subject.node.fx,
-          fy: event.subject.node.fy
-        });
+        
+        // If unpinned via long press, it will be handled by the timeout (fx is set to null)
+        // If genuinely dragged, save the new pinned coordinates
+        if (event.subject.node.__wasDragged) {
+          await updateNote(event.subject.node.id, {
+            fx: event.subject.node.fx,
+            fy: event.subject.node.fy
+          });
+        } else if (event.subject.node.fx !== null) {
+          // If just tapped (not dragged and not unpinned), revert the temporary pinning
+          event.subject.node.fx = event.subject.node.__originalFx !== undefined ? event.subject.node.__originalFx : null;
+          event.subject.node.fy = event.subject.node.__originalFy !== undefined ? event.subject.node.__originalFy : null;
+        }
       });
 
     // Call both behaviors

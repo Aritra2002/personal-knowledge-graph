@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.25.2] - 2026-07-05
+
+### 🐛 Bug Fixes
+- **Mobile Node Unpinning**: Fixed an issue where nodes would immediately re-pin after a long-press unpin gesture due to D3 drag's end event persisting outdated pinned coordinates.
+- **Wiki-links in Markdown**: Fixed wiki-links (`[[Note Title]]`) being incorrectly stripped by DOMPurify in the Editor preview and failing to navigate on click. Wiki-links are now correctly formatted and fully functional across desktop and mobile.
+- **Mobile Mini Card**: Added parsing and rendering for wiki-links in the mobile floating Note Mini Card, matching the behavior of the full editor.
+- **Mobile Layout Bounds**: Fixed canvas control overlays (sidebar button, export button, help button) colliding with the bottom navigation and timeline scrubber in vertical mode by safely anchoring them to the top of the viewport.
+
+
+
 ## [1.25.1] - 2026-07-05
 
 ### 🐛 Bug Fixes

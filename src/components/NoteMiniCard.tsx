@@ -8,12 +8,54 @@ interface NoteMiniCardProps {
   note: Note;
   category?: Category;
   onOpenEditor: () => void;
+  onJumpToNote?: (title: string) => void;
   onAskAi?: () => void; // Kept for prop signature compat but unused
   onClose: () => void;
 }
 
-export const NoteMiniCard: React.FC<NoteMiniCardProps> = ({ note, category, onOpenEditor, onClose }) => {
+export const NoteMiniCard: React.FC<NoteMiniCardProps> = ({ note, category, onOpenEditor, onJumpToNote, onClose }) => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const previewRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    let activeLinks: { element: HTMLAnchorElement; listener: (e: MouseEvent) => void }[] = [];
+    
+    if (previewRef.current && onJumpToNote) {
+      const links = previewRef.current.querySelectorAll('a');
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#wiki-')) {
+          const listener = (e: MouseEvent) => {
+            e.preventDefault();
+            const targetTitle = decodeURIComponent(href.replace('#wiki-', ''));
+            onJumpToNote(targetTitle);
+          };
+          link.addEventListener('click', listener);
+          activeLinks.push({ element: link, listener });
+        }
+      });
+    }
+
+    return () => {
+      activeLinks.forEach(({ element, listener }) => {
+        element.removeEventListener('click', listener);
+      });
+    };
+  }, [note.content, onJumpToNote]);
+
+  const getRenderedContent = () => {
+    if (!note.content) return '';
+    const processedContent = note.content.replace(/\[\[(.*?)\]\]/g, (_, p1) => {
+      const cleanTitle = p1.trim();
+      return `[${cleanTitle}](#wiki-${encodeURIComponent(cleanTitle)})`;
+    });
+    try {
+      const rawHtml = marked.parse(processedContent) as string;
+      return DOMPurify.sanitize(rawHtml);
+    } catch (e) {
+      return '<p>Error rendering markdown.</p>';
+    }
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientY);
@@ -65,6 +107,7 @@ export const NoteMiniCard: React.FC<NoteMiniCardProps> = ({ note, category, onOp
         )}
       </div>
       <div 
+        ref={previewRef}
         className="markdown-body"
         style={{ 
           borderTop: '1px solid rgba(255,255,255,0.05)', 
@@ -77,7 +120,7 @@ export const NoteMiniCard: React.FC<NoteMiniCardProps> = ({ note, category, onOp
         onPointerDown={(e) => e.stopPropagation()} // Let scroll happen instead of drag
       >
         {note.content ? (
-          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(note.content) as string) }} />
+          <div dangerouslySetInnerHTML={{ __html: getRenderedContent() }} />
         ) : (
           <span style={{ color: 'var(--text-secondary, #9ca3af)' }}>Empty note</span>
         )}
