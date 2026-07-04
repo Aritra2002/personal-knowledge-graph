@@ -23,33 +23,36 @@ type TabType = 'data' | 'journal' | 'ai' | 'plugins' | 'about';
 
 export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [activeTab, setActiveTab] = useState<TabType>('data');
+  const isMobile = window.innerWidth < 768;
 
   return (
     <div className="modal-overlay" id="settings-modal-overlay">
-      <div className="settings-modal glass-panel" style={{ display: 'flex', flexDirection: 'row', width: '800px', maxWidth: '95vw', height: '80vh', padding: 0, overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
+      <div className="settings-modal glass-panel" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', width: '800px', maxWidth: '95vw', height: '80vh', padding: 0, overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
         
         {/* Settings Sidebar */}
-        <div style={{ width: '220px', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.2)' }}>
-          <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
-            <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Settings</h2>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>v{packageJson.version}</div>
-          </div>
+        <div style={{ width: isMobile ? '100%' : '220px', borderRight: isMobile ? 'none' : '1px solid var(--border-color)', borderBottom: isMobile ? '1px solid var(--border-color)' : 'none', display: 'flex', flexDirection: isMobile ? 'row' : 'column', background: 'rgba(0,0,0,0.2)', flexShrink: 0, overflowX: isMobile ? 'auto' : 'hidden' }}>
+          {!isMobile && (
+            <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
+              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Settings</h2>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>v{packageJson.version}</div>
+            </div>
+          )}
           
-          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflowY: 'auto' }}>
-            <button className={`tab-btn ${activeTab === 'data' ? 'active' : ''}`} onClick={() => setActiveTab('data')} style={{ width: '100%', justifyContent: 'flex-start' }}>
+          <div style={{ padding: '12px', display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '4px', flex: 1, overflowY: isMobile ? 'hidden' : 'auto' }}>
+            <button className={`tab-btn ${activeTab === 'data' ? 'active' : ''}`} onClick={() => setActiveTab('data')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Database size={16} /> Data & Graph
             </button>
-            <button className={`tab-btn ${activeTab === 'journal' ? 'active' : ''}`} onClick={() => setActiveTab('journal')} style={{ width: '100%', justifyContent: 'flex-start' }}>
+            <button className={`tab-btn ${activeTab === 'journal' ? 'active' : ''}`} onClick={() => setActiveTab('journal')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <CalendarIcon size={16} /> Journal
             </button>
-            <button className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`} onClick={() => setActiveTab('ai')} style={{ width: '100%', justifyContent: 'flex-start' }}>
+            <button className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`} onClick={() => setActiveTab('ai')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Brain size={16} /> AI Integration
             </button>
-            <button className={`tab-btn ${activeTab === 'plugins' ? 'active' : ''}`} onClick={() => setActiveTab('plugins')} style={{ width: '100%', justifyContent: 'flex-start' }}>
+            <button className={`tab-btn ${activeTab === 'plugins' ? 'active' : ''}`} onClick={() => setActiveTab('plugins')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Puzzle size={16} /> Plugins
             </button>
             <div style={{ flex: 1 }}></div>
-            <button className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`} onClick={() => setActiveTab('about')} style={{ width: '100%', justifyContent: 'flex-start' }}>
+            <button className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`} onClick={() => setActiveTab('about')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Info size={16} /> About
             </button>
           </div>
@@ -61,7 +64,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             <X size={18} />
           </button>
           
-          <div style={{ flex: 1, padding: '24px 24px 24px 32px', overflowY: 'auto' }}>
+          <div style={{ flex: 1, padding: isMobile ? '16px 16px 16px 16px' : '24px 24px 24px 32px', overflowY: 'auto' }}>
             {activeTab === 'data' && <DataSettingsTab {...props} />}
             {activeTab === 'journal' && <JournalCalendar />}
             {activeTab === 'ai' && (

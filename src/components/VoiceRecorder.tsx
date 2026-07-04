@@ -5,7 +5,7 @@ import { createNote } from '../db/helpers';
 import { callAI } from '../utils/aiClient';
 import { db } from '../db';
 
-export const VoiceRecorder = ({ pageId, onNoteCreated }: { pageId: number, onNoteCreated?: (id: number) => void }) => {
+export const VoiceRecorder = ({ pageId, onNoteCreated, variant = 'default' }: { pageId: number, onNoteCreated?: (id: number) => void, variant?: 'default' | 'nav' }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
@@ -135,6 +135,20 @@ export const VoiceRecorder = ({ pageId, onNoteCreated }: { pageId: number, onNot
       recognitionRef.current?.stop();
     }
   };
+
+  if (variant === 'nav') {
+    return (
+      <button 
+        style={{ background: 'none', border: 'none', color: isRecording ? '#ef4444' : isProcessing ? 'var(--text-secondary)' : 'var(--text-secondary, #9ca3af)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+        onClick={isRecording ? stopRecording : startRecording}
+        disabled={isProcessing}
+        title={isRecording ? "Stop Recording" : "Voice Note"}
+      >
+        {isProcessing ? <Loader2 size={20} className="spinning" /> : isRecording ? <Square size={20} /> : <Mic size={20} />}
+        <span style={{ fontSize: '10px' }}>Voice</span>
+      </button>
+    );
+  }
 
   return (
     <button 

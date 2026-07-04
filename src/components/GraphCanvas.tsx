@@ -464,26 +464,34 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         if (event.ctrlKey || event.button) return false;
         
         // If it's a mouse down, check if we're hitting a node. If we are, ignore the zoom!
-        if (event.type === 'mousedown' || event.type === 'touchstart') {
+        if (event.type === 'mousedown' || event.type === 'touchstart' || event.type === 'pointerdown') {
           const rect = canvas.getBoundingClientRect();
           const clientX = event.type === 'touchstart' ? event.touches[0].clientX : event.clientX;
           const clientY = event.type === 'touchstart' ? event.touches[0].clientY : event.clientY;
           
           const clickX = clientX - rect.left;
           const clickY = clientY - rect.top;
+          
           const currentTransform = d3.zoomTransform(canvas);
           const simX = (clickX - currentTransform.x) / currentTransform.k;
           const simY = (clickY - currentTransform.y) / currentTransform.k;
           
-          const clickedNode = nodesRef.current.find((node) => {
-            if (node.x === undefined || node.y === undefined) return false;
+          // Check if we hit any node (similar logic to click handler)
+          const state = stateRef.current;
+          for (let i = nodesRef.current.length - 1; i >= 0; i--) {
+            const node = nodesRef.current[i];
+            if (node.x === undefined || node.y === undefined) continue;
             const dx = node.x - simX;
             const dy = node.y - simY;
-            return Math.sqrt(dx * dx + dy * dy) < node.radius + 5;
-          });
-          
-          // Prevent panning if hovering over a node
-          if (clickedNode) return false;
+            const isTouch = event.type === 'touchstart' || (event as PointerEvent).pointerType === 'touch';
+            let clickRadius = node.id === state.activeNote?.id ? node.radius + 4 : node.radius;
+            if (isTouch || window.matchMedia('(pointer: coarse)').matches) {
+              clickRadius += 8;
+            }
+            if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+              return false; // Prevent zoom/pan, allow drag
+            }
+          }
         }
         
         return true;
@@ -748,8 +756,8 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       />
 
       {/* Floating Canvas Controls */}
-      <div className="canvas-controls" style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px', zIndex: 10 }}>
-        {!isSidebarOpen && (
+      <div className="canvas-controls">
+        {!isSidebarOpen && window.innerWidth >= 768 && (
           <button
             className="canvas-btn"
             onClick={onOpenSidebar}

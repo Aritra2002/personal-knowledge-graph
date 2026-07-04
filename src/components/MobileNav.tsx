@@ -42,9 +42,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ pageId, activeTab, onTabCh
         <span style={{ fontSize: '10px' }}>Search</span>
       </button>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', transform: 'translateY(-10px)' }}>
-        <VoiceRecorder pageId={pageId} />
-      </div>
+      <VoiceRecorder pageId={pageId} variant="nav" />
 
       <button 
         style={{ background: 'none', border: 'none', color: activeTab === 'menu' ? 'var(--accent-primary, #7c3aed)' : 'var(--text-secondary, #9ca3af)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
