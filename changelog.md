@@ -7,9 +7,15 @@
 - **100% Local Voice Input**: Added a microphone button that transcribes your speech completely offline directly in the browser (via Web Worker `Xenova/whisper-tiny.en`), turning your voice into new graph nodes without compromising privacy. Also added an instant Cloud (SpeechRecognition) fallback option in Settings.
 - **Graph-Aware Spaced Repetition**: Review sessions are now clustered intelligently. When you review a note, its overdue linked neighbors are interleaved next, allowing you to study concepts in natural associative flows rather than randomly.
 
+### 🐛 Bug Fixes
+- Fixed structural CSS issues that caused the mobile bottom navigation bar to be clipped entirely off-screen.
+- Corrected `.right-sidebar` positioning on mobile screens to respect navigation bar height, resolving scrolling bugs.
+- Stopped forcing `44px` minimum dimensions on generic button elements which deformed compact utility icons.
+- Prevented the app header from excessive wrapping on small screens.
+
 ### 🔧 Improvements
 - Replaced the text-based `⌘K` search hint in the header with a dedicated, clickable Search icon button for better accessibility.
-
+- Removed the 30-minute GitHub Pages deployment cooldown/timeout from the CI/CD pipeline.
 ## [1.21.0] — 2026-07-03
 
 ### ✨ Royal UI Overhaul
