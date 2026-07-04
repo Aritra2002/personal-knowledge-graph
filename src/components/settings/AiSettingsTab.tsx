@@ -1,16 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getAIConfig, setAIConfig, detectModels } from '../../utils/aiClient';
 import type { AIConfig } from '../../utils/aiClient';
 
 export const AiSettingsTab: React.FC = () => {
-  const [aiConfig, setLocalAIConfig] = useState<AIConfig>({ provider: 'openai', baseUrl: '', apiKey: '', model: '' });
+  const [aiConfig, setLocalAIConfig] = useState<AIConfig>(() => getAIConfig());
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
   const [availableModels, setAvailableModels] = useState<{id: string; name?: string}[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
-
-  useEffect(() => {
-    setLocalAIConfig(getAIConfig());
-  }, []);
 
   const handleAiConfigChange = (key: keyof AIConfig, value: string) => {
     const newConfig = { ...aiConfig, [key]: value };
@@ -29,9 +25,9 @@ export const AiSettingsTab: React.FC = () => {
       if (models.length > 0 && !aiConfig.model) {
         handleAiConfigChange('model', models[0].id);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      alert(e.message || "Failed to detect models. Please check your API key and Base URL.");
+      alert((e as Error).message || "Failed to detect models. Please check your API key and Base URL.");
     } finally {
       setIsDetecting(false);
     }
@@ -50,8 +46,8 @@ export const AiSettingsTab: React.FC = () => {
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Provider</label>
           <select
             value={aiConfig.provider || 'openai'}
-            onChange={(e) => {
-              const newProvider = e.target.value as any;
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              const newProvider = e.target.value as AIConfig['provider'];
               const newConfig = { ...aiConfig, provider: newProvider };
               if (newProvider === 'anthropic') { newConfig.baseUrl = 'https://api.anthropic.com'; newConfig.model = 'claude-3-5-sonnet-20240620'; }
               else if (newProvider === 'deepseek') { newConfig.baseUrl = 'https://api.deepseek.com'; newConfig.model = 'deepseek-chat'; }
@@ -90,7 +86,7 @@ export const AiSettingsTab: React.FC = () => {
           <input
             type="text"
             value={aiConfig.baseUrl}
-            onChange={(e) => handleAiConfigChange('baseUrl', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('baseUrl', e.target.value)}
             placeholder={
               aiConfig.provider === 'custom' ? "https://your-custom-endpoint/v1" :
               aiConfig.provider === 'vercel' ? "https://gateway.ai.vercel.com/v1/..." : ""
@@ -111,7 +107,7 @@ export const AiSettingsTab: React.FC = () => {
           <input
             type="password"
             value={aiConfig.apiKey || ''}
-            onChange={(e) => handleAiConfigChange('apiKey', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('apiKey', e.target.value)}
             placeholder="Enter your API key..."
             style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
           />
@@ -123,7 +119,7 @@ export const AiSettingsTab: React.FC = () => {
             <input
               type="text"
               value={aiConfig.proxyUrl || ''}
-              onChange={(e) => handleAiConfigChange('proxyUrl', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('proxyUrl', e.target.value)}
               placeholder="https://your-proxy.onrender.com (Direct connection if empty)"
               style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
             />
@@ -149,7 +145,7 @@ export const AiSettingsTab: React.FC = () => {
           {['custom', 'openrouter', 'openai', 'deepseek'].includes(aiConfig.provider) && availableModels.length > 0 ? (
             <select
               value={aiConfig.model || ''}
-              onChange={(e) => handleAiConfigChange('model', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleAiConfigChange('model', e.target.value)}
               style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
             >
               {availableModels.map(m => (
@@ -162,7 +158,7 @@ export const AiSettingsTab: React.FC = () => {
             <input
               type="text"
               value={aiConfig.model || ''}
-              onChange={(e) => handleAiConfigChange('model', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('model', e.target.value)}
               placeholder={aiConfig.provider === 'vercel' ? 'e.g. openai:gpt-4o' : (aiConfig.provider === 'openrouter' ? 'e.g. google/gemini-2.5-flash' : 'e.g. custom-model-name')}
               style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
             />

@@ -6,12 +6,13 @@ import { db, type Note } from '../db';
 env.allowLocalModels = false;
 env.useBrowserCache = false;
 
-let embedder: any = null;
+type FeatureExtractionPipeline = (text: string, options?: { pooling?: string; normalize?: boolean }) => Promise<{ data: Float32Array | number[] }>;
+let embedder: FeatureExtractionPipeline | null = null;
 
 // Initialize the model (downloads on first run)
 export const initEmbedder = async () => {
   if (!embedder) {
-    embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    embedder = (await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')) as unknown as FeatureExtractionPipeline;
   }
   return embedder;
 };
@@ -33,6 +34,7 @@ export const cosineSimilarity = (a: number[], b: number[]) => {
     normA += a[i] * a[i];
     normB += b[i] * b[i];
   }
+  if (normA === 0 || normB === 0) return 0;
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 };
 

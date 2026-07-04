@@ -74,14 +74,14 @@ export const PluginSettingsTab: React.FC = () => {
           <input
             type="text"
             value={pluginUrl}
-            onChange={(e) => setPluginUrl(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPluginUrl(e.target.value)}
             placeholder="Script URL (e.g. https://example.com/plugin.js)"
             style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 8px', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
           />
           <input
             type="text"
             value={pluginName}
-            onChange={(e) => setPluginName(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPluginName(e.target.value)}
             placeholder="Name"
             style={{ width: '100px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 8px', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
           />
@@ -96,8 +96,8 @@ export const PluginSettingsTab: React.FC = () => {
               savePlugins(updated);
               try {
                 await loadPluginScript(newPlugin.url);
-              } catch (e: any) {
-                showToast('Failed to load plugin: ' + e.message, 'error');
+              } catch (e: unknown) {
+                showToast('Failed to load plugin: ' + (e as Error).message, 'error');
               }
               setPluginUrl('');
               setPluginName('');

@@ -131,7 +131,7 @@ specifies otherwise. Suggest 2-3 connections to existing notes if relevant.`;
       const parsed = parseAiResponse(fullResponse);
       if (parsed) {
         setAiResponse(parsed.explanation || "Action proposed:");
-        const action = parsed.action;
+        const action = parsed.actions[0];
         
         if (action.action === 'create_note' || action.action === 'create_link' || action.action === 'delete_link') {
           const result = await executeAiAction(action, pageId);

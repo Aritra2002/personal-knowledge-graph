@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import type { Note, Category } from '../db';
 import { X, FileText } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 interface NoteMiniCardProps {
   note: Note;
@@ -77,7 +77,7 @@ export const NoteMiniCard: React.FC<NoteMiniCardProps> = ({ note, category, onOp
         onPointerDown={(e) => e.stopPropagation()} // Let scroll happen instead of drag
       >
         {note.content ? (
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(note.content) as string) }} />
         ) : (
           <span style={{ color: 'var(--text-secondary, #9ca3af)' }}>Empty note</span>
         )}

@@ -1,5 +1,6 @@
 import { db } from '../db';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 export const exportToHtml = async () => {
   const notes = await db.notes.toArray();
@@ -43,7 +44,7 @@ export const exportToHtml = async () => {
 <div class="note" id="note-${note.id}" style="border-left-color: ${color};">
   <h2 style="margin-top: 0;">${note.title}</h2>
   ${note.tags && note.tags.length > 0 ? `<p style="font-size: 0.8em; color: #94a3b8;">Tags: ${note.tags.join(', ')}</p>` : ''}
-  <div>${note.isExcalidraw ? '<p><em>[Excalidraw Whiteboard Content]</em></p>' : marked.parse(content)}</div>
+  <div>${note.isExcalidraw ? '<p><em>[Excalidraw Whiteboard Content]</em></p>' : DOMPurify.sanitize(marked.parse(content) as string)}</div>
 </div>
 `;
   }

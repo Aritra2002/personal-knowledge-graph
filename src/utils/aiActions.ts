@@ -8,19 +8,44 @@ export type AiAction =
   | { action: 'create_link'; from: string; to: string }
   | { action: 'delete_link'; from: string; to: string };
 
-export function parseAiResponse(text: string): { action: AiAction; explanation: string } | null {
-  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
-  if (!jsonMatch) return null;
+export function parseAiResponse(text: string): { actions: AiAction[]; explanation: string } | null {
+  const validActionTypes = ['create_note', 'edit_note', 'delete_note', 'create_link', 'delete_link'];
+  
+  const extractActions = (parsed: unknown): AiAction[] => {
+    let actions: AiAction[] = [];
+    if (Array.isArray(parsed)) {
+      actions = parsed.filter(a => a && typeof a === 'object' && 'action' in a && typeof a.action === 'string' && validActionTypes.includes(a.action));
+    } else if (parsed && typeof parsed === 'object' && 'action' in parsed && typeof (parsed as Record<string, unknown>).action === 'string' && validActionTypes.includes((parsed as Record<string, unknown>).action as string)) {
+      actions = [parsed as unknown as AiAction];
+    }
+    return actions;
+  };
 
-  try {
-    const action = JSON.parse(jsonMatch[1]) as AiAction;
-    const explanation = text.replace(jsonMatch[0], '').trim();
-    
-    if (['create_note', 'edit_note', 'delete_note', 'create_link', 'delete_link'].includes(action.action)) {
-      return { action, explanation };
+  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (!jsonMatch) {
+    try {
+      const parsed = JSON.parse(text);
+      const actions = extractActions(parsed);
+      if (actions.length > 0) {
+        return { actions, explanation: '' };
+      }
+    } catch (e) {
+      console.debug(e);
     }
     return null;
-  } catch {
+  }
+
+  try {
+    const parsed = JSON.parse(jsonMatch[1]);
+    const actions = extractActions(parsed);
+    const explanation = text.replace(jsonMatch[0], '').trim();
+    
+    if (actions.length > 0) {
+      return { actions, explanation };
+    }
+    return null;
+  } catch (e) {
+    console.debug(e);
     return null;
   }
 }
@@ -32,7 +57,7 @@ export async function executeAiAction(
   try {
     switch (action.action) {
       case 'create_note': {
-        let noteId = await createNote(pageId, action.title);
+        const noteId = await createNote(pageId, action.title);
         
         let content = action.content;
         if (action.linkTo && action.linkTo.length > 0) {
@@ -49,7 +74,7 @@ export async function executeAiAction(
         const note = await db.notes.where('title').equalsIgnoreCase(action.title).and(n => n.pageId === pageId).first();
         if (!note) return { success: false, message: `Note "${action.title}" not found.` };
         
-        const updates: any = {};
+        const updates: Record<string, unknown> = {};
         if (action.newContent !== undefined) updates.content = action.newContent;
         if (action.newTitle !== undefined) updates.title = action.newTitle;
         
@@ -98,8 +123,8 @@ export async function executeAiAction(
       default:
         return { success: false, message: 'Action requires staging or is unsupported.' };
     }
-  } catch (e: any) {
-    return { success: false, message: e.message };
+  } catch (e: unknown) {
+    return { success: false, message: e instanceof Error ? e.message : String(e) };
   }
 }
 

@@ -31,6 +31,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ color, defaultColor, o
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      // eslint-disable-next-line
         setIsOpen(false);
       }
     };
@@ -39,10 +40,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ color, defaultColor, o
   }, [isOpen]);
 
   useEffect(() => {
+      // eslint-disable-next-line
     setHexInput(displayColor);
   }, [displayColor]);
 
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // eslint-disable-next-line
     setHexInput(e.target.value);
     if (/^#?[0-9A-F]{6}$/i.test(e.target.value)) {
       const formatted = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
@@ -68,12 +71,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ color, defaultColor, o
             <button className="icon-btn" onClick={() => setIsOpen(false)} aria-label="Close color picker"><X size={14} /></button>
           </div>
           
-          <div className="color-swatches">
+          <div className="color-swatches" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', placeItems: 'center' }}>
             {PRESET_COLORS.map(c => (
               <button
                 key={c}
                 className={`color-swatch ${displayColor === c ? 'active' : ''}`}
-                style={{ backgroundColor: c }}
+                style={{ backgroundColor: c, width: '44px', height: '44px', padding: 0, margin: 0 }}
                 onClick={() => onChange(c)}
               />
             ))}

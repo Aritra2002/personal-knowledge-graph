@@ -83,7 +83,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       const sim = simulationRef.current;
       if (!sim) return;
       const currentNodes = nodesRef.current;
-      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       const currentLinks = linkForce ? (linkForce.links() as { source: SimNode; target: SimNode }[]) : [];
       
       let svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${dimensions.width}" height="${dimensions.height}" style="background-color: #06071a;">`;
@@ -99,7 +99,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       currentNodes.forEach(node => {
         if (node.x === undefined || node.y === undefined) return;
         const categoryObj = categories.find(c => c.id === node.category);
-        let color = node.color || categoryObj?.color || '#818cf8';
+        const color = node.color || categoryObj?.color || '#818cf8';
         svgStr += `<circle cx="${node.x}" cy="${node.y}" r="${node.radius}" fill="${color}" />`;
         svgStr += `<text x="${node.x}" y="${node.y + 16}" fill="#e5e7eb" font-family="Inter" font-size="12" font-weight="500" text-anchor="middle" dominant-baseline="hanging">${node.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</text>`;
       });
@@ -118,7 +118,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   // Maintain persistent node positions across re-renders
   const nodesRef = useRef<SimNode[]>([]);
   const simulationRef = useRef<d3.Simulation<SimNode, undefined> | null>(null);
-  const prevTopology = useRef({ nodes: 0, links: 0, linkDist: 0, charge: 0 });
+  const prevTopology = useRef({ nodes: "", links: "", linkDist: 0, charge: 0 });
 
   // Handle window resizing
   useEffect(() => {
@@ -151,7 +151,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     } else {
       // Update forces if config changed
       const sim = simulationRef.current;
-      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       if (linkForce) linkForce.distance(physicsConfig.linkDistance);
       const chargeForce = sim.force('charge') as d3.ForceManyBody<SimNode>;
       if (chargeForce) chargeForce.strength(physicsConfig.chargeStrength);
@@ -264,25 +264,25 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           }
         }
       }
-      const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, any>;
+      const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       if (nlpLinkForce) {
         nlpLinkForce.links(nlpLinks);
       }
     } else {
-      const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, any>;
+      const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       if (nlpLinkForce) {
         nlpLinkForce.links([]);
       }
     }
 
-    const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+    const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
     if (linkForce) {
       linkForce.links(validLinks);
     }
 
     const currentTopology = {
-      nodes: notes.length,
-      links: links.length,
+      nodes: notes.map(n => n.id).sort().join(','),
+      links: links.map(l => l.id).sort().join(','),
       linkDist: physicsConfig.linkDistance,
       charge: physicsConfig.chargeStrength
     };
@@ -324,7 +324,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
 
       const activeNodeId = activeNote?.id;
       const currentNodes = nodesRef.current;
-      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       const currentLinks = linkForce ? (linkForce.links() as { source: SimNode; target: SimNode }[]) : [];
 
       // 1. Draw Links
@@ -570,7 +570,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
 
       const sim = simulationRef.current;
       if (!sim) return;
-      const linkForce = sim.force('link') as d3.ForceLink<SimNode, any>;
+      const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       const currentLinks = linkForce ? (linkForce.links() as { id: number, source: SimNode; target: SimNode }[]) : [];
 
       let closestLink: { id: number, source: SimNode; target: SimNode } | null = null;
@@ -740,7 +740,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       });
 
     // Call both behaviors
-    d3.select(canvas).call(dragBehavior as any);
+    d3.select(canvas).call(dragBehavior as unknown as never);
     d3.select(canvas).call(zoomBehavior);
 
     canvas.addEventListener('pointerdown', handlePointerDown);

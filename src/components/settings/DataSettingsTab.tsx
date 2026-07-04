@@ -71,8 +71,8 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (e: any) {
-      showToast(`Export failed: ${e.message}`, 'error');
+    } catch (e: unknown) {
+      showToast(`Export failed: ${(e as Error).message}`, 'error');
     }
   };
 
@@ -118,8 +118,8 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
         onRefreshData();
         setShowImportConfirm(false);
         onClose();
-      } catch (err: any) {
-        showToast('Failed to import data: ' + err.message, 'error');
+      } catch (err: unknown) {
+        showToast('Failed to import data: ' + (err as Error).message, 'error');
         setShowImportConfirm(false);
       }
     };
@@ -139,8 +139,8 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
       onRefreshData();
       setShowRestoreConfirm(false);
       onClose();
-    } catch (err: any) {
-      showToast('Failed to restore defaults: ' + err.message, 'error');
+    } catch (err: unknown) {
+      showToast('Failed to restore defaults: ' + (err as Error).message, 'error');
       setShowRestoreConfirm(false);
     }
   };
@@ -192,8 +192,8 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
               try {
                 await clusterUnlinkedNotes(setClusterProgress);
                 onRefreshData();
-              } catch (e: any) {
-                showToast('Clustering Error: ' + e.message, 'error');
+              } catch (e: unknown) {
+                showToast('Clustering Error: ' + (e as Error).message, 'error');
               }
               setIsClustering(false);
               setTimeout(() => setClusterProgress(''), 3000);
@@ -298,14 +298,14 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
               <input 
                 type="text" 
                 value={newCatLabel}
-                onChange={(e) => setNewCatLabel(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatLabel(e.target.value)}
                 placeholder="New type name..."
                 style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}
               />
               <input 
                 type="color" 
                 value={newCatColor}
-                onChange={(e) => setNewCatColor(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatColor(e.target.value)}
                 style={{ width: '24px', height: '24px', padding: '0', border: 'none', borderRadius: '4px', cursor: 'pointer', background: 'transparent' }}
               />
               <button 
@@ -359,7 +359,7 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
               min="30"
               max="300"
               value={physicsConfig.linkDistance}
-              onChange={(e) => onPhysicsChange({ ...physicsConfig, linkDistance: parseInt(e.target.value) })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPhysicsChange({ ...physicsConfig, linkDistance: parseInt(e.target.value) })}
               style={{ accentColor: 'var(--node-indigo)' }}
             />
           </div>
@@ -375,7 +375,7 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
               max="-50"
               step="10"
               value={physicsConfig.chargeStrength}
-              onChange={(e) => onPhysicsChange({ ...physicsConfig, chargeStrength: parseInt(e.target.value) })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPhysicsChange({ ...physicsConfig, chargeStrength: parseInt(e.target.value) })}
               style={{ accentColor: 'var(--node-emerald)' }}
             />
           </div>

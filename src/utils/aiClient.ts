@@ -38,7 +38,7 @@ export const callAI = async (
     throw new Error('Base URL is missing for Custom Provider.');
   }
 
-  let isCustom = config.provider === 'custom';
+  const isCustom = config.provider === 'custom';
   
   // Normalize the URL in case the user missed the // (e.g., http:localhost:1234)
   let endpoint = config.baseUrl;
@@ -73,10 +73,10 @@ export const callAI = async (
     }
   }
 
-  let headers: Record<string, string> = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  let bodyPayload: any = {};
+  let bodyPayload: Record<string, unknown>;
 
   if (config.provider === 'anthropic') {
     if (config.apiKey) headers['x-api-key'] = config.apiKey;
@@ -176,7 +176,17 @@ export const callAI = async (
                  const text = JSON.parse('{' + match + '}').text;
                  fullContent += text;
                  onStream(fullContent);
-               } catch (e) {}
+               } catch {
+                 try {
+                   // Fallback for malformed chunks (e.g. unescaped newlines)
+                   const sanitizedMatch = match.replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+                   const text = JSON.parse('{' + sanitizedMatch + '}').text;
+                   fullContent += text;
+                   onStream(fullContent);
+                 } catch (e2) {
+                   console.debug(e2);
+                 }
+               }
              }
            }
         } else {
@@ -199,6 +209,7 @@ export const callAI = async (
                   }
                 }
               } catch (e) {
+                console.debug(e);
               }
             }
           }
@@ -211,7 +222,7 @@ export const callAI = async (
       if (config.provider === 'google') return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       return data.choices?.[0]?.message?.content || '';
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI call failed:', error);
     throw error;
   }
@@ -238,7 +249,9 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
       if (stored) {
         proxyUrl = JSON.parse(stored).proxyUrl || '';
       }
-    } catch (e) {}
+    } catch (e) {
+      console.debug(e);
+    }
 
     if (proxyUrl || base.includes('agentrouter')) {
       // Spoof headers for custom provider (e.g. AgentRouter)

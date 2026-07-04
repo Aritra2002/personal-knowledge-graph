@@ -9,22 +9,22 @@ export interface Plugin {
 
 export interface NodeRenderer {
   type: string;
-  renderFn: (node: any) => React.ReactNode;
+  renderFn: (node: unknown) => React.ReactNode;
 }
 
 export interface SidebarTab {
   name: string;
-  component: React.ComponentType<{ note: any }>;
+  component: React.ComponentType<{ note: unknown }>;
 }
 
 export interface AetherMindApi {
   addPlugin: (url: string) => void;
   removePlugin: (id: string) => void;
   getPlugins: () => Plugin[];
-  registerNodeRenderer: (type: string, renderFn: (node: any) => React.ReactNode) => void;
-  registerSidebarTab: (name: string, component: React.ComponentType<{ note: any }>) => void;
-  getNodeRenderers: () => Map<string, (node: any) => React.ReactNode>;
-  getSidebarTabs: () => Map<string, React.ComponentType<{ note: any }>>;
+  registerNodeRenderer: (type: string, renderFn: (node: unknown) => React.ReactNode) => void;
+  registerSidebarTab: (name: string, component: React.ComponentType<{ note: unknown }>) => void;
+  getNodeRenderers: () => Map<string, (node: unknown) => React.ReactNode>;
+  getSidebarTabs: () => Map<string, React.ComponentType<{ note: unknown }>>;
   openSettings: () => void;
   openCommandPalette: () => void;
   createNote: (x?: number, y?: number) => void;
@@ -40,14 +40,15 @@ declare global {
 
 const PLUGINS_STORAGE_KEY = 'aethermind-plugins';
 
-const nodeRenderers = new Map<string, (node: any) => React.ReactNode>();
-const sidebarTabs = new Map<string, React.ComponentType<{ note: any }>>();
+const nodeRenderers = new Map<string, (node: unknown) => React.ReactNode>();
+const sidebarTabs = new Map<string, React.ComponentType<{ note: unknown }>>();
 
 export const getSavedPlugins = (): Plugin[] => {
   try {
     const data = localStorage.getItem(PLUGINS_STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   } catch (e) {
+    console.debug(e);
     return [];
   }
 };
@@ -73,13 +74,13 @@ export const loadPluginScript = (url: string): Promise<void> => {
 export const initPluginManager = () => {
   if (!window.AetherMindApi) {
     window.AetherMindApi = {
-      addPlugin: (_url: string) => {},
-      removePlugin: (_id: string) => {},
+      addPlugin: () => {},
+      removePlugin: () => {},
       getPlugins: getSavedPlugins,
-      registerNodeRenderer: (type: string, renderFn: (node: any) => React.ReactNode) => {
+      registerNodeRenderer: (type: string, renderFn: (node: unknown) => React.ReactNode) => {
         nodeRenderers.set(type, renderFn);
       },
-      registerSidebarTab: (name: string, component: React.ComponentType<{ note: any }>) => {
+      registerSidebarTab: (name: string, component: React.ComponentType<{ note: unknown }>) => {
         sidebarTabs.set(name, component);
       },
       getNodeRenderers: () => nodeRenderers,

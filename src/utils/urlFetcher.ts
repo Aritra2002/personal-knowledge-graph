@@ -43,13 +43,16 @@ export async function fetchUrlContent(url: string): Promise<{ text: string; titl
     }
     
     return { text, title };
-  } catch (error: any) {
-    if (
-      error.name === 'AbortError' || 
-      error.message.includes('Failed to fetch') || 
-      error instanceof TypeError ||
-      error.name === 'TypeError'
-    ) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (
+        error.name === 'AbortError' || 
+        error.message.includes('Failed to fetch') || 
+        error.name === 'TypeError'
+      ) {
+        return null;
+      }
+    } else if (error instanceof TypeError) {
       return null;
     }
     throw error;

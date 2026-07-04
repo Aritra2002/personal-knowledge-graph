@@ -132,3 +132,8 @@ dist-ssr/
 .gstack/
 test_*.py
 mobile_*.png
+
+# Local temp files
+fix_*.cjs
+eslint*.txt
+test_*.py

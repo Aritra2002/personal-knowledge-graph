@@ -28,9 +28,9 @@ export const ConfirmActionToast: React.FC<ConfirmActionToastProps> = ({ action, 
   return (
     <div className="confirm-action-toast glass-panel" style={{
       position: 'fixed',
-      bottom: '20px',
+      bottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
       right: '20px',
-      zIndex: 2000,
+      zIndex: 'var(--z-toast, 9999)',
       padding: '16px',
       borderRadius: '8px',
       width: '320px',
@@ -38,7 +38,8 @@ export const ConfirmActionToast: React.FC<ConfirmActionToastProps> = ({ action, 
       flexDirection: 'column',
       gap: '12px',
       boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-      border: '1px solid rgba(124, 58, 237, 0.4)'
+      border: '1px solid rgba(124, 58, 237, 0.4)',
+      animation: 'toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>

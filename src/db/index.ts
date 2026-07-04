@@ -30,7 +30,7 @@ export interface Note {
   
   // Canvas / Whiteboard
   isExcalidraw?: boolean;
-  excalidrawElements?: any;
+  excalidrawElements?: unknown;
   
   // Semantic Search
   embedding?: number[];
