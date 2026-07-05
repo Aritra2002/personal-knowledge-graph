@@ -17,7 +17,7 @@
 ## [1.25.2] - 2026-07-05
 
 ### 🐛 Bug Fixes
-- **Mobile Node Unpinning**: Fixed an issue where nodes would immediately re-pin after a long-press unpin gesture due to D3 drag's end event persisting outdated pinned coordinates.
+- **Mobile Node Unpinning**: Fixed an issue where the long-press unpin gesture would immediately re-pin the node. The unpin gesture now correctly frees nodes. (Note: dragging a node to a new position on mobile was still broken — D3 drag `event.x/y` coordinate mapping was incorrect for touch; fully fixed in v1.25.3.)
 - **Wiki-links in Markdown**: Fixed wiki-links (`[[Note Title]]`) being incorrectly stripped by DOMPurify in the Editor preview and failing to navigate on click. Wiki-links are now correctly formatted and fully functional across desktop and mobile.
 - **Mobile Mini Card**: Added parsing and rendering for wiki-links in the mobile floating Note Mini Card, matching the behavior of the full editor.
 - **Mobile Layout Bounds**: Fixed canvas control overlays (sidebar button, export button, help button) colliding with the bottom navigation and timeline scrubber in vertical mode by safely anchoring them to the top of the viewport.
@@ -34,7 +34,7 @@
 ## [1.25.0] - 2026-07-05
 
 ### 📱 Mobile View UX Fixes
-- **Graph Dragging Fix**: Implemented native long-press gesture (hold for 500ms) to easily unpin and free-move nodes on touch screens, circumventing the lack of double-click. Resolved associated context menu interruptions.
+- **Long-Press to Unpin**: Implemented native long-press gesture (hold 500ms) to unpin pinned nodes on touch screens. This only freed pinned nodes — dragging nodes to a new position on mobile was still non-functional at this version.
 - **Mobile Page Management**: Replaced placeholder page title pill in mobile header with a fully functional dropdown selector to easily switch between graph pages. Added edit and delete buttons to mobile view.
 - **Review Modal Crash Fix**: Fixed a silent initialization crash in the Spaced Repetition Review modal on slower devices by adding a robust loading state when checking for due notes.
 
@@ -50,7 +50,7 @@
 
 ### 📱 Mobile UI Enhancements
 - **New Mobile Navigation**: Replaced the mobile search bar with a dedicated quick-add node button for better accessibility.
-- **Menu Animations**: Added fluid slide animations to the mobile menu and resolved initial touch drag responsiveness.
+- **Menu Animations**: Added fluid slide animations to the mobile menu. Attempted to improve touch drag responsiveness — tap-to-select reliability improved, but free dragging of nodes on mobile remained non-functional.
 - **Graph Controls**: Intelligently hid bulky GraphCanvas controls (zoom/help boxes) on mobile screens for an unobstructed view.
 - **Bug Fixes**: Resolved layout collapse in settings scroll, timeline scrubber clipping, and mobile nav button bounding sizes.
 
@@ -67,7 +67,7 @@
 ### 🐛 Bug Fixes
 - Fixed mobile popup swipe-up gesture triggering unintentionally when scrolling note content.
 - Corrected the mobile sidebar / editor slide animation to appear from the bottom instead of sliding from the side.
-- Fixed node drag-and-drop on mobile not responding due to mismatched touch padding in the interaction radius.
+- Fixed node interaction radius on mobile so tapping a node more reliably selects it. (Note: dragging nodes to move them on mobile remained broken at this version.)
 
 ## [1.22.0] — 2026-07-04
 
