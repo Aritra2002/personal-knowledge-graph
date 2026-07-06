@@ -61,9 +61,6 @@ export default function App() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  useEffect(() => {
-    setIsSearchOpen(viewport !== 'sm');
-  }, [viewport]);
   const [currentPageId, setCurrentPageId] = useState<number>(1);
   const [sidebarWidth, setSidebarWidth] = useState(420);
   const [physicsConfig, setPhysicsConfig] = useState(() => {
@@ -356,7 +353,8 @@ export default function App() {
               <select 
                 value={currentPageId} 
                 onChange={e => setCurrentPageId(Number(e.target.value))}
-                style={{ padding: '4px 8px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', outline: 'none', maxWidth: '120px' }}
+                className="page-select-dropdown"
+                style={{ maxWidth: '120px' }}
               >
                 {pages.map(p => (
                   <option key={p.id} value={p.id} style={{ background: '#111827' }}>{p.title}</option>
@@ -381,7 +379,7 @@ export default function App() {
               <select 
                 value={currentPageId} 
                 onChange={e => setCurrentPageId(Number(e.target.value))}
-                style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', outline: 'none' }}
+                className="page-select-dropdown"
               >
                 {pages.map(p => (
                   <option key={p.id} value={p.id} style={{ background: '#111827' }}>{p.title}</option>
@@ -421,7 +419,7 @@ export default function App() {
               <select 
                 value={currentPageId} 
                 onChange={e => setCurrentPageId(Number(e.target.value))}
-                style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', outline: 'none' }}
+                className="page-select-dropdown"
               >
                 {pages.map(p => (
                   <option key={p.id} value={p.id} style={{ background: '#111827' }}>{p.title}</option>
