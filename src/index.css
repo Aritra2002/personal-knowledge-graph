@@ -1828,10 +1828,9 @@ body {
 .canvas-help-box {
   padding: 12px !important;
 }
-  .canvas-help-box button {
-    min-height: auto !important;
-    padding: 4px 8px !important;
-  }
+.canvas-help-box button {
+  min-height: auto !important;
+  padding: 4px 8px !important;
 }
 
 .page-select-dropdown {
