@@ -28,10 +28,6 @@ export interface Note {
   interval?: number;
   ease?: number;
   
-  // Canvas / Whiteboard
-  isExcalidraw?: boolean;
-  excalidrawElements?: unknown;
-  
   // Semantic Search
   embedding?: number[];
 }

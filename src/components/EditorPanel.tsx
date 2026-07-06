@@ -11,14 +11,11 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
 import { ColorPicker } from './ColorPicker';
 import { callAI } from '../utils/aiClient';
-import { processFileForOCR } from '../utils/ocr';
 import { ConfirmModal } from './ConfirmModal';
 import { useToast } from './ToastContext';
-import { UploadCloud, PenTool, Sparkles } from 'lucide-react';
+import { PenTool, Sparkles } from 'lucide-react';
 import { cosineSimilarity } from '../utils/vectorSearch';
 import { ConnectionDiscovery } from './ConnectionDiscovery';
-
-const Excalidraw = React.lazy(() => import('@excalidraw/excalidraw').then(module => ({ default: module.Excalidraw })));
 
 interface EditorPanelProps {
   note: Note | null;
@@ -47,18 +44,15 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   const [nodeColor, setNodeColor] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [editMode, setEditMode] = useState<boolean>(false);
-  const [isWhiteboard, setIsWhiteboard] = useState<boolean>(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
   
   // Force preview mode when opening a different note
   useEffect(() => {
     setEditMode(false);
   }, [note?.id]);
-  const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [slashMenuPos, setSlashMenuPos] = useState<{top: number, left: number} | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const connectedNodeIds = new Set(
@@ -75,7 +69,6 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
       setCategory(note.category || 'general');
       setNodeColor(note.color || '');
       setTagsInput(note.tags ? note.tags.join(', ') : '');
-      setIsWhiteboard(note.isExcalidraw || false);
     }
   }, [note]);
 
@@ -376,18 +369,6 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
         <div className="category-indicator" style={{ backgroundColor: categoryColor }}></div>
         <span className="note-status-badge">Note Saved</span>
         <div className="header-actions">
-          <button 
-            className={`icon-btn ${isWhiteboard ? 'active' : ''}`} 
-            onClick={async () => {
-              const newIsWhiteboard = !isWhiteboard;
-              setIsWhiteboard(newIsWhiteboard);
-              if (note) await updateNote(note.id!, { isExcalidraw: newIsWhiteboard });
-            }}
-            aria-label="Toggle Whiteboard" 
-            title="Toggle Whiteboard Mode"
-          >
-            <PenTool size={18} style={{ color: isWhiteboard ? 'var(--node-amber)' : 'inherit' }} />
-          </button>
           <button className="icon-btn ai-btn" onClick={handleAiSummarize} disabled={isAiLoading || !content.trim()} aria-label="Summarize with AI" title="Auto-Summarize Note (AI)">
             <FileText size={18} className={isAiLoading ? 'spin-pulse' : ''} style={{ color: 'var(--node-amber)' }} />
           </button>
@@ -453,41 +434,25 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
         </div>
       </div>
 
-      {/* Edit / Preview Toggle (Only show if NOT whiteboard) */}
-      {!isWhiteboard && (
-        <div className="editor-tabs">
-          <button
-            className={`tab-btn ${editMode ? 'active' : ''}`}
-            onClick={() => setEditMode(true)}
-          >
-            <Edit3 size={14} /> Edit
-          </button>
-          <button
-            className={`tab-btn ${!editMode ? 'active' : ''}`}
-            onClick={() => setEditMode(false)}
-          >
-            <Eye size={14} /> Preview
-          </button>
-        </div>
-      )}
+      {/* Edit / Preview Toggle */}
+      <div className="editor-tabs">
+        <button
+          className={`tab-btn ${editMode ? 'active' : ''}`}
+          onClick={() => setEditMode(true)}
+        >
+          <Edit3 size={14} /> Edit
+        </button>
+        <button
+          className={`tab-btn ${!editMode ? 'active' : ''}`}
+          onClick={() => setEditMode(false)}
+        >
+          <Eye size={14} /> Preview
+        </button>
+      </div>
 
       {/* Main Body Viewport */}
       <div className="editor-body" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        {isWhiteboard ? (
-          <div style={{ flex: 1, position: 'relative', width: '100%', minHeight: '400px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-            <React.Suspense fallback={<div style={{ padding: '20px', color: 'var(--text-secondary)' }}>Loading whiteboard...</div>}>
-              <Excalidraw 
-                initialData={content ? (() => { try { return JSON.parse(content); } catch { return null; } })() : null}
-                onChange={(elements: any, _appState: any, files: any) => {
-                  if (note) {
-                    debouncedSaveContent(note.id!, JSON.stringify({ elements, files }));
-                  }
-                }}
-                theme="dark"
-              />
-            </React.Suspense>
-          </div>
-        ) : editMode ? (
+        {editMode ? (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="icon-btn" onClick={() => insertText('**', '**')} aria-label="Bold" title="Bold"><Bold size={14} /></button>
@@ -495,37 +460,6 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
               <button className="icon-btn" onClick={() => insertText('### ')} aria-label="Heading" title="Heading"><Heading size={14} /></button>
               <button className="icon-btn" onClick={() => insertText('```\n', '\n```')} aria-label="Code Block" title="Code Block"><Code size={14} /></button>
               <button className="icon-btn" onClick={() => insertText('[[', ']]')} aria-label="Wiki Link" title="Wiki Link"><LinkIcon size={14} /></button>
-              
-              <button 
-                className="icon-btn" 
-                onClick={() => fileInputRef.current?.click()} 
-                title="Extract Text from Image or PDF"
-                disabled={isOcrLoading}
-              >
-                <UploadCloud size={14} className={isOcrLoading ? 'spin-pulse' : ''} style={{ color: isOcrLoading ? 'var(--node-amber)' : 'inherit' }} />
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                accept="image/*,application/pdf"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setIsOcrLoading(true);
-                  try {
-                    const text = await processFileForOCR(file);
-                    insertText(`\n\n> **Extracted from ${file.name}:**\n${text}\n\n`);
-                  } catch (err: any) {
-                    showToast('OCR Error: ' + err.message, 'error');
-                  } finally {
-                    setIsOcrLoading(false);
-                    e.target.value = '';
-                  }
-                }}
-              />
-
-
             </div>
             <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
               <textarea

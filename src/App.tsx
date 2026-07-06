@@ -37,7 +37,7 @@ function useViewport() {
   }, []);
   return viewport;
 }
-import { initPluginManager } from './utils/pluginManager';
+
 import { saveSnapshot, loadSnapshot, getSnapshots, restoreSnapshot } from './utils/snapshotManager';
 
 export default function App() {
@@ -167,7 +167,7 @@ export default function App() {
   // Seed database on app mount
   useEffect(() => {
     seedDatabase();
-    initPluginManager();
+    
   }, []);
 
   // Command Palette Listener
@@ -415,7 +415,7 @@ export default function App() {
         let textContent = '';
         if (file.name.endsWith('.pdf')) {
           setDocStatus('Extracting text content...');
-          const { extractTextFromPDF } = await import('./utils/ocr');
+          const { extractTextFromPDF } = await import('./utils/pdf');
           textContent = await extractTextFromPDF(file);
         } else {
           textContent = await new Promise<string>((resolve, reject) => {
@@ -504,22 +504,7 @@ ${textContent}
     document.addEventListener('mouseup', onMouseUp);
   };
 
-  useEffect(() => {
-    window.AetherMindApi = {
-      ...window.AetherMindApi,
-      openSettings: () => setShowSettings(true),
-      openCommandPalette: () => setShowCommandPalette(true),
-      createNote: (x?: number, y?: number) => handleCreateNote(x, y),
-      selectNote: (id: number | null) => {
-        if (id === null) handleSelectNote(null);
-        else {
-          const note = notes.find(n => n.id === id);
-          if (note) handleSelectNote(note);
-        }
-      },
-      jumpToNote: (title: string) => handleJumpToNote(title)
-    };
-  }, [notes, activeNoteId, isSidebarOpen, currentPageId]);
+
 
   return (
     <div className="app-container">

@@ -49,13 +49,11 @@
 ### 📝 **Rich Editing & Organization**
 - **Split-Pane Editor**: Edit in pristine Markdown with live PrismJS syntax highlighting and full GitHub-flavored markdown support.
 - **Wiki-Links**: Easily link concepts by typing `[[Node Name]]`, creating instant bidirectional edges.
-- **Integrated Whiteboards**: Switch a node to Excalidraw mode and sketch out ideas visually inside your knowledge base.
 - **Spaced Repetition (Graph-Aware)**: Review sessions are clustered intelligently. Overdue linked neighbors are interleaved, letting you study related concepts in natural associative flows rather than pure randomness.
 - **Daily Notes & Journal**: Calendar-integrated journaling for maintaining daily logs.
 
 ### 🗄️ **Data Portability & Extensibility**
 - **Complete Backups**: Import/Export raw JSON data or rich ZIP archives containing graph data, raw markdown files, and canvas PNG snapshots.
-- **Dynamic Plugin Ecosystem**: Extend the functionality of your workspace by loading custom JavaScript plugins through the global `window.AetherMindApi` hooks.
 
 ---
 

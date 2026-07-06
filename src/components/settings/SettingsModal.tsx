@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { X, Database, Brain, Puzzle, Info, Calendar as CalendarIcon } from 'lucide-react';
+import { X, Database, Brain, Info, Calendar as CalendarIcon } from 'lucide-react';
 import packageJson from '../../../package.json';
 import { DataSettingsTab } from './DataSettingsTab';
 import { AiSettingsTab } from './AiSettingsTab';
-import { PluginSettingsTab } from './PluginSettingsTab';
 import { JournalCalendar } from '../JournalCalendar';
 import type { Category } from '../../db';
 
@@ -19,7 +18,7 @@ interface SettingsModalProps {
   onViewSnapshots?: () => void;
 }
 
-type TabType = 'data' | 'journal' | 'ai' | 'plugins' | 'about';
+type TabType = 'data' | 'journal' | 'ai' | 'about';
 
 export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [activeTab, setActiveTab] = useState<TabType>('data');
@@ -48,9 +47,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             <button className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`} onClick={() => setActiveTab('ai')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Brain size={16} /> AI Integration
             </button>
-            <button className={`tab-btn ${activeTab === 'plugins' ? 'active' : ''}`} onClick={() => setActiveTab('plugins')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
-              <Puzzle size={16} /> Plugins
-            </button>
             { !isMobile && <div style={{ flex: 1 }}></div> }
             <button className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`} onClick={() => setActiveTab('about')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Info size={16} /> About
@@ -68,7 +64,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             {activeTab === 'data' && <DataSettingsTab {...props} />}
             {activeTab === 'journal' && <JournalCalendar />}
             {activeTab === 'ai' && <AiSettingsTab />}
-            {activeTab === 'plugins' && <PluginSettingsTab />}
             {activeTab === 'about' && (
               <div className="settings-section about-section" style={{ marginTop: '40px' }}>
                 <div className="about-header">
