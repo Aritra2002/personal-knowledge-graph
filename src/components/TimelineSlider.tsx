@@ -73,9 +73,8 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
           )}
           {onExitHistory && (
             <button
-              className="reset-timeline-btn"
+              className="exit-history-btn"
               onClick={onExitHistory}
-              style={{ color: 'var(--text-secondary)' }}
             >
               Exit History
             </button>
