@@ -5,6 +5,11 @@
 ### 🐛 Bug Fixes
 - **Mobile Node Drag (Actual Root Fix)**: Fixed the underlying collision between custom pointer touch handlers and D3's native zoom behavior on mobile devices by suppressing D3 zoom events via `stopImmediatePropagation()`. Nodes can now be dragged smoothly on mobile without panning the canvas.
 - **Mobile UI Controls**: Refactored the floating canvas controls for narrow viewports. The Sidebar toggle is now hidden on mobile, and the Search, Export, and Help buttons are consolidated into a horizontal flex-row with unified premium design.
+- **UI Mutual Exclusivity**: Search, Export, and Help panels now automatically close each other to prevent overlapping UI states.
+- **Search Panel Performance**: Removed the slide-in animation to eliminate perceived lag; panel now opens instantly. Disabled auto-open on desktop launch.
+- **Mobile Layout Bounds Fixes**: Export menu now dynamically adjusts positioning to stay within viewport bounds on mobile screens. Canvas controls moved to top-left on vertical layouts to prevent overlapping with the opened search UI.
+- **Timeline Scrubber Upgrade**: Fixed layout shifts caused by conditional rendering of the Reset button. Upgraded slider track with dynamic gradient colors based on value progress, and styled all scrubber controls with a premium glassmorphism aesthetic. Fixed logic bug where thumb position didn't visually reset on clear.
+- **Page Selector**: Refactored with premium glassmorphism styling, hover glows, and a custom caret icon.
 
 ## [1.25.4] - 2026-07-05
 
