@@ -1263,7 +1263,7 @@ body {
 .action-buttons-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .settings-action-btn {

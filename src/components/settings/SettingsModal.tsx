@@ -38,7 +38,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
             </div>
           )}
           
-          <div style={{ padding: '12px', display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '4px', flex: 1, overflowY: isMobile ? 'hidden' : 'auto' }}>
+          <div style={{ padding: '12px', display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '8px', flex: 1, overflowY: isMobile ? 'hidden' : 'auto' }}>
             <button className={`tab-btn ${activeTab === 'data' ? 'active' : ''}`} onClick={() => setActiveTab('data')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
               <Database size={16} /> Data & Graph
             </button>
@@ -67,32 +67,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
           <div style={{ flex: 1, padding: isMobile ? '56px 16px 16px 16px' : '24px 24px 24px 32px', overflowY: 'auto' }}>
             {activeTab === 'data' && <DataSettingsTab {...props} />}
             {activeTab === 'journal' && <JournalCalendar />}
-            {activeTab === 'ai' && (
-              <>
-                <AiSettingsTab />
-                <div className="settings-section" style={{ marginTop: '20px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Voice Engine</h3>
-                  <div className="setting-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="setting-label" style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontWeight: 500 }}>Transcription Engine</span>
-                      <small style={{ color: 'var(--text-secondary)' }}>Local Whisper (Private, Download once) vs Cloud (Native SpeechRecognition)</small>
-                    </div>
-                    <select 
-                      value={localStorage.getItem('voiceEngine') || 'local'} 
-                      onChange={(e) => {
-                        localStorage.setItem('voiceEngine', e.target.value);
-                        // Force a re-render to reflect the change visually
-                        setActiveTab('data'); setTimeout(() => setActiveTab('ai'), 0);
-                      }}
-                      style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)', outline: 'none' }}
-                    >
-                      <option value="local" style={{ background: '#111827' }}>Local Whisper</option>
-                      <option value="cloud" style={{ background: '#111827' }}>Cloud SpeechRecognition</option>
-                    </select>
-                  </div>
-                </div>
-              </>
-            )}
+            {activeTab === 'ai' && <AiSettingsTab />}
             {activeTab === 'plugins' && <PluginSettingsTab />}
             {activeTab === 'about' && (
               <div className="settings-section about-section" style={{ marginTop: '40px' }}>

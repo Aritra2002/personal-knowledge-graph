@@ -1,15 +1,14 @@
 import React from 'react';
 import { Network, FileText, Plus, Menu } from 'lucide-react';
-import { VoiceRecorder } from './VoiceRecorder';
+
 
 interface MobileNavProps {
-  pageId: number;
   activeTab: 'graph' | 'editor' | 'search' | 'menu';
   onTabChange: (tab: 'graph' | 'editor' | 'search' | 'menu') => void;
-  onCreateNote: () => void;
+  onNewPage: () => void;
 }
 
-export const MobileNav: React.FC<MobileNavProps> = ({ pageId, activeTab, onTabChange, onCreateNote }) => {
+export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange, onNewPage }) => {
   return (
     <div className="mobile-nav" style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, 
@@ -34,17 +33,13 @@ export const MobileNav: React.FC<MobileNavProps> = ({ pageId, activeTab, onTabCh
       >
         <FileText size={20} style={{ transform: activeTab === 'editor' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }} />
         <span style={{ fontSize: '10px' }}>Editor</span>
-      </button>
-      <button 
+      </button>      <button 
         style={{ background: 'none', border: 'none', color: 'var(--text-secondary, #9ca3af)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-        onClick={onCreateNote}
+        onClick={onNewPage}
       >
-        <Plus size={20} style={{ transition: 'transform 0.2s' }} />
-        <span style={{ fontSize: '10px' }}>New</span>
+        <Plus size={20} style={{ transform: 'scale(1)', transition: 'transform 0.2s' }} />
+        <span style={{ fontSize: '10px' }}>New Page</span>
       </button>
-
-      <VoiceRecorder pageId={pageId} variant="nav" />
-
       <button 
         style={{ background: 'none', border: 'none', color: activeTab === 'menu' ? 'var(--accent-primary, #7c3aed)' : 'var(--text-secondary, #9ca3af)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
         onClick={() => onTabChange('menu')}

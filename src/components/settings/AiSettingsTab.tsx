@@ -42,7 +42,7 @@ export const AiSettingsTab: React.FC = () => {
       <p className="section-desc">Configure your preferred AI provider for intelligent features.</p>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Provider</label>
           <select
             value={aiConfig.provider || 'openai'}
@@ -81,7 +81,7 @@ export const AiSettingsTab: React.FC = () => {
           </span>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Base URL</label>
           <input
             type="text"
@@ -102,7 +102,7 @@ export const AiSettingsTab: React.FC = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>API Key</label>
           <input
             type="password"
@@ -114,7 +114,7 @@ export const AiSettingsTab: React.FC = () => {
         </div>
 
         {aiConfig.provider === 'custom' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Backend Proxy URL (Optional)</label>
             <input
               type="text"
@@ -126,7 +126,7 @@ export const AiSettingsTab: React.FC = () => {
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Model</label>
             {['custom', 'openrouter', 'openai', 'deepseek'].includes(aiConfig.provider) && (

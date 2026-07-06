@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.2] - 2026-07-06
+
+### 🔧 Feature Adjustments
+
+- **Mobile UI**: Removed the redundant "New" node button from the mobile bottom navigation bar (it remains accessible via the editor).
+- **Settings UI Layout**: Increased vertical and horizontal gaps between tabs, input labels, and category lists to make the Settings interface more symmetrically spaced and breathable on all devices.
+
 ## [1.26.1] - 2026-07-06
 
 ### ✨ Improvements
@@ -116,7 +123,7 @@
 - **AI Connection Discovery**: After writing a note, the system silently scans your graph and suggests potential links with a 1-sentence reason, helping you discover hidden connections.
 - **"Why Connected?" Edge Explanations**: Hovering over any edge on the Graph Canvas now generates and caches an AI explanation of the semantic relationship between those two connected ideas.
 - **Daily Discovery Digest**: Upon first opening the app each day, a new modal surprises you with a fascinating connection between a forgotten note (> 1 month old) and a recent thought.
-- **100% Local Voice Input**: Added a microphone button that transcribes your speech completely offline directly in the browser (via Web Worker `Xenova/whisper-tiny.en`), turning your voice into new graph nodes without compromising privacy. Also added an instant Cloud (SpeechRecognition) fallback option in Settings.
+
 - **Graph-Aware Spaced Repetition**: Review sessions are now clustered intelligently. When you review a note, its overdue linked neighbors are interleaved next, allowing you to study concepts in natural associative flows rather than randomly.
 
 ### 🐛 Bug Fixes
@@ -281,8 +288,7 @@
 ## [1.11.0] - 2026-06-25
 
 ### ✨ New Features
-- **Voice-to-Text**: Added cross-browser Voice-to-Text dictation using local WebAssembly models (Whisper) — fully offline, no API key needed.
-- **Text-to-Speech**: Added "Read Aloud" functionality using the Web Speech API.
+
 - **Plugin Ecosystem**: Exposed `window.AetherMindApi` with global hooks for UI navigation, settings, and note management. Initialised Plugin Manager.
 
 ### 🐛 Bug Fixes

@@ -18,7 +18,7 @@ import { PromptModal } from './components/PromptModal';
 import { MobileNav } from './components/MobileNav';
 import { NoteMiniCard } from './components/NoteMiniCard';
 import { DiscoveryDigestModal } from './components/DiscoveryDigestModal';
-import { VoiceRecorder } from './components/VoiceRecorder';
+
 import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Compass, FileArchive, FileUp } from 'lucide-react';
 import { callAI } from './utils/aiClient';
 
@@ -586,7 +586,7 @@ ${textContent}
               <button className="header-btn icon-only-btn" onClick={handleUploadDocument} title="Upload Document">
                 <FileUp size={16} />
               </button>
-              <VoiceRecorder pageId={currentPageId} onNoteCreated={(id) => handleSelectNote({ id })} />
+
               <button className="header-btn icon-only-btn primary-btn" onClick={() => setShowNewPage(true)} title="New Page">
                 <Plus size={16} />
               </button>
@@ -638,7 +638,7 @@ ${textContent}
               <button className="header-btn" onClick={handleUploadDocument} title="Upload Document">
                 <FileUp size={16} /> <span className="hidden xl:inline">Upload Document</span>
               </button>
-              <VoiceRecorder pageId={currentPageId} onNoteCreated={(id) => handleSelectNote({ id })} />
+
               <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)}>
                 <Plus size={16} /> New Page
               </button>
@@ -792,9 +792,7 @@ ${textContent}
             <button className="header-btn" onClick={() => { handleUploadDocument(); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
               <FileUp size={18} /> Upload Document
             </button>
-            <button className="header-btn primary-btn" onClick={() => { setShowNewPage(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
-              <Plus size={18} /> New Page
-            </button>
+
             <button className="header-btn" onClick={() => { setShowSettings(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
               <Settings size={18} /> Settings
             </button>
@@ -804,7 +802,6 @@ ${textContent}
 
       {viewport === 'sm' && (
         <MobileNav 
-          pageId={currentPageId}
           activeTab={isSidebarOpen ? 'editor' : (isSearchOpen ? 'search' : (showMobileMenu ? 'menu' : 'graph'))}
           onTabChange={(tab) => {
             switch (tab) {
@@ -828,7 +825,7 @@ ${textContent}
                 break;
             }
           }}
-          onCreateNote={() => handleCreateNote()}
+          onNewPage={() => setShowNewPage(true)}
         />
       )}
 

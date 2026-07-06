@@ -14,7 +14,7 @@ import { callAI } from '../utils/aiClient';
 import { processFileForOCR } from '../utils/ocr';
 import { ConfirmModal } from './ConfirmModal';
 import { useToast } from './ToastContext';
-import { UploadCloud, PenTool, Volume2, VolumeX, Mic, MicOff, Loader2, Sparkles } from 'lucide-react';
+import { UploadCloud, PenTool, Sparkles } from 'lucide-react';
 import { cosineSimilarity } from '../utils/vectorSearch';
 import { ConnectionDiscovery } from './ConnectionDiscovery';
 
@@ -49,15 +49,10 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isWhiteboard, setIsWhiteboard] = useState<boolean>(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   
   // Force preview mode when opening a different note
   useEffect(() => {
     setEditMode(false);
-    setIsPlaying(false);
-    import('../utils/speech').then(m => m.stopSpeaking());
   }, [note?.id]);
   const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -65,8 +60,6 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   const previewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
 
   const connectedNodeIds = new Set(
     links
@@ -511,56 +504,6 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
               >
                 <UploadCloud size={14} className={isOcrLoading ? 'spin-pulse' : ''} style={{ color: isOcrLoading ? 'var(--node-amber)' : 'inherit' }} />
               </button>
-              <button 
-                className="icon-btn" 
-                onClick={async () => {
-                  if (isRecording) {
-                    if (mediaRecorderRef.current) {
-                      mediaRecorderRef.current.stop();
-                      setIsRecording(false);
-                    }
-                  } else {
-                    try {
-                      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                      const mediaRecorder = new MediaRecorder(stream);
-                      mediaRecorderRef.current = mediaRecorder;
-                      audioChunksRef.current = [];
-
-                      mediaRecorder.ondataavailable = (e) => {
-                        if (e.data.size > 0) {
-                          audioChunksRef.current.push(e.data);
-                        }
-                      };
-
-                      mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-                        setIsTranscribing(true);
-                        try {
-                          const { transcribeAudioBlob } = await import('../utils/speech');
-                          const text = await transcribeAudioBlob(audioBlob);
-                          if (text) {
-                            insertText(text + ' ');
-                          }
-                        } catch (err: any) {
-                          showToast('Transcription error: ' + err.message, 'error');
-                        } finally {
-                          setIsTranscribing(false);
-                        }
-                        stream.getTracks().forEach(track => track.stop());
-                      };
-
-                      mediaRecorder.start();
-                      setIsRecording(true);
-                    } catch (err: any) {
-                      showToast('Microphone error: ' + err.message, 'error');
-                    }
-                  }
-                }} 
-                title={isRecording ? "Stop Recording" : "Record Dictation"}
-                disabled={isTranscribing}
-              >
-                {isTranscribing ? <Loader2 size={14} className="spin-pulse" /> : isRecording ? <MicOff size={14} color="red" /> : <Mic size={14} />}
-              </button>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -623,21 +566,10 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center' }}>
               <button 
-                className="btn btn-secondary btn-sm" 
-                onClick={async () => {
-                  const { speakText, stopSpeaking } = await import('../utils/speech');
-                  if (isPlaying) {
-                    stopSpeaking();
-                    setIsPlaying(false);
-                  } else {
-                    setIsPlaying(true);
-                    speakText(content);
-                  }
-                }} 
-                title={isPlaying ? "Stop Reading" : "Read Aloud"}
+                className="btn btn-primary btn-sm" 
+                onClick={() => setEditMode(true)}
               >
-                {isPlaying ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                <span>{isPlaying ? "Stop Reading" : "Read Aloud"}</span>
+                <PenTool size={14} /> Edit Mode
               </button>
             </div>
             <div

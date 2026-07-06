@@ -204,9 +204,9 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
             <span>{isClustering ? 'Clustering...' : 'Cluster Unlinked Notes'}</span>
           </button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px', marginTop: '8px' }}>
-              <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>NLP Clustering</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Inject invisible links between semantically similar notes on the graph</div>
+              <div style={{ paddingRight: '12px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '6px' }}>NLP Clustering</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Inject invisible links between semantically similar notes on the graph</div>
               </div>
               <label style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px' }}>
                 <input
@@ -247,7 +247,7 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
         </div>
         <p className="section-desc" style={{ marginBottom: '12px' }}>Customize categories and their default colors.</p>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {categories.map(cat => (
             <div key={cat.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '6px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
