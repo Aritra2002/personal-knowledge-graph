@@ -1741,6 +1741,7 @@ body {
 
 @media (max-width: 767px) {
   .sidebar-tab-trigger { display: none !important; }
+  .hide-on-mobile { display: none !important; }
 }
 
 .canvas-controls button {

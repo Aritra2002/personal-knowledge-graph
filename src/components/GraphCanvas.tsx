@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { db, type Note, type Link, type Category } from '../db';
 import { updateNote } from '../db/helpers';
-import { HelpCircle, PanelLeft, Download } from 'lucide-react';
+import { HelpCircle, PanelLeft, Download, Search } from 'lucide-react';
 import { cosineSimilarity } from '../utils/vectorSearch';
 import { callAI } from '../utils/aiClient';
 
@@ -19,6 +19,7 @@ interface GraphCanvasProps {
   physicsConfig: { linkDistance: number; chargeStrength: number };
   isSidebarOpen: boolean;
   onOpenSidebar: () => void;
+  onOpenSearch?: () => void;
   nlpClustering?: boolean;
 }
 
@@ -53,6 +54,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   physicsConfig,
   isSidebarOpen,
   onOpenSidebar,
+  onOpenSearch,
   nlpClustering
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -830,6 +832,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         canvas.setPointerCapture(event.pointerId);
         if (simulationRef.current) simulationRef.current.alphaTarget(0.3).restart();
         event.preventDefault(); // Stop browser scrolling/panning
+        event.stopImmediatePropagation(); // Prevent D3 zoom from seeing this
       }
     };
 
@@ -883,12 +886,15 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     };
 
 
-    // Call both behaviors
+    // Call drag behavior first
     d3.select(canvas).call(dragBehavior as unknown as never);
-    d3.select(canvas).call(zoomBehavior);
 
     canvas.addEventListener('pointerdown', handlePointerDown, { passive: false });
     canvas.addEventListener('pointerdown', handleTouchDragStart, { passive: false });
+    
+    // Call zoom behavior AFTER our custom pointerdown listeners so we can use stopImmediatePropagation
+    d3.select(canvas).call(zoomBehavior);
+
     canvas.addEventListener('pointermove', handleTouchDragMove, { passive: false });
     canvas.addEventListener('pointerup', handleTouchDragEnd);
     canvas.addEventListener('pointercancel', handleTouchDragEnd);
@@ -921,10 +927,11 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       />
 
       {/* Floating Canvas Controls */}
+      {/* Floating Canvas Controls */}
       <div className="canvas-controls" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {!isSidebarOpen && (
           <button
-            className="canvas-btn"
+            className="canvas-btn hide-on-mobile"
             onClick={onOpenSidebar}
             title="Open Sidebar"
             aria-label="Open Sidebar"
@@ -932,29 +939,41 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             <PanelLeft size={16} /> Sidebar
           </button>
         )}
-        <div style={{ position: 'relative' }}>
-          <button
-            className="canvas-control-btn canvas-btn"
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            title="Export graph"
-          >
-            <Download size={16} /> Export
-          </button>
-          {showExportMenu && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'rgba(20,27,50,0.95)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: '8px', padding: '4px', display: 'flex', flexDirection: 'column', minWidth: '120px', zIndex: 'var(--z-dropdown, 40)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
-              <button onClick={() => handleExport('svg')} style={{ background: 'none', border: 'none', color: 'white', padding: '8px', textAlign: 'left', borderRadius: '4px', cursor: 'pointer' }}>SVG (vector)</button>
-              <button onClick={() => handleExport('png')} style={{ background: 'none', border: 'none', color: 'white', padding: '8px', textAlign: 'left', borderRadius: '4px', cursor: 'pointer' }}>PNG (image)</button>
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
+          {onOpenSearch && (
+            <button
+              className="canvas-btn"
+              onClick={onOpenSearch}
+              title="Search graph"
+              aria-label="Search"
+            >
+              <Search size={16} /> Search
+            </button>
           )}
+          <div style={{ position: 'relative' }}>
+            <button
+              className="canvas-control-btn canvas-btn"
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              title="Export graph"
+            >
+              <Download size={16} /> Export
+            </button>
+            {showExportMenu && (
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'rgba(20,27,50,0.95)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: '8px', padding: '4px', display: 'flex', flexDirection: 'column', minWidth: '120px', zIndex: 'var(--z-dropdown, 40)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
+                <button onClick={() => handleExport('svg')} style={{ background: 'none', border: 'none', color: 'white', padding: '8px', textAlign: 'left', borderRadius: '4px', cursor: 'pointer' }}>SVG (vector)</button>
+                <button onClick={() => handleExport('png')} style={{ background: 'none', border: 'none', color: 'white', padding: '8px', textAlign: 'left', borderRadius: '4px', cursor: 'pointer' }}>PNG (image)</button>
+              </div>
+            )}
+          </div>
+          <button
+            className="canvas-btn"
+            onClick={() => setShowHelp(!showHelp)}
+            title="Show controls help"
+            aria-label="Controls help"
+          >
+            <HelpCircle size={16} /> Help
+          </button>
         </div>
-        <button
-          className="canvas-btn"
-          onClick={() => setShowHelp(!showHelp)}
-          title="Show controls help"
-          aria-label="Controls help"
-        >
-          <HelpCircle size={16} /> Help
-        </button>
       </div>
 
       {/* Help Modal Popup */}

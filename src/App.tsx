@@ -19,7 +19,7 @@ import { MobileNav } from './components/MobileNav';
 import { NoteMiniCard } from './components/NoteMiniCard';
 import { DiscoveryDigestModal } from './components/DiscoveryDigestModal';
 import { VoiceRecorder } from './components/VoiceRecorder';
-import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Search, Compass } from 'lucide-react';
+import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Compass } from 'lucide-react';
 
 function useViewport() {
   const [viewport, setViewport] = useState<'sm' | 'md' | 'lg'>('lg');
@@ -463,15 +463,7 @@ export default function App() {
       <main className="app-workspace">
         {/* Left Side: Graph Canvas & Overlay Filters */}
         <div className="left-viewport">
-          {/* Search Toggle Button */}
-          <button 
-            className={`search-toggle-btn glass-panel ${isSearchOpen ? 'hidden' : ''}`}
-            onClick={() => setIsSearchOpen(true)}
-            aria-label="Open search and filters"
-          >
-            <Search size={16} />
-            <span>Search</span>
-          </button>
+
 
           {/* Floating Search Filter overlay */}
           <SearchBar
@@ -500,6 +492,7 @@ export default function App() {
               physicsConfig={physicsConfig}
               isSidebarOpen={isSidebarOpen}
               onOpenSidebar={() => setIsSidebarOpen(true)}
+              onOpenSearch={() => setIsSearchOpen(true)}
               nlpClustering={nlpClustering && !historicalSnapshot}
             />
           </Suspense>
