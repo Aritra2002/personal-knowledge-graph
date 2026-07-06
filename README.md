@@ -5,6 +5,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/version-1.26.2-blue.svg?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/license-AGPLv3-red.svg?style=flat-square" alt="AGPLv3 License" />
     <img src="https://img.shields.io/badge/React-18-61DAFB.svg?style=flat-square&logo=react" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?style=flat-square&logo=typescript" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Vite-Powered-646CFF.svg?style=flat-square&logo=vite" alt="Vite" />
@@ -110,3 +111,12 @@ The compiled assets will be generated in the `dist/` directory, primed for deplo
 > **AetherMind was proudly built by vibe coding with the assistance of [Antigravity AI](https://deepmind.google/technologies/gemini/).**
 
 From deep bug resolution in legacy binary decoders to crafting fluid UI animations, orchestrating complex D3 physics, and architecting seamless Web Worker ML pipelines—vibe coding empowered the entire development lifecycle, allowing Antigravity to operate as the principal synthetic software engineer and bring this vision to life effortlessly.
+
+---
+
+## ?? License
+
+This project is strictly protected and distributed under the **[GNU Affero General Public License v3.0 (AGPLv3)](LICENSE)**.
+
+By using, modifying, or distributing this software, you agree to the terms and conditions of the AGPLv3. This copyleft license ensures that AetherMind remains fully open-source and protects it from being utilized in closed-source proprietary software or cloud services without publishing the source code.
+
