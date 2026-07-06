@@ -108,11 +108,13 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
           value={value}
           onChange={handleSliderChange}
         />
-        {dateRange && (
-          <button className="reset-timeline-btn" onClick={() => setDateRange(null)}>
-            Reset Timeline
-          </button>
-        )}
+        <button 
+          className="reset-timeline-btn" 
+          onClick={() => setDateRange(null)}
+          style={{ visibility: dateRange ? 'visible' : 'hidden' }}
+        >
+          Reset Timeline
+        </button>
       </div>
     </div>
   );
