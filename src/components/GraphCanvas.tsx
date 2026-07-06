@@ -81,7 +81,6 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   }>({ visible: false, x: 0, y: 0, loading: false, text: '' });
 
   const handleExport = async (format: 'svg' | 'png' | 'zip') => {
-    setShowExportMenu(false);
     if (format === 'zip') {
       try {
         const JSZip = (await import('jszip')).default;
@@ -994,7 +993,6 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
               className="canvas-btn"
               onClick={() => {
                 if (onOpenSearch) onOpenSearch();
-                setShowExportMenu(false);
                 setShowHelp(false);
               }}
               title="Search graph"
@@ -1020,7 +1018,6 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             className="canvas-btn"
             onClick={() => {
               setShowHelp(!showHelp);
-              setShowExportMenu(false);
               if (onCloseSearch) onCloseSearch();
             }}
             title="Show controls help"
