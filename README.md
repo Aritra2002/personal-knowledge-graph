@@ -118,5 +118,4 @@ From deep bug resolution in legacy binary decoders to crafting fluid UI animatio
 
 This project is strictly protected and distributed under the **[GNU Affero General Public License v3.0 (AGPLv3)](LICENSE)**.
 
-By using, modifying, or distributing this software, you agree to the terms and conditions of the AGPLv3. This copyleft license ensures that AetherMind remains fully open-source and protects it from being utilized in closed-source proprietary software or cloud services without publishing the source code.
-
+This project is licensed under the GNU Affero General Public License v3.0 (AGPLv3). If you modify and distribute this software, or provide a modified version for users to interact with over a network, you must comply with the terms of the AGPLv3, including making the corresponding source code available. This copyleft license helps ensure that AetherMind and its derivatives remain open source.
