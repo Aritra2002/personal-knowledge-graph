@@ -360,11 +360,11 @@ export default function App() {
                   <option key={p.id} value={p.id} style={{ background: '#111827' }}>{p.title}</option>
                 ))}
               </select>
-              <button className="header-btn icon-only-btn" onClick={() => setShowRenamePage(true)} title="Rename Page" style={{ padding: '6px' }}>
+              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} title="Rename Page">
                 <Edit2 size={14} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={handleDeletePage} title="Delete Page" disabled={pages.length <= 1} style={{ padding: '6px' }}>
-                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'var(--text-secondary)' : '#f43f5e' }} />
+              <button className="page-action-btn" onClick={handleDeletePage} title="Delete Page" disabled={pages.length <= 1}>
+                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : '#f43f5e' }} />
               </button>
             </div>
           </>
@@ -425,11 +425,11 @@ export default function App() {
                   <option key={p.id} value={p.id} style={{ background: '#111827' }}>{p.title}</option>
                 ))}
               </select>
-              <button className="header-btn icon-only-btn" onClick={() => setShowRenamePage(true)} title="Rename Page" style={{ padding: '6px' }}>
+              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} title="Rename Page">
                 <Edit2 size={14} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={handleDeletePage} title="Delete Page" disabled={pages.length <= 1} style={{ padding: '6px' }}>
-                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'var(--text-secondary)' : '#f43f5e' }} />
+              <button className="page-action-btn" onClick={handleDeletePage} title="Delete Page" disabled={pages.length <= 1}>
+                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : '#f43f5e' }} />
               </button>
             </div>
             <div className="header-controls" style={{ marginLeft: 'auto' }}>
