@@ -81,6 +81,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
                   D3 force-directed simulation and Markdown parsing, it transforms flat text notes into 
                   an organic, navigable web.
                 </p>
+                <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', borderLeft: '3px solid #ef4444' }}>
+                  <strong>License: AGPL-3.0</strong><br />
+                  This application is distributed under the GNU Affero General Public License v3.0. 
+                  Any modifications or network use of this software must remain fully open-source.
+                </div>
                 <div className="credits">
                   Version {packageJson.version} (Local-First)
                 </div>
