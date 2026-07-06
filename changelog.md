@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.25.5] - 2026-07-06
+
+### 🐛 Bug Fixes
+- **Mobile Node Drag (Actual Root Fix)**: Fixed the underlying collision between custom pointer touch handlers and D3's native zoom behavior on mobile devices by suppressing D3 zoom events via `stopImmediatePropagation()`. Nodes can now be dragged smoothly on mobile without panning the canvas.
+- **Mobile UI Controls**: Refactored the floating canvas controls for narrow viewports. The Sidebar toggle is now hidden on mobile, and the Search, Export, and Help buttons are consolidated into a horizontal flex-row with unified premium design.
+
 ## [1.25.4] - 2026-07-05
 
 ### 🐛 Bug Fixes
@@ -9,7 +15,7 @@
 ## [1.25.3] - 2026-07-05
 
 ### 🐛 Bug Fixes
-- **Mobile Node Drag (Root Fix)**: Completely rewrote touch drag handling. D3 drag is now mouse-only; touch drag uses native `setPointerCapture()` with a dedicated `pointerdown → pointermove → pointerup` path on the canvas — this correctly maps `clientX/Y → canvas space → simulation space` so nodes actually move when dragged on mobile.
+- **Mobile Node Drag (Partial Fix)**: Completely rewrote touch drag handling. D3 drag is now mouse-only; touch drag uses native `setPointerCapture()` with a dedicated `pointerdown → pointermove → pointerup` path on the canvas. (Note: D3 zoom was still catching the events and panning the canvas simultaneously; fully fixed in v1.25.5.)
 - **Mobile UI Bounds**: Canvas control buttons (Sidebar, Export, Help) now stack vertically (`flex-direction: column`) so they never overflow horizontally on narrow screens. Fixed z-index token references across modals and overlay elements.
 - **Z-Index System**: Replaced magic `z-index` numbers with a 11-tier CSS token scale (`--z-canvas-overlay` → `--z-toast: 9999`).
 
@@ -23,7 +29,7 @@
 ## [1.25.2] - 2026-07-05
 
 ### 🐛 Bug Fixes
-- **Mobile Node Unpinning**: Fixed an issue where the long-press unpin gesture would immediately re-pin the node. The unpin gesture now correctly frees nodes. (Note: dragging a node to a new position on mobile was still broken — D3 drag `event.x/y` coordinate mapping was incorrect for touch; fully fixed in v1.25.3.)
+- **Mobile Node Unpinning**: Fixed an issue where the long-press unpin gesture would immediately re-pin the node. The unpin gesture now correctly frees nodes. (Note: dragging a node to a new position on mobile was still broken — D3 drag `event.x/y` coordinate mapping was incorrect for touch; fully fixed in v1.25.5.)
 - **Wiki-link Rendering**: Added `[[Note Title]]` → `#wiki-` link conversion in the Editor preview and Mobile Mini Card so wiki-links appear as visible anchor elements. (Note: the links were still not clickable due to DOMPurify stripping `#wiki-` hrefs; fully fixed in v1.25.4.)
 - **Mobile Mini Card Content**: Wiki-link text in the mobile floating Note Mini Card now renders as styled anchor elements (previously rendered as plain text).
 - **Mobile Layout Bounds**: Fixed canvas control overlays (sidebar button, export button, help button) colliding with the bottom navigation and timeline scrubber in vertical mode by safely anchoring them to the top of the viewport.
