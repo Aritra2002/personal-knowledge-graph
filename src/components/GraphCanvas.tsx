@@ -487,7 +487,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             const isTouch = event.type === 'touchstart' || (event as PointerEvent).pointerType === 'touch';
             let clickRadius = node.id === state.activeNote?.id ? node.radius + 4 : node.radius;
             if (isTouch || window.matchMedia('(pointer: coarse)').matches) {
-              clickRadius += 8;
+              clickRadius = node.radius + 20; // Must match handleTouchDragStart
             }
             if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
               return false; // Prevent zoom/pan, allow drag
@@ -814,7 +814,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         if (node.x === undefined || node.y === undefined) return false;
         const dx = node.x - simX;
         const dy = node.y - simY;
-        return Math.sqrt(dx * dx + dy * dy) < node.radius + 12;
+        return Math.sqrt(dx * dx + dy * dy) < node.radius + 20; // Must match zoom filter
       });
 
       if (found) {
@@ -829,6 +829,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         found.fy = found.y;
         canvas.setPointerCapture(event.pointerId);
         if (simulationRef.current) simulationRef.current.alphaTarget(0.3).restart();
+        event.preventDefault(); // Stop browser scrolling/panning
       }
     };
 
