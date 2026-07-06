@@ -35,6 +35,12 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
     }
   }, [notes]);
 
+  useEffect(() => {
+    if (!dateRange) {
+      setValue(maxDate);
+    }
+  }, [dateRange, maxDate]);
+
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
     setValue(val);
@@ -113,6 +119,7 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
           max={maxDate}
           value={value}
           onChange={handleSliderChange}
+          style={{ '--val': `${maxDate === minDate ? 100 : ((value - minDate) / (maxDate - minDate)) * 100}%` } as React.CSSProperties}
         />
       </div>
     </div>
