@@ -1658,7 +1658,7 @@ body {
   .sidebar-tab-trigger { display: none !important; }
   .canvas-controls { top: 76px; bottom: auto; left: 8px; }
   .canvas-help-box { top: 76px; bottom: auto; right: 8px; }
-  .search-filter-panel { width: calc(100% - 16px); left: 8px; animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .search-filter-panel { width: calc(100% - 16px); left: 8px; }
   .mobile-menu-drawer { animation: slideUpDrawer 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   .timeline-slider-panel { 
     flex-direction: column; 
@@ -1695,7 +1695,7 @@ body {
   .sidebar-tab-trigger { display: none !important; }
   .canvas-controls { top: 76px; bottom: auto; left: 8px; }
   .canvas-help-box { top: 76px; bottom: auto; right: 8px; }
-  .search-filter-panel { width: calc(100% - 16px); left: 8px; animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .search-filter-panel { width: calc(100% - 16px); left: 8px; }
   .mobile-menu-drawer { animation: slideUpDrawer 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   .timeline-slider-panel { flex-direction: column; align-items: stretch; }
   

@@ -20,6 +20,7 @@ interface GraphCanvasProps {
   isSidebarOpen: boolean;
   onOpenSidebar: () => void;
   onOpenSearch?: () => void;
+  onCloseSearch?: () => void;
   nlpClustering?: boolean;
 }
 
@@ -55,6 +56,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   isSidebarOpen,
   onOpenSidebar,
   onOpenSearch,
+  onCloseSearch,
   nlpClustering
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -954,7 +956,11 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           {onOpenSearch && (
             <button
               className="canvas-btn"
-              onClick={onOpenSearch}
+              onClick={() => {
+                if (onOpenSearch) onOpenSearch();
+                setShowExportMenu(false);
+                setShowHelp(false);
+              }}
               title="Search graph"
               aria-label="Search"
             >
@@ -964,7 +970,11 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           <div style={{ position: 'relative' }}>
             <button
               className="canvas-btn"
-              onClick={() => setShowExportMenu(!showExportMenu)}
+              onClick={() => {
+                setShowExportMenu(!showExportMenu);
+                setShowHelp(false);
+                if (onCloseSearch) onCloseSearch();
+              }}
               title="Export graph"
             >
               <Download size={16} /> {isMobile ? '' : 'Export'}
@@ -978,7 +988,11 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           </div>
           <button
             className="canvas-btn"
-            onClick={() => setShowHelp(!showHelp)}
+            onClick={() => {
+              setShowHelp(!showHelp);
+              setShowExportMenu(false);
+              if (onCloseSearch) onCloseSearch();
+            }}
             title="Show controls help"
             aria-label="Controls help"
           >

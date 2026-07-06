@@ -492,7 +492,8 @@ export default function App() {
               physicsConfig={physicsConfig}
               isSidebarOpen={isSidebarOpen}
               onOpenSidebar={() => setIsSidebarOpen(true)}
-              onOpenSearch={() => setIsSearchOpen(true)}
+              onOpenSearch={() => setIsSearchOpen(!isSearchOpen)}
+              onCloseSearch={() => setIsSearchOpen(false)}
               nlpClustering={nlpClustering && !historicalSnapshot}
             />
           </Suspense>
