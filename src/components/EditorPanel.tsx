@@ -6,7 +6,7 @@ import { db } from '../db';
 import type { Note, Link, Category } from '../db';
 import { updateNote, deleteNote } from '../db/helpers';
 import { useDebounce } from '../hooks/useDebounce';
-import { X, Trash2, Eye, Edit3, Tag, Folder, Bold, Italic, Heading, Code, Link as LinkIcon, Wand2, PlusCircle, FileText, SplitSquareHorizontal } from 'lucide-react';
+import { X, Trash2, Edit3, Tag, Folder, Bold, Italic, Heading, Code, Link as LinkIcon, Wand2, PlusCircle, FileText, SplitSquareHorizontal } from 'lucide-react';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
 import { ColorPicker } from './ColorPicker';
@@ -369,6 +369,15 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
         <div className="category-indicator" style={{ backgroundColor: categoryColor }}></div>
         <span className="note-status-badge">Note Saved</span>
         <div className="header-actions">
+          {!editMode ? (
+            <button className="icon-btn" onClick={() => setEditMode(true)} aria-label="Edit Note" title="Edit Note">
+              <Edit3 size={18} />
+            </button>
+          ) : (
+            <button className="header-btn primary-btn" onClick={() => setEditMode(false)} aria-label="Finish Edit" title="Finish Edit" style={{ minHeight: '32px', padding: '0 12px', fontSize: '0.85rem' }}>
+              Finish Edit
+            </button>
+          )}
           <button className="icon-btn ai-btn" onClick={handleAiSummarize} disabled={isAiLoading || !content.trim()} aria-label="Summarize with AI" title="Auto-Summarize Note (AI)">
             <FileText size={18} className={isAiLoading ? 'spin-pulse' : ''} style={{ color: 'var(--node-amber)' }} />
           </button>
@@ -386,68 +395,70 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
 
       {/* Editor Fields */}
       <div className="editor-fields">
-        <input
-          type="text"
-          id="editor-note-title"
-          className="note-title-input"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={handleTitleBlur}
-          placeholder="Untitled Note"
-        />
+        {editMode ? (
+          <input
+            type="text"
+            id="editor-note-title"
+            className="note-title-input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleTitleBlur}
+            placeholder="Untitled Note"
+          />
+        ) : (
+          <h2 className="note-title-input" style={{ margin: 0, padding: '8px', border: '1px solid transparent', fontSize: '1.2rem', fontWeight: 600 }}>{title || 'Untitled Note'}</h2>
+        )}
 
         <div className="meta-row">
           <div className="meta-field">
             <Folder size={14} className="meta-icon" />
-            <select
-              id="editor-note-category"
-              className="meta-select"
-              value={category}
-              onChange={handleCategoryChange}
-            >
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.label}</option>
-              ))}
-            </select>
+            {editMode ? (
+              <select
+                id="editor-note-category"
+                className="meta-select"
+                value={category}
+                onChange={handleCategoryChange}
+              >
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.label}</option>
+                ))}
+              </select>
+            ) : (
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{categories.find(c => c.id === category)?.label || 'General'}</span>
+            )}
           </div>
 
-          <div className="meta-field">
-            <ColorPicker
-              color={nodeColor}
-              defaultColor={categoryColor}
-              onChange={handleColorChange}
-              onReset={handleColorReset}
-            />
-          </div>
+          {editMode && (
+            <div className="meta-field">
+              <ColorPicker
+                color={nodeColor}
+                defaultColor={categoryColor}
+                onChange={handleColorChange}
+                onReset={handleColorReset}
+              />
+            </div>
+          )}
 
           <div className="meta-field flex-grow">
             <Tag size={14} className="meta-icon" />
-            <input
-              type="text"
-              id="editor-note-tags"
-              className="meta-input"
-              value={tagsInput}
-              onChange={handleTagsChange}
-              placeholder="tags (comma separated)"
-            />
+            {editMode ? (
+              <input
+                type="text"
+                id="editor-note-tags"
+                className="meta-input"
+                value={tagsInput}
+                onChange={handleTagsChange}
+                placeholder="tags (comma separated)"
+              />
+            ) : (
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                {tagsInput.trim() ? tagsInput.split(',').map(t => t.trim()).filter(Boolean).map((tag, i) => (
+                  <span key={i} style={{ fontSize: '0.75rem', padding: '2px 6px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', color: 'var(--text-secondary)' }}>#{tag}</span>
+                )) : <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No tags</span>}
+              </div>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Edit / Preview Toggle */}
-      <div className="editor-tabs">
-        <button
-          className={`tab-btn ${editMode ? 'active' : ''}`}
-          onClick={() => setEditMode(true)}
-        >
-          <Edit3 size={14} /> Edit
-        </button>
-        <button
-          className={`tab-btn ${!editMode ? 'active' : ''}`}
-          onClick={() => setEditMode(false)}
-        >
-          <Eye size={14} /> Preview
-        </button>
       </div>
 
       {/* Main Body Viewport */}
