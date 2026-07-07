@@ -6,14 +6,13 @@ import { db } from '../db';
 import type { Note, Link, Category } from '../db';
 import { updateNote, deleteNote } from '../db/helpers';
 import { useDebounce } from '../hooks/useDebounce';
-import { X, Trash2, Edit3, Tag, Folder, Bold, Italic, Heading, Code, Link as LinkIcon, Wand2, PlusCircle, FileText, SplitSquareHorizontal } from 'lucide-react';
+import { X, Trash2, Edit3, Tag, Folder, Bold, Italic, Heading, Code, Link as LinkIcon, Wand2, PlusCircle, FileText, SplitSquareHorizontal, PenTool, Sparkles } from 'lucide-react';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
 import { ColorPicker } from './ColorPicker';
 import { callAI } from '../utils/aiClient';
 import { ConfirmModal } from './ConfirmModal';
 import { useToast } from './ToastContext';
-import { PenTool, Sparkles } from 'lucide-react';
 import { cosineSimilarity } from '../utils/vectorSearch';
 import { ConnectionDiscovery } from './ConnectionDiscovery';
 
