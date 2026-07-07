@@ -33,17 +33,7 @@ export const ConnectionDiscovery: React.FC<ConnectionDiscoveryProps> = ({ noteId
         if (!currentNote) return;
         
         const similar = await semanticSearch(content, 3);
-
-        // Find existing links in the database for this note
-        const existingLinks = await db.links.where('sourceId').equals(noteId).toArray();
-        const incomingLinks = await db.links.where('targetId').equals(noteId).toArray();
-        const existingLinkIds = new Set([
-          ...(currentNote.linkedNoteIds || []),
-          ...existingLinks.map(l => l.targetId),
-          ...incomingLinks.map(l => l.sourceId)
-        ]);
-
-        const candidates = similar.filter(n => n.id !== noteId && !existingLinkIds.has(n.id!));
+        const candidates = similar.filter(n => n.id !== noteId && !(currentNote.linkedNoteIds || []).includes(n.id!));
         
         if (candidates.length === 0) {
           return;
@@ -128,8 +118,8 @@ If none connect, return {"connected": false}`;
         {suggestion.reason}
       </p>
       <button 
-        className="header-btn primary-btn"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px', width: '100%' }}
+        className="primary-btn"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}
         onClick={async () => {
           const currentNote = await db.notes.get(noteId);
           if (currentNote) {
