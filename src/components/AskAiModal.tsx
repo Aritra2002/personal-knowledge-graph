@@ -97,7 +97,18 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, notes }
       // Perform Local RAG: Find top 5 relevant notes based on the user's query
       const relevantNotes = await semanticSearch(query, 5);
       
-      const systemPrompt = `You are an AI assistant analyzing a personal knowledge graph. You will be provided with the most relevant notes retrieved via semantic search. Use ONLY the provided notes to answer the user's question. If the answer is not in the notes, say so. Keep your answer concise.
+      const systemPrompt = `You are an AI assistant analyzing a personal knowledge graph. You will be provided with the most relevant notes retrieved via semantic search. Use ONLY the provided notes to answer the user's question, unless the user asks for general information. If the answer is not in the notes, say so. 
+Write highly detailed, comprehensive responses. Do not be overly brief.
+
+When writing or editing notes, aggressively use rich Markdown formatting to structure the content beautifully. You MUST use the following supported syntax:
+- [[Node Title]]: Use double brackets to link to other concepts (this creates a graph connection)
+- **bold**, *italic*, ~~strikethrough~~ for emphasis
+- #, ##, ### for clear hierarchical headings
+- Bulleted lists (-) and numbered lists (1.) for readability
+- Task lists (- [ ]) for action items
+- \`inline code\` and \`\`\`language code blocks \`\`\` for technical terms or code
+- > Blockquotes for important callouts or quotes
+- [Link Text](https://...) for external hyperlinks
 
 When you need to perform an action, include a JSON block in your response using this format:
 
@@ -112,9 +123,7 @@ For edit_note include "newContent" or "newTitle". For delete actions include "re
 Always follow the JSON block with a human-readable explanation of what you did.
 Only perform actions the user explicitly requested.
 
-When given web content, summarize it into a concise note. Extract the key ideas,
-methodology, and conclusions. Use the page title as the note title unless the user
-specifies otherwise. Suggest 2-3 connections to existing notes if relevant.`;
+When given web content, summarize it into a detailed, well-formatted note. Extract the key ideas, methodology, and conclusions. Use the page title as the note title unless the user specifies otherwise. Suggest 2-3 connections to existing notes if relevant.`;
       
       const notesContext = relevantNotes.length > 0 
         ? relevantNotes.map(n => `Title: ${n.title}\nContent: ${n.content}`).join('\n\n---\n\n')
