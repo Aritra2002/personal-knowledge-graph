@@ -15,39 +15,51 @@ export function parseAiResponse(text: string): { actions: AiAction[]; explanatio
     let actions: AiAction[] = [];
     if (Array.isArray(parsed)) {
       actions = parsed.filter(a => a && typeof a === 'object' && 'action' in a && typeof a.action === 'string' && validActionTypes.includes(a.action));
-    } else if (parsed && typeof parsed === 'object' && 'action' in parsed && typeof (parsed as Record<string, unknown>).action === 'string' && validActionTypes.includes((parsed as Record<string, unknown>).action as string)) {
-      actions = [parsed as unknown as AiAction];
+    } else if (parsed && typeof parsed === 'object') {
+      const rec = parsed as Record<string, unknown>;
+      if ('action' in rec && typeof rec.action === 'string' && validActionTypes.includes(rec.action)) {
+        actions = [parsed as unknown as AiAction];
+      } else if ('actions' in rec && Array.isArray(rec.actions)) {
+        actions = rec.actions.filter(a => a && typeof a === 'object' && 'action' in a && typeof a.action === 'string' && validActionTypes.includes(a.action));
+      }
     }
     return actions;
   };
 
-  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
-  if (!jsonMatch) {
+  const jsonRegex = /```json\s*([\s\S]*?)\s*```/g;
+  let match;
+  const allActions: AiAction[] = [];
+  let explanation = text;
+  let found = false;
+
+  while ((match = jsonRegex.exec(text)) !== null) {
+    found = true;
     try {
-      const parsed = JSON.parse(text);
-      const actions = extractActions(parsed);
-      if (actions.length > 0) {
-        return { actions, explanation: '' };
-      }
+      const parsed = JSON.parse(match[1]);
+      allActions.push(...extractActions(parsed));
     } catch (e) {
-      console.debug(e);
+      console.debug("Failed to parse JSON block", e);
+    }
+    explanation = explanation.replace(match[0], '').trim();
+  }
+
+  if (found) {
+    if (allActions.length > 0) {
+      return { actions: allActions, explanation };
     }
     return null;
   }
 
   try {
-    const parsed = JSON.parse(jsonMatch[1]);
+    const parsed = JSON.parse(text);
     const actions = extractActions(parsed);
-    const explanation = text.replace(jsonMatch[0], '').trim();
-    
     if (actions.length > 0) {
-      return { actions, explanation };
+      return { actions, explanation: '' };
     }
-    return null;
   } catch (e) {
     console.debug(e);
-    return null;
   }
+  return null;
 }
 
 export async function executeAiAction(
@@ -89,7 +101,8 @@ export async function executeAiAction(
         if (!note) return { success: false, message: `Note "${action.title}" not found.` };
         
         const updates: Record<string, unknown> = {};
-        if (action.newContent !== undefined) updates.content = action.newContent;
+        const contentToSet = action.newContent !== undefined ? action.newContent : (action as any).content;
+        if (contentToSet !== undefined) updates.content = contentToSet;
         if (action.newTitle !== undefined) updates.title = action.newTitle;
         
         await updateNote(note.id!, updates);
@@ -154,8 +167,9 @@ export async function validateActionPreflight(action: AiAction, pageId: number) 
   }
   
   if (action.action === 'edit_note') {
-    if (action.newContent !== undefined) {
-      if (action.newContent.trim().length <= 10) {
+    const contentToCheck = action.newContent !== undefined ? action.newContent : (action as any).content;
+    if (contentToCheck !== undefined) {
+      if (contentToCheck.trim().length <= 10) {
         return { blocked: true, message: `Edit rejected: new content is too short or empty.` };
       }
     }
