@@ -472,6 +472,17 @@ You must output a JSON list of actions to structure this document into a knowled
 You can create new notes and links between them.
 Output ONLY a JSON block containing the actions you want to perform. Do not include any extra text.
 
+Write highly detailed, comprehensive content.
+When writing notes, aggressively use rich Markdown formatting to structure the content beautifully. You MUST use the following supported syntax:
+- [[Node Title]]: Use double brackets to link to other concepts
+- **bold**, *italic*, ~~strikethrough~~ for emphasis
+- #, ##, ### for clear hierarchical headings
+- Bulleted lists (-) and numbered lists (1.) for readability
+- Task lists (- [ ]) for action items
+- \`inline code\` and \`\`\`language code blocks \`\`\`
+- > Blockquotes for important callouts or quotes
+- [Link Text](https://...) for external hyperlinks
+
 Format:
 \`\`\`json
 [
@@ -932,6 +943,7 @@ ${summaries}
         isOpen={showAskAi}
         onClose={() => setShowAskAi(false)}
         notes={notes}
+        activePageId={currentPageId}
       />
 
       {/* NewPageModal */}

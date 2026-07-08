@@ -13,6 +13,7 @@ interface AskAiModalProps {
   isOpen: boolean;
   onClose: () => void;
   notes: Note[];
+  activePageId: number;
 }
 
 const AiActionCard = ({ result }: { result: { action: AiAction; success: boolean; message: string } }) => {
@@ -38,7 +39,7 @@ const AiActionCard = ({ result }: { result: { action: AiAction; success: boolean
   );
 };
 
-export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, notes }) => {
+export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, notes, activePageId }) => {
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -47,7 +48,7 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, notes }
   const inputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
-  const pageId = notes[0]?.pageId || 1;
+  const pageId = activePageId;
 
   useEffect(() => {
     if (isOpen) {

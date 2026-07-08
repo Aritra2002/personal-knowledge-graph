@@ -463,7 +463,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
                 onChange={handleContentChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your markdown notes here. Use [[Double Brackets]] to link nodes. Type '/' for block commands..."
-                style={{ flex: 1 }}
+                style={{ flex: 1, minHeight: '60vh' }}
               />
               {slashMenuPos && (
                 <div style={{

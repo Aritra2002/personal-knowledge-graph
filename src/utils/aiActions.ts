@@ -72,11 +72,6 @@ export async function executeAiAction(
         const noteId = await createNote(pageId, action.title);
         
         let content = action.content;
-        if (action.linkTo && action.linkTo.length > 0) {
-          // append wiki links to content if they are not already there
-          const wikiLinks = action.linkTo.map(t => `[[${t}]]`).join(' ');
-          content += `\n\n${wikiLinks}`;
-        }
         
         // Since createNote returns the existing note ID if it exists (but with original content)
         // we should append the new content to the existing note content.
@@ -91,8 +86,24 @@ export async function executeAiAction(
           }
         }
 
+        let linkedNoteIds = existingNote?.linkedNoteIds || [];
+        if (action.linkTo && action.linkTo.length > 0) {
+          for (const title of action.linkTo) {
+            let target = await db.notes.where('title').equalsIgnoreCase(title).and(n => n.pageId === pageId).first();
+            if (!target) {
+              const newId = await db.notes.add({
+                pageId, title, content: '', tags: [], category: 'general', createdAt: Date.now(), updatedAt: Date.now()
+              });
+              linkedNoteIds.push(newId);
+            } else {
+              linkedNoteIds.push(target.id!);
+            }
+          }
+        }
+        linkedNoteIds = Array.from(new Set(linkedNoteIds));
+
         const mergedTags = Array.from(new Set([...(existingNote?.tags || []), ...(action.tags || [])]));
-        await updateNote(noteId, { content, tags: mergedTags });
+        await updateNote(noteId, { content, tags: mergedTags, linkedNoteIds });
         return { success: true, message: `Created note: "${action.title}"` };
       }
       
