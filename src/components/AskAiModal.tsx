@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Note } from '../db';
+
 import { callAI } from '../utils/aiClient';
 import { semanticSearch } from '../utils/vectorSearch';
 import { marked } from 'marked';
@@ -12,7 +12,6 @@ import { useToast } from './ToastContext';
 interface AskAiModalProps {
   isOpen: boolean;
   onClose: () => void;
-  notes: Note[];
   activePageId: number;
 }
 
@@ -39,7 +38,7 @@ const AiActionCard = ({ result }: { result: { action: AiAction; success: boolean
   );
 };
 
-export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, notes, activePageId }) => {
+export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activePageId }) => {
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
