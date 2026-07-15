@@ -14,90 +14,98 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AetherMind Export - ${safeTitle}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-color: #0f172a;
-    --surface-color: #1e293b;
-    --surface-hover: #334155;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent: #818cf8;
-    --border-color: #334155;
+    --bg-color: #0A0A0A;
+    --surface-color: #1C1C1C;
+    --surface-hover: #2A2A2A;
+    --text-primary: #F5F5F0;
+    --text-secondary: #8F8F8F;
+    --accent: #B59A5F;
+    --border-color: rgba(255, 255, 255, 0.05);
   }
   * { box-sizing: border-box; }
   body { 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+    font-family: 'Outfit', -apple-system, sans-serif; 
     margin: 0; 
     background: var(--bg-color); 
     color: var(--text-primary); 
     display: flex;
     height: 100vh;
     overflow: hidden;
+    font-weight: 300;
   }
   /* Sidebar */
   .sidebar {
-    width: 300px;
+    width: 320px;
     background: var(--surface-color);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    box-shadow: inset -1px 0 0 rgba(255,255,255,0.02);
   }
   .sidebar-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 30px 24px 20px;
   }
   .sidebar-header h1 {
-    margin: 0 0 10px 0;
-    font-size: 1.25rem;
-    color: var(--accent);
+    margin: 0 0 8px 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
   }
   .sidebar-header p {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
   }
   .search-container {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 0 24px 20px;
   }
   .search-input {
     width: 100%;
-    padding: 10px 12px;
-    background: rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    background: var(--bg-color);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     color: var(--text-primary);
     font-size: 0.9rem;
+    font-family: inherit;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .search-input:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
   }
   .toc {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 0;
+    padding: 10px 12px;
   }
   .toc-item {
     display: block;
-    padding: 8px 20px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: background 0.2s, color 0.2s;
-    cursor: pointer;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
   }
   .toc-item:hover, .toc-item.active {
-    background: rgba(129, 140, 248, 0.1);
-    color: var(--accent);
+    background: var(--surface-hover);
+    color: var(--text-primary);
   }
   /* Main Content */
   .main-content {
     flex: 1;
     overflow-y: auto;
-    padding: 40px;
+    padding: 60px 40px;
     scroll-behavior: smooth;
   }
   .notes-container {
@@ -106,75 +114,92 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
   }
   .note { 
     background: var(--surface-color); 
-    padding: 30px; 
-    border-radius: 12px; 
-    margin-bottom: 30px; 
-    border-left: 4px solid var(--accent);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition: transform 0.2s;
+    padding: 40px; 
+    border-radius: 16px; 
+    margin-bottom: 40px; 
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 20px 40px -15px rgba(0,0,0,0.5);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .note:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 30px 50px -20px rgba(0,0,0,0.6);
   }
   .note:target {
-    animation: highlight 2s ease-out;
+    animation: pulse-ring 2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  @keyframes highlight {
-    0% { box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.4); }
-    100% { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(181, 154, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+    70% { box-shadow: 0 0 0 10px rgba(181, 154, 95, 0), inset 0 1px 0 rgba(255,255,255,0.05); }
+    100% { box-shadow: 0 0 0 0 rgba(181, 154, 95, 0), inset 0 1px 0 rgba(255,255,255,0.05); }
   }
   .note-title { 
-    margin: 0 0 15px 0; 
-    color: var(--accent);
-    font-size: 1.5rem;
+    margin: 0 0 20px 0; 
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
   }
   .note-meta {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   .tag {
-    background: rgba(0,0,0,0.3);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    background: var(--bg-color);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
     color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+  .category-tag {
+    color: var(--accent);
+    border-color: rgba(181, 154, 95, 0.3);
+    background: rgba(181, 154, 95, 0.05);
   }
   .note-content {
-    line-height: 1.6;
-    font-size: 1rem;
-    color: #cbd5e1;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    color: #D1D1D1;
   }
-  .note-content h1, .note-content h2, .note-content h3 { color: var(--text-primary); margin-top: 1.5em; }
-  .note-content a { color: #34d399; text-decoration: none; }
-  .note-content a:hover { text-decoration: underline; }
+  .note-content h1, .note-content h2, .note-content h3 { color: var(--text-primary); margin-top: 1.8em; font-weight: 500; letter-spacing: -0.02em; }
+  .note-content a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+  .note-content a:hover { border-color: var(--accent); }
   .note-content pre { 
-    background: rgba(0,0,0,0.3); 
-    padding: 15px; 
-    border-radius: 8px; 
+    background: var(--bg-color); 
+    padding: 20px; 
+    border-radius: 12px; 
     overflow-x: auto; 
     border: 1px solid var(--border-color);
   }
   .note-content code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.9em;
-    background: rgba(0,0,0,0.3);
-    padding: 2px 4px;
-    border-radius: 4px;
+    font-size: 0.85em;
+    background: var(--bg-color);
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
   }
-  .note-content pre code { background: none; padding: 0; }
+  .note-content pre code { background: none; padding: 0; border: none; }
   .note-content blockquote {
-    border-left: 4px solid var(--border-color);
+    border-left: 2px solid var(--accent);
     margin: 0;
-    padding-left: 15px;
+    padding-left: 20px;
     color: var(--text-secondary);
+    font-style: italic;
   }
-  .note-content img { max-width: 100%; border-radius: 8px; }
+  .note-content img { max-width: 100%; border-radius: 12px; border: 1px solid var(--border-color); }
   
   /* Mobile Responsive */
   @media (max-width: 768px) {
     body { flex-direction: column; overflow: auto; }
     .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-    .toc { max-height: 200px; }
-    .main-content { padding: 20px; overflow-y: visible; }
+    .toc { max-height: 250px; }
+    .main-content { padding: 30px 20px; overflow-y: visible; }
+    .note { padding: 25px; }
+    .note-title { font-size: 1.5rem; }
   }
 </style>
 </head>
@@ -219,7 +244,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       <div class="note" id="note-${note.id}" style="border-left-color: ${color};" data-title="${note.title.toLowerCase()}">
         <h2 class="note-title" style="color: ${color};">${note.title}</h2>
         <div class="note-meta">
-          <span class="tag" style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">${categoryObj?.label || 'General'}</span>
+          <span class="tag category-tag" style="color: ${color}; border-color: ${color}40; background: ${color}10;">${categoryObj?.label || 'General'}</span>
           ${note.tags && note.tags.length > 0 ? note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('') : ''}
         </div>
         <div class="note-content">${DOMPurify.sanitize(marked.parse(content) as string)}</div>
