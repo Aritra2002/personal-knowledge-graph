@@ -97,39 +97,45 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activeP
       // Perform Local RAG: Find top 5 relevant notes based on the user's query
       const relevantNotes = await semanticSearch(query, 5);
       
-      const systemPrompt = `You are an AI assistant analyzing a personal knowledge graph. You will be provided with the most relevant notes retrieved via semantic search. Use ONLY the provided notes to answer the user's question, unless the user asks for general information. If the answer is not in the notes, say so. 
-Write highly detailed, comprehensive responses. Do not be overly brief.
+      const systemPrompt = `You are an AI assistant integrated into a personal knowledge graph app. 
 
-When writing or editing notes, aggressively use rich Markdown formatting to structure the content beautifully. You MUST use the following supported syntax:
-- [[Node Title]]: Use double brackets to link to other concepts (this creates a graph connection)
+Your primary role:
+1. **When user asks you to CREATE notes/nodes** on any topic: Use your full knowledge to generate rich, detailed content. Do NOT restrict yourself to what already exists in the graph. Create comprehensive new notes freely.
+2. **When user asks questions ABOUT existing notes**: Use the retrieved notes context to answer accurately.
+3. **When user asks general questions**: Answer from your full knowledge base.
+
+The retrieved notes below are provided ONLY as optional context. They are NOT constraints. You are always free to create notes on entirely new topics the user asks about.
+
+When writing or editing notes, aggressively use rich Markdown formatting:
+- [[Node Title]]: Double brackets to link concepts (creates graph connections)
 - **bold**, *italic*, ~~strikethrough~~ for emphasis
-- #, ##, ### for clear hierarchical headings
-- Bulleted lists (-) and numbered lists (1.) for readability
+- #, ##, ### for hierarchical headings
+- Bulleted lists (-) and numbered lists (1.)
 - Task lists (- [ ]) for action items
-- \`inline code\` and \`\`\`language code blocks \`\`\` for technical terms or code
-- > Blockquotes for important callouts or quotes
-- [Link Text](https://...) for external hyperlinks
+- \`inline code\` and \`\`\`language code blocks\`\`\` for code
+- > Blockquotes for callouts
+- [Link Text](https://...) for external links
 
-When you need to perform an action, include a JSON block in your response using this format:
+When you need to perform an action, include a JSON block:
 
 \`\`\`json
 [
-  { "action": "create_note", "title": "...", "content": "...", "tags": [], "linkTo": ["existing note title"] }
+  { "action": "create_note", "title": "...", "content": "...", "tags": [], "linkTo": ["existing note title if relevant"] }
 ]
 \`\`\`
 
 Available actions: create_note, edit_note, delete_note, create_link, delete_link.
 For edit_note include "newContent" or "newTitle". For delete actions include "reason".
-Always follow the JSON block with a human-readable explanation of what you did.
+Always follow the JSON block with a human-readable explanation.
 Only perform actions the user explicitly requested.
 
-When given web content, summarize it into a detailed, well-formatted note. Extract the key ideas, methodology, and conclusions. Use the page title as the note title unless the user specifies otherwise. Suggest 2-3 connections to existing notes if relevant.`;
+When given web content, summarize it into a detailed, well-formatted note. Extract key ideas, methodology, and conclusions. Use the page title as the note title unless specified otherwise.`;
       
       const notesContext = relevantNotes.length > 0 
         ? relevantNotes.map(n => `Title: ${n.title}\nContent: ${n.content}`).join('\n\n---\n\n')
-        : "No highly relevant notes found for this query in the local graph.";
+        : "No existing notes found in this graph yet.";
 
-      const userPrompt = `Retrieved Notes:\n<cache>\n${notesContext}\n</cache>\n\nQuestion: ${finalQuery}`;
+      const userPrompt = `Existing graph notes (optional context - use only if relevant to the request):\n<existing_notes>\n${notesContext}\n</existing_notes>\n\nUser request: ${finalQuery}`;
       
       let fullResponse = "";
       await callAI(systemPrompt, userPrompt, (text) => {
