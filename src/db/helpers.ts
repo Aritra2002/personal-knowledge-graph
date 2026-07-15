@@ -147,7 +147,7 @@ export async function seedDatabase(): Promise<void> {
   // Seed categories if empty
   const categoriesCount = await db.categories.count();
   if (categoriesCount === 0) {
-    await db.categories.bulkAdd([
+    await db.categories.bulkPut([
       { id: 'general', label: 'General', color: '#818cf8' },
       { id: 'work', label: 'Work', color: '#34d399' },
       { id: 'personal', label: 'Personal', color: '#ff0000' }, // Red
@@ -158,7 +158,7 @@ export async function seedDatabase(): Promise<void> {
   // Seed default page if empty
   const pagesCount = await db.pages.count();
   if (pagesCount === 0) {
-    await db.pages.add({
+    await db.pages.put({
       id: 1,
       title: 'Graph',
       createdAt: Date.now()

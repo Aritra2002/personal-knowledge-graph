@@ -108,7 +108,7 @@ export const callAI = async (
         headers['X-Title'] = 'Roo Code';
         headers['User-Agent'] = 'Roo-Code';
         headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
-      } else {
+      } else if (config.baseUrl.includes('openrouter')) {
         headers['HTTP-Referer'] = window.location.origin;
         headers['X-Title'] = 'AetherMind';
       }
@@ -262,7 +262,7 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
       headers['X-Title'] = 'Roo Code';
       headers['User-Agent'] = 'Roo-Code';
       headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
-    } else {
+    } else if (base.includes('openrouter')) {
       headers['HTTP-Referer'] = window.location.origin;
       headers['X-Title'] = 'AetherMind';
     }
