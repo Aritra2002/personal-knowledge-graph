@@ -21,6 +21,7 @@ interface ColorPickerProps {
   onReset: () => void;
   title?: string;
   resetLabel?: string;
+  align?: 'left' | 'right';
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({ 
@@ -29,7 +30,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   onChange, 
   onReset,
   title = "Node Color",
-  resetLabel = "Reset to Category Default"
+  resetLabel = "Reset to Category Default",
+  align = 'left'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hexInput, setHexInput] = useState(color || defaultColor);
@@ -74,7 +76,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       </button>
 
       {isOpen && (
-        <div className="color-picker-popover glass-panel">
+        <div className={`color-picker-popover glass-panel ${align === 'right' ? 'align-right' : ''}`}>
           <div className="color-picker-header">
             <span>{title}</span>
             <button className="icon-btn" onClick={() => setIsOpen(false)} aria-label="Close color picker"><X size={14} /></button>

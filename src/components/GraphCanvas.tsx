@@ -94,8 +94,24 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       const linkColor = styles.getPropertyValue('--link-color').trim() || 'rgba(255, 255, 255, 0.25)';
       const borderColor = styles.getPropertyValue('--border-color').trim() || 'rgba(255, 255, 255, 0.08)';
       
-      // Determine if context is light background for ring contrast
-      const isLightBg = textPrimary === '#0f172a' || textPrimary === '#5c4033' || bgPrimary === '#f8fafc' || bgPrimary === '#f4ecd8' || styles.getPropertyValue('color-scheme').trim() === 'light';
+      const getLuminance = (hex: string) => {
+        const c = hex.replace('#', '').trim();
+        if (c.length === 3) {
+          const r = parseInt(c[0] + c[0], 16);
+          const g = parseInt(c[1] + c[1], 16);
+          const b = parseInt(c[2] + c[2], 16);
+          return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        }
+        if (c.length === 6) {
+          const r = parseInt(c.substring(0, 2), 16);
+          const g = parseInt(c.substring(2, 4), 16);
+          const b = parseInt(c.substring(4, 6), 16);
+          return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        }
+        return 0;
+      };
+
+      const isLightBg = getLuminance(bgPrimary) > 0.5 || textPrimary === '#0f172a' || textPrimary === '#5c4033' || styles.getPropertyValue('color-scheme').trim() === 'light';
       const activeRing = isLightBg ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.4)';
       const pinnedRing = isLightBg ? '#000000' : '#ffffff';
 
@@ -417,7 +433,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       sim.alpha(0.2).restart();
       prevTopology.current = currentTopology;
     }
-  }, [notes, links, dimensions, physicsConfig, searchQuery, selectedTags, dateRange, activeNote, categories]);
+  }, [notes, links, dimensions, physicsConfig, searchQuery, selectedTags, dateRange, activeNote, categories, nlpClustering]);
 
   // Main Canvas Rendering Loop
   useEffect(() => {
