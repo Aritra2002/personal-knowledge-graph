@@ -318,7 +318,7 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
                 value={newCatLabel}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatLabel(e.target.value)}
                 placeholder="New type name..."
-                style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}
+                style={{ flex: 1, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}
               />
               <input 
                 type="color" 

@@ -60,15 +60,15 @@ export const AiSettingsTab: React.FC = () => {
               setLocalAIConfig(newConfig);
               setAIConfig(newConfig);
             }}
-            style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff', fontSize: '0.85rem', outline: 'none', width: '100%' }}
+            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none', width: '100%' }}
           >
-            <option value="anthropic" style={{ background: '#111827' }}>Anthropic</option>
-            <option value="deepseek" style={{ background: '#111827' }}>DeepSeek</option>
-            <option value="openai" style={{ background: '#111827' }}>OpenAI</option>
-            <option value="google" style={{ background: '#111827' }}>Google</option>
-            <option value="openrouter" style={{ background: '#111827' }}>OpenRouter</option>
-            <option value="vercel" style={{ background: '#111827' }}>Vercel AI Gateway</option>
-            <option value="custom" style={{ background: '#111827' }}>Custom Provider</option>
+            <option value="anthropic" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>Anthropic</option>
+            <option value="deepseek" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>DeepSeek</option>
+            <option value="openai" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>OpenAI</option>
+            <option value="google" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>Google</option>
+            <option value="openrouter" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>OpenRouter</option>
+            <option value="vercel" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>Vercel AI Gateway</option>
+            <option value="custom" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>Custom Provider</option>
           </select>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
             {aiConfig.provider === 'anthropic' && 'Direct access to Claude models, including Pro and Max'}
@@ -93,11 +93,11 @@ export const AiSettingsTab: React.FC = () => {
             }
             disabled={!['custom', 'vercel'].includes(aiConfig.provider)}
             style={{ 
-              background: ['custom', 'vercel'].includes(aiConfig.provider) ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.4)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
+              background: ['custom', 'vercel'].includes(aiConfig.provider) ? 'var(--input-bg)' : 'rgba(0, 0, 0, 0.15)', 
+              border: '1px solid var(--input-border)', 
               padding: '8px', 
               borderRadius: '4px', 
-              color: ['custom', 'vercel'].includes(aiConfig.provider) ? '#fff' : 'var(--text-secondary)'
+              color: ['custom', 'vercel'].includes(aiConfig.provider) ? 'var(--text-primary)' : 'var(--text-secondary)'
             }}
           />
         </div>
@@ -109,7 +109,7 @@ export const AiSettingsTab: React.FC = () => {
             value={aiConfig.apiKey || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('apiKey', e.target.value)}
             placeholder="Enter your API key..."
-            style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
+            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
           />
         </div>
 
@@ -121,7 +121,7 @@ export const AiSettingsTab: React.FC = () => {
               value={aiConfig.proxyUrl || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('proxyUrl', e.target.value)}
               placeholder="https://your-proxy.onrender.com (Direct connection if empty)"
-              style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
             />
           </div>
         )}
@@ -145,10 +145,10 @@ export const AiSettingsTab: React.FC = () => {
             <select
               value={aiConfig.model || ''}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleAiConfigChange('model', e.target.value)}
-              style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
             >
               {availableModels.map(m => (
-                <option key={m.id} value={m.id} style={{ background: '#111827' }}>
+                <option key={m.id} value={m.id} style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
                   {m.name || m.id}
                 </option>
               ))}
@@ -159,7 +159,7 @@ export const AiSettingsTab: React.FC = () => {
               value={aiConfig.model || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('model', e.target.value)}
               placeholder={aiConfig.provider === 'vercel' ? 'e.g. openai:gpt-4o' : (aiConfig.provider === 'openrouter' ? 'e.g. google/gemini-2.5-flash' : 'e.g. custom-model-name')}
-              style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', color: '#fff' }}
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
             />
           )}
         </div>

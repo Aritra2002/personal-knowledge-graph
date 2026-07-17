@@ -95,27 +95,32 @@ export default function App() {
     
     const root = document.documentElement;
     if (activeTheme === 'custom') {
-      // Apply the chosen custom colors
-      Object.entries(customThemeColors).forEach(([key, val]) => {
-        if (val) {
-          const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
-          root.style.setProperty(cssVar, val as string);
-          
-          // If background color is customized, map it to gradients and other properties
-          if (key === 'bgPrimary') {
-            root.style.setProperty('--bg-gradient-1', val as string);
-            root.style.setProperty('--bg-gradient-2', val as string);
-            root.style.setProperty('--bg-gradient-3', val as string);
-          }
-          // If text color is customized, map it to secondary text too
-          if (key === 'textPrimary') {
-            root.style.setProperty('--text-secondary', (val as string) + 'b3'); // roughly 70% opacity
-          }
-          // If accent color is customized, map it to link highlight too
-          if (key === 'accentPrimary') {
-            root.style.setProperty('--link-highlight', val as string);
-            root.style.setProperty('--border-glow', (val as string) + '33'); // roughly 20% opacity
-          }
+      const defaults: Record<string, string> = {
+        bgPrimary: '#06071a',
+        textPrimary: '#ffffff',
+        accentPrimary: '#7c3aed'
+      };
+      
+      const keys = ['bgPrimary', 'textPrimary', 'accentPrimary'];
+      keys.forEach((key) => {
+        const val = customThemeColors[key] || defaults[key];
+        const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+        root.style.setProperty(cssVar, val);
+        
+        // If background color is customized, map it to gradients and other properties
+        if (key === 'bgPrimary') {
+          root.style.setProperty('--bg-gradient-1', val);
+          root.style.setProperty('--bg-gradient-2', val);
+          root.style.setProperty('--bg-gradient-3', val);
+        }
+        // If text color is customized, map it to secondary text too
+        if (key === 'textPrimary') {
+          root.style.setProperty('--text-secondary', val + 'b3'); // roughly 70% opacity
+        }
+        // If accent color is customized, map it to link highlight too
+        if (key === 'accentPrimary') {
+          root.style.setProperty('--link-highlight', val);
+          root.style.setProperty('--border-glow', val + '33'); // roughly 20% opacity
         }
       });
     } else {

@@ -61,11 +61,11 @@ export const NewPageModal: React.FC<NewPageModalProps> = ({ isOpen, onClose, onC
               onKeyDown={handleKeyDown}
               style={{
                 width: '100%',
-                background: 'rgba(0,0,0,0.2)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
                 padding: '12px 16px',
                 borderRadius: '8px',
-                color: '#fff',
+                color: 'var(--text-primary)',
                 fontSize: '1rem',
                 outline: 'none'
               }}
