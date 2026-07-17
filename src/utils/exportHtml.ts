@@ -31,7 +31,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       text = normalizeHex(custom.textPrimary, '#ffffff');
       accent = normalizeHex(custom.accentPrimary, '#7c3aed');
       link = custom.linkColor || '#ffffff4d';
-      const textSec = text + 'b3';
       
       customThemeCSS = `
   html[data-theme="custom"] {
@@ -39,7 +38,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --surface-color: ${bg};
     --surface-hover: rgba(255, 255, 255, 0.05);
     --text-primary: ${text};
-    --text-secondary: ${textSec};
     --accent: ${accent};
     --border-color: ${link};
   }
@@ -62,7 +60,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --surface-color: rgba(15, 20, 40, 0.75);
     --surface-hover: rgba(25, 35, 60, 0.6);
     --text-primary: #ffffff;
-    --text-secondary: #d1d5db;
     --accent: #7c3aed;
     --border-color: rgba(255, 255, 255, 0.08);
   }
@@ -71,7 +68,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --surface-color: #ffffff;
     --surface-hover: #f1f5f9;
     --text-primary: #0f172a;
-    --text-secondary: #475569;
     --accent: #4f46e5;
     --border-color: #cbd5e1;
   }
@@ -80,7 +76,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --surface-color: #fdfaf2;
     --surface-hover: #eaddca;
     --text-primary: #5c4033;
-    --text-secondary: #8c6239;
     --accent: #a0522d;
     --border-color: #d2b48c;
   }
@@ -89,7 +84,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --surface-color: #09090b;
     --surface-hover: #18181b;
     --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
     --accent: #e11d48;
     --border-color: #27272a;
   }
@@ -98,7 +92,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --surface-color: #0b2d45;
     --surface-hover: #13405f;
     --text-primary: #e0f2fe;
-    --text-secondary: #7dd3fc;
     --accent: #0ea5e9;
     --border-color: #1e3a5f;
   }
@@ -137,7 +130,8 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
   .sidebar-header p {
     margin: 0;
     font-size: 0.8rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    opacity: 0.7;
   }
   .search-container {
     padding: 0 24px 20px;
@@ -167,7 +161,8 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     display: block;
     padding: 10px 12px;
     margin-bottom: 4px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    opacity: 0.7;
     text-decoration: none;
     font-size: 0.95rem;
     border-radius: 6px;
@@ -227,7 +222,8 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     padding: 6px 14px;
     border-radius: 999px;
     font-size: 0.8rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    opacity: 0.7;
     border: 1px solid var(--border-color);
   }
   .category-tag {
@@ -263,7 +259,8 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     border-left: 2px solid var(--accent);
     margin: 0;
     padding-left: 20px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    opacity: 0.85;
     font-style: italic;
   }
   .note-content img { max-width: 100%; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -285,7 +282,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       <h1>${safeTitle}</h1>
       <p>Exported on ${new Date().toLocaleString()}</p>
       <div class="theme-selector-container" style="margin-top: 15px; display: flex; align-items: center; gap: 8px;">
-        <label for="themeSelect" style="font-size: 0.75rem; color: var(--text-secondary);">Theme:</label>
+        <label for="themeSelect" style="font-size: 0.75rem; color: var(--text-primary); opacity: 0.7;">Theme:</label>
         <select id="themeSelect" style="background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; font-family: inherit; flex: 1; outline: none;">
           <option value="dark">Dark Space</option>
           <option value="light">Light Clean</option>
@@ -297,15 +294,15 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       </div>
       <div id="customThemeBuilder" style="display: none; margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border-color); flex-direction: column; gap: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
-          <span style="color: var(--text-secondary);">Background</span>
+          <span style="color: var(--text-primary); opacity: 0.7;">Background</span>
           <input type="color" id="customBg" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
-          <span style="color: var(--text-secondary);">Text Color</span>
+          <span style="color: var(--text-primary); opacity: 0.7;">Text Color</span>
           <input type="color" id="customText" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
-          <span style="color: var(--text-secondary);">Accent Color</span>
+          <span style="color: var(--text-primary); opacity: 0.7;">Accent Color</span>
           <input type="color" id="customAccent" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
         </div>
       </div>
@@ -408,7 +405,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       root.style.setProperty('--bg-color', currentCustom.bg);
       root.style.setProperty('--surface-color', currentCustom.bg);
       root.style.setProperty('--text-primary', currentCustom.text);
-      root.style.setProperty('--text-secondary', currentCustom.text + 'b3');
       root.style.setProperty('--accent', currentCustom.accent);
       root.style.color = currentCustom.text;
 
@@ -416,7 +412,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
         document.body.style.setProperty('--bg-color', currentCustom.bg);
         document.body.style.setProperty('--surface-color', currentCustom.bg);
         document.body.style.setProperty('--text-primary', currentCustom.text);
-        document.body.style.setProperty('--text-secondary', currentCustom.text + 'b3');
         document.body.style.setProperty('--accent', currentCustom.accent);
         document.body.style.color = currentCustom.text;
       }
@@ -435,7 +430,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
         root.style.removeProperty('--bg-color');
         root.style.removeProperty('--surface-color');
         root.style.removeProperty('--text-primary');
-        root.style.removeProperty('--text-secondary');
         root.style.removeProperty('--accent');
         root.style.removeProperty('color');
 
@@ -443,7 +437,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
           document.body.style.removeProperty('--bg-color');
           document.body.style.removeProperty('--surface-color');
           document.body.style.removeProperty('--text-primary');
-          document.body.style.removeProperty('--text-secondary');
           document.body.style.removeProperty('--accent');
           document.body.style.removeProperty('color');
         }
