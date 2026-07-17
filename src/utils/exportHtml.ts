@@ -298,10 +298,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
           <span style="color: var(--text-secondary);">Accent Color</span>
           <input type="color" id="customAccent" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
-          <span style="color: var(--text-secondary);">Line/Border</span>
-          <input type="color" id="customBorder" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
-        </div>
       </div>
     </div>
     <div class="search-container">
@@ -351,27 +347,42 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     </div>
   </div>
   <script>
+    // Safe localStorage wrapper for file:/// protocol compatibility
+    const safeStorage = {
+      getItem: (key) => {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          return null;
+        }
+      },
+      setItem: (key, val) => {
+        try {
+          localStorage.setItem(key, val);
+        } catch (e) {
+          // ignore
+        }
+      }
+    };
+
     // Theme switcher persistence controller
     const themeSelect = document.getElementById('themeSelect');
-    const savedTheme = localStorage.getItem('aethermind-export-theme') || '${currentTheme}';
+    const savedTheme = safeStorage.getItem('aethermind-export-theme') || '${currentTheme}';
     const builder = document.getElementById('customThemeBuilder');
     const customBg = document.getElementById('customBg');
     const customText = document.getElementById('customText');
     const customAccent = document.getElementById('customAccent');
-    const customBorder = document.getElementById('customBorder');
 
     // Load custom colors from export file's local storage or fallback to baked-in colors
     let currentCustom = {
-      bg: localStorage.getItem('aethermind-export-custom-bg') || '${bg}',
-      text: localStorage.getItem('aethermind-export-custom-text') || '${text}',
-      accent: localStorage.getItem('aethermind-export-custom-accent') || '${accent}',
-      border: localStorage.getItem('aethermind-export-custom-border') || '${link}'
+      bg: safeStorage.getItem('aethermind-export-custom-bg') || '${bg}',
+      text: safeStorage.getItem('aethermind-export-custom-text') || '${text}',
+      accent: safeStorage.getItem('aethermind-export-custom-accent') || '${accent}'
     };
 
     customBg.value = currentCustom.bg;
     customText.value = currentCustom.text;
     customAccent.value = currentCustom.accent;
-    customBorder.value = currentCustom.border;
 
     const applyCustomThemeStyles = () => {
       const root = document.documentElement;
@@ -380,12 +391,11 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       root.style.setProperty('--text-primary', currentCustom.text);
       root.style.setProperty('--text-secondary', currentCustom.text + 'b3');
       root.style.setProperty('--accent', currentCustom.accent);
-      root.style.setProperty('--border-color', currentCustom.border);
     };
 
     const updateTheme = (themeName) => {
       document.documentElement.setAttribute('data-theme', themeName);
-      localStorage.setItem('aethermind-export-theme', themeName);
+      safeStorage.setItem('aethermind-export-theme', themeName);
       
       if (themeName === 'custom') {
         applyCustomThemeStyles();
@@ -398,7 +408,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
         root.style.removeProperty('--text-primary');
         root.style.removeProperty('--text-secondary');
         root.style.removeProperty('--accent');
-        root.style.removeProperty('--border-color');
         builder.style.display = 'none';
       }
     };
@@ -410,7 +419,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     // Handle Custom Color Pickers
     const handleColorChange = (key, val) => {
       currentCustom[key] = val;
-      localStorage.setItem('aethermind-export-custom-' + key, val);
+      safeStorage.setItem('aethermind-export-custom-' + key, val);
       if (themeSelect.value === 'custom') {
         applyCustomThemeStyles();
       }
@@ -419,7 +428,6 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     customBg.addEventListener('input', (e) => handleColorChange('bg', e.target.value));
     customText.addEventListener('input', (e) => handleColorChange('text', e.target.value));
     customAccent.addEventListener('input', (e) => handleColorChange('accent', e.target.value));
-    customBorder.addEventListener('input', (e) => handleColorChange('border', e.target.value));
 
     // Initial theme apply
     updateTheme(savedTheme);
