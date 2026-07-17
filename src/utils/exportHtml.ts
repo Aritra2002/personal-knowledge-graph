@@ -276,6 +276,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     border: none;
     padding: 0;
     cursor: pointer;
+    color: #ffffff !important; /* Force static color to prevent style recalculation when --text-primary changes */
   }
   .custom-color-picker::-webkit-color-swatch-wrapper {
     padding: 0;
