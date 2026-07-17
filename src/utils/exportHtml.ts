@@ -330,6 +330,9 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
           <span style="color: var(--text-primary); opacity: 0.7;">Accent Color</span>
           <input type="color" id="customAccent" class="custom-color-picker">
         </div>
+        <div style="font-size: 0.65rem; color: var(--text-primary); opacity: 0.5; margin-top: 4px; line-height: 1.3; text-align: center; border-top: 1px solid var(--border-color); padding-top: 8px; width: 100%;">
+          Tip: Drag the picker pointer inside the color square to change from white/black.
+        </div>
       </div>
     </div>
     <div class="search-container">
