@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.28.0] - 2026-07-18
+
+### ✨ Features
+- **Appearance & Multi-Theme System**: Implemented multiple preset themes (Light Clean, Sepia Warm, Dark Space, Midnight Luxury, Ocean Tide) and a Custom Theme Builder. Users can select and apply themes instantly without page reload.
+- **Custom Theme Colors**: Provided full custom theme color options including Background Color, Text Color, Accent Color, and Connection Line Color, persisted in local storage.
+- **Offline HTML Export Themes**: Updated the HTML export utility so exported files embed all CSS variables for preset and custom themes and contain an offline-capable dropdown theme switcher that persists choices in browser local storage.
+
+### 🎨 UI/UX
+- **Alignment Fixes**: Aligned the custom theme color picker popovers to grow leftwards (aligning to the right edge of their triggers), keeping them fully contained within the Settings modal boundaries.
+- **Graph Canvas Integration**: Connected the graph viewport background to the theme gradient CSS variables. Added a robust luminance check to automatically adjust contrast for node rings and text labels against custom light/dark backgrounds.
+- **Input Field Readability**: Updated hardcoded white text settings and query inputs to use responsive CSS variables, preventing invisible white-on-white text in light themes.
+
 ## [1.27.1] - 2026-07-07
 
 ### ✨ Features
