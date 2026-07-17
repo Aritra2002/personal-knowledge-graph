@@ -430,14 +430,12 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       root.style.setProperty('--surface-color', currentCustom.bg);
       root.style.setProperty('--text-primary', currentCustom.text);
       root.style.setProperty('--accent', currentCustom.accent);
-      root.style.color = currentCustom.text;
 
       if (document.body) {
         document.body.style.setProperty('--bg-color', currentCustom.bg);
         document.body.style.setProperty('--surface-color', currentCustom.bg);
         document.body.style.setProperty('--text-primary', currentCustom.text);
         document.body.style.setProperty('--accent', currentCustom.accent);
-        document.body.style.color = currentCustom.text;
       }
     };
 
@@ -455,14 +453,12 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
         root.style.removeProperty('--surface-color');
         root.style.removeProperty('--text-primary');
         root.style.removeProperty('--accent');
-        root.style.removeProperty('color');
 
         if (document.body) {
           document.body.style.removeProperty('--bg-color');
           document.body.style.removeProperty('--surface-color');
           document.body.style.removeProperty('--text-primary');
           document.body.style.removeProperty('--accent');
-          document.body.style.removeProperty('color');
         }
         builder.style.display = 'none';
       }
