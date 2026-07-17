@@ -265,6 +265,30 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
   }
   .note-content img { max-width: 100%; border-radius: 12px; border: 1px solid var(--border-color); }
   
+  /* Custom Color Pickers */
+  .custom-color-picker {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .custom-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  .custom-color-picker::-webkit-color-swatch {
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+  }
+  .custom-color-picker::-moz-color-swatch {
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+  }
+  
   /* Mobile Responsive */
   @media (max-width: 768px) {
     body { flex-direction: column; overflow: auto; }
@@ -295,15 +319,15 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       <div id="customThemeBuilder" style="display: none; margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border-color); flex-direction: column; gap: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
           <span style="color: var(--text-primary); opacity: 0.7;">Background</span>
-          <input type="color" id="customBg" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
+          <input type="color" id="customBg" class="custom-color-picker">
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
           <span style="color: var(--text-primary); opacity: 0.7;">Text Color</span>
-          <input type="color" id="customText" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
+          <input type="color" id="customText" class="custom-color-picker">
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
           <span style="color: var(--text-primary); opacity: 0.7;">Accent Color</span>
-          <input type="color" id="customAccent" style="border: none; padding: 0; background: transparent; cursor: pointer; width: 24px; height: 24px;">
+          <input type="color" id="customAccent" class="custom-color-picker">
         </div>
       </div>
     </div>
