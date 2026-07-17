@@ -82,10 +82,13 @@ export default function App() {
 
   const [customThemeColors, setCustomThemeColors] = useState(() => {
     const saved = localStorage.getItem('aethermind-custom-themes');
-    return saved ? JSON.parse(saved) : {
+    const parsed = saved ? JSON.parse(saved) : {};
+    return {
       bgPrimary: '#06071a',
       textPrimary: '#ffffff',
-      accentPrimary: '#7c3aed'
+      accentPrimary: '#7c3aed',
+      linkColor: '#ffffff4d',
+      ...parsed
     };
   });
 
@@ -98,10 +101,11 @@ export default function App() {
       const defaults: Record<string, string> = {
         bgPrimary: '#06071a',
         textPrimary: '#ffffff',
-        accentPrimary: '#7c3aed'
+        accentPrimary: '#7c3aed',
+        linkColor: '#ffffff4d'
       };
       
-      const keys = ['bgPrimary', 'textPrimary', 'accentPrimary'];
+      const keys = ['bgPrimary', 'textPrimary', 'accentPrimary', 'linkColor'];
       keys.forEach((key) => {
         const val = customThemeColors[key] || defaults[key];
         const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -125,7 +129,7 @@ export default function App() {
       });
     } else {
       // Clear custom theme attributes if presets are selected
-      const allKeys = ['bgPrimary', 'textPrimary', 'accentPrimary', 'bg-gradient-1', 'bg-gradient-2', 'bg-gradient-3', 'text-secondary', 'link-highlight', 'border-glow'];
+      const allKeys = ['bgPrimary', 'textPrimary', 'accentPrimary', 'linkColor', 'bg-gradient-1', 'bg-gradient-2', 'bg-gradient-3', 'text-secondary', 'link-highlight', 'border-glow', 'link-color'];
       allKeys.forEach((key) => {
         const cssVar = key.includes('-') ? '--' + key : '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
         root.style.removeProperty(cssVar);
@@ -995,7 +999,8 @@ ${summaries}
             setCustomThemeColors({
               bgPrimary: '#06071a',
               textPrimary: '#ffffff',
-              accentPrimary: '#7c3aed'
+              accentPrimary: '#7c3aed',
+              linkColor: '#ffffff4d'
             });
           }}
         />

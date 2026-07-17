@@ -13,7 +13,8 @@ interface AppearanceSettingsTabProps {
 const CUSTOMIZABLE_KEYS = [
   { key: 'bgPrimary', label: 'Background Color', defaultColor: '#06071a' },
   { key: 'textPrimary', label: 'Text Color', defaultColor: '#ffffff' },
-  { key: 'accentPrimary', label: 'Accent Color', defaultColor: '#7c3aed' }
+  { key: 'accentPrimary', label: 'Accent Color', defaultColor: '#7c3aed' },
+  { key: 'linkColor', label: 'Connection Line Color', defaultColor: '#ffffff4d' }
 ];
 
 export const AppearanceSettingsTab: React.FC<AppearanceSettingsTabProps> = ({

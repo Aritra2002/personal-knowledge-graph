@@ -17,6 +17,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       const text = custom.textPrimary || '#ffffff';
       const textSec = text + 'b3';
       const accent = custom.accentPrimary || '#7c3aed';
+      const link = custom.linkColor || '#ffffff4d';
       
       customThemeCSS = `
   html[data-theme="custom"] {
@@ -26,7 +27,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --text-primary: ${text};
     --text-secondary: ${textSec};
     --accent: ${accent};
-    --border-color: rgba(255, 255, 255, 0.08);
+    --border-color: ${link};
   }
   `;
     }
