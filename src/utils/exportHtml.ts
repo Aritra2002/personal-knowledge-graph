@@ -391,6 +391,14 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       root.style.setProperty('--text-primary', currentCustom.text);
       root.style.setProperty('--text-secondary', currentCustom.text + 'b3');
       root.style.setProperty('--accent', currentCustom.accent);
+
+      if (document.body) {
+        document.body.style.setProperty('--bg-color', currentCustom.bg);
+        document.body.style.setProperty('--surface-color', currentCustom.bg);
+        document.body.style.setProperty('--text-primary', currentCustom.text);
+        document.body.style.setProperty('--text-secondary', currentCustom.text + 'b3');
+        document.body.style.setProperty('--accent', currentCustom.accent);
+      }
     };
 
     const updateTheme = (themeName) => {
@@ -408,6 +416,14 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
         root.style.removeProperty('--text-primary');
         root.style.removeProperty('--text-secondary');
         root.style.removeProperty('--accent');
+
+        if (document.body) {
+          document.body.style.removeProperty('--bg-color');
+          document.body.style.removeProperty('--surface-color');
+          document.body.style.removeProperty('--text-primary');
+          document.body.style.removeProperty('--text-secondary');
+          document.body.style.removeProperty('--accent');
+        }
         builder.style.display = 'none';
       }
     };
