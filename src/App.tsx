@@ -85,9 +85,12 @@ export default function App() {
     const parsed = saved ? JSON.parse(saved) : {};
     return {
       bgPrimary: '#06071a',
+      sidebarBg: '#0f1428',
       textPrimary: '#ffffff',
       accentPrimary: '#7c3aed',
+      accentSecondary: '#06b6d4',
       linkColor: '#ffffff4d',
+      fontFamily: 'sans',
       ...parsed
     };
   });
@@ -100,22 +103,42 @@ export default function App() {
     if (activeTheme === 'custom') {
       const defaults: Record<string, string> = {
         bgPrimary: '#06071a',
+        sidebarBg: '#0f1428',
         textPrimary: '#ffffff',
         accentPrimary: '#7c3aed',
-        linkColor: '#ffffff4d'
+        accentSecondary: '#06b6d4',
+        linkColor: '#ffffff4d',
+        fontFamily: 'sans'
       };
       
-      const keys = ['bgPrimary', 'textPrimary', 'accentPrimary', 'linkColor'];
+      const keys = ['bgPrimary', 'sidebarBg', 'textPrimary', 'accentPrimary', 'accentSecondary', 'linkColor', 'fontFamily'];
       keys.forEach((key) => {
         const val = customThemeColors[key] || defaults[key];
-        const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
-        root.style.setProperty(cssVar, val);
+        
+        if (key === 'fontFamily') {
+          const fontVal = val === 'serif'
+            ? "'Playfair Display', Georgia, serif"
+            : "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
+          root.style.setProperty('--font-sans', fontVal);
+        } else {
+          const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+          root.style.setProperty(cssVar, val);
+        }
         
         // If background color is customized, map it to gradients and other properties
         if (key === 'bgPrimary') {
           root.style.setProperty('--bg-gradient-1', val);
           root.style.setProperty('--bg-gradient-2', val);
           root.style.setProperty('--bg-gradient-3', val);
+        }
+        // If sidebarBg is customized, map it to surface variables
+        if (key === 'sidebarBg') {
+          root.style.setProperty('--surface-glass', val + 'cc'); // 80% opacity
+          root.style.setProperty('--surface-glass-heavy', val + 'da'); // 85% opacity
+          root.style.setProperty('--surface-glass-light', val + '99'); // 60% opacity
+          root.style.setProperty('--surface-card', val);
+          root.style.setProperty('--glass-panel-bg-1', val);
+          root.style.setProperty('--glass-panel-bg-2', val);
         }
         // If text color is customized, map it to secondary text too
         if (key === 'textPrimary') {
@@ -129,11 +152,16 @@ export default function App() {
       });
     } else {
       // Clear custom theme attributes if presets are selected
-      const allKeys = ['bgPrimary', 'textPrimary', 'accentPrimary', 'linkColor', 'bg-gradient-1', 'bg-gradient-2', 'bg-gradient-3', 'text-secondary', 'link-highlight', 'border-glow', 'link-color'];
+      const allKeys = [
+        'bgPrimary', 'sidebarBg', 'textPrimary', 'accentPrimary', 'accentSecondary', 'linkColor', 'fontFamily',
+        'bg-gradient-1', 'bg-gradient-2', 'bg-gradient-3', 'text-secondary', 'link-highlight', 'border-glow', 'link-color',
+        'surface-glass', 'surface-glass-heavy', 'surface-glass-light', 'surface-card', 'glass-panel-bg-1', 'glass-panel-bg-2'
+      ];
       allKeys.forEach((key) => {
         const cssVar = key.includes('-') ? '--' + key : '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
         root.style.removeProperty(cssVar);
       });
+      root.style.removeProperty('--font-sans');
     }
     localStorage.setItem('aethermind-custom-themes', JSON.stringify(customThemeColors));
   }, [activeTheme, customThemeColors]);
@@ -998,9 +1026,12 @@ ${summaries}
           onCustomThemeReset={() => {
             setCustomThemeColors({
               bgPrimary: '#06071a',
+              sidebarBg: '#0f1428',
               textPrimary: '#ffffff',
               accentPrimary: '#7c3aed',
-              linkColor: '#ffffff4d'
+              accentSecondary: '#06b6d4',
+              linkColor: '#ffffff4d',
+              fontFamily: 'sans'
             });
           }}
         />

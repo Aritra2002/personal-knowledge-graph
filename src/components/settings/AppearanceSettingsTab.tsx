@@ -12,8 +12,10 @@ interface AppearanceSettingsTabProps {
 
 const CUSTOMIZABLE_KEYS = [
   { key: 'bgPrimary', label: 'Background Color', defaultColor: '#06071a' },
+  { key: 'sidebarBg', label: 'Sidebar Background', defaultColor: '#0f1428' },
   { key: 'textPrimary', label: 'Text Color', defaultColor: '#ffffff' },
   { key: 'accentPrimary', label: 'Accent Color', defaultColor: '#7c3aed' },
+  { key: 'accentSecondary', label: 'Secondary Accent Color', defaultColor: '#06b6d4' },
   { key: 'linkColor', label: 'Connection Line Color', defaultColor: '#ffffff4d' }
 ];
 
@@ -92,6 +94,28 @@ export const AppearanceSettingsTab: React.FC<AppearanceSettingsTabProps> = ({
                 />
               </div>
             ))}
+
+            {/* Font Style Selection */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Font Style</span>
+              <select
+                value={customThemeColors.fontFamily || 'sans'}
+                onChange={(e) => onCustomThemeColorChange('fontFamily', e.target.value)}
+                style={{
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  color: 'var(--text-primary)',
+                  padding: '4px 8px',
+                  fontSize: '0.8rem',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="sans">Modern Sans-Serif</option>
+                <option value="serif">Editorial Serif</option>
+              </select>
+            </div>
           </div>
         </div>
       )}

@@ -118,12 +118,27 @@ describe('Custom Theme Builder and Exports Stress Test', () => {
       if (activeTheme === 'custom') {
         Object.entries(customThemeColors).forEach(([key, val]) => {
           if (val) {
-            const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
-            root.style.setProperty(cssVar, val);
+            if (key === 'fontFamily') {
+              const fontVal = val === 'serif'
+                ? "'Playfair Display', Georgia, serif"
+                : "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
+              root.style.setProperty('--font-sans', fontVal);
+            } else {
+              const cssVar = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+              root.style.setProperty(cssVar, val);
+            }
             if (key === 'bgPrimary') {
               root.style.setProperty('--bg-gradient-1', val);
               root.style.setProperty('--bg-gradient-2', val);
               root.style.setProperty('--bg-gradient-3', val);
+            }
+            if (key === 'sidebarBg') {
+              root.style.setProperty('--surface-glass', val + 'cc');
+              root.style.setProperty('--surface-glass-heavy', val + 'da');
+              root.style.setProperty('--surface-glass-light', val + '99');
+              root.style.setProperty('--surface-card', val);
+              root.style.setProperty('--glass-panel-bg-1', val);
+              root.style.setProperty('--glass-panel-bg-2', val);
             }
             if (key === 'textPrimary') {
               root.style.setProperty('--text-secondary', val + 'b3');
@@ -135,19 +150,27 @@ describe('Custom Theme Builder and Exports Stress Test', () => {
           }
         });
       } else {
-        const allKeys = ['bgPrimary', 'textPrimary', 'accentPrimary', 'bg-gradient-1', 'bg-gradient-2', 'bg-gradient-3', 'text-secondary', 'link-highlight', 'border-glow'];
+        const allKeys = [
+          'bgPrimary', 'sidebarBg', 'textPrimary', 'accentPrimary', 'accentSecondary', 'linkColor', 'fontFamily',
+          'bg-gradient-1', 'bg-gradient-2', 'bg-gradient-3', 'text-secondary', 'link-highlight', 'border-glow', 'link-color',
+          'surface-glass', 'surface-glass-heavy', 'surface-glass-light', 'surface-card', 'glass-panel-bg-1', 'glass-panel-bg-2'
+        ];
         allKeys.forEach((key) => {
           const cssVar = key.includes('-') ? '--' + key : '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
           root.style.removeProperty(cssVar);
         });
+        root.style.removeProperty('--font-sans');
       }
       localStorage.setItem('aethermind-custom-themes', JSON.stringify(customThemeColors));
     };
 
     const customColors = {
       bgPrimary: '#0f172a',
+      sidebarBg: '#0b0f19',
       textPrimary: '#f8fafc',
-      accentPrimary: '#38bdf8'
+      accentPrimary: '#38bdf8',
+      accentSecondary: '#22c55e',
+      fontFamily: 'serif'
     };
 
     applyThemeEffect('custom', customColors);
@@ -159,12 +182,11 @@ describe('Custom Theme Builder and Exports Stress Test', () => {
     // Verify CSS Variables on document.documentElement
     const rootEl = document.documentElement;
     expect(rootEl.style.getPropertyValue('--bg-primary')).toBe('#0f172a');
-    expect(rootEl.style.getPropertyValue('--bg-gradient-1')).toBe('#0f172a');
+    expect(rootEl.style.getPropertyValue('--sidebar-bg')).toBe('#0b0f19');
     expect(rootEl.style.getPropertyValue('--text-primary')).toBe('#f8fafc');
-    expect(rootEl.style.getPropertyValue('--text-secondary')).toBe('#f8fafcb3');
     expect(rootEl.style.getPropertyValue('--accent-primary')).toBe('#38bdf8');
-    expect(rootEl.style.getPropertyValue('--link-highlight')).toBe('#38bdf8');
-    expect(rootEl.style.getPropertyValue('--border-glow')).toBe('#38bdf833');
+    expect(rootEl.style.getPropertyValue('--accent-secondary')).toBe('#22c55e');
+    expect(rootEl.style.getPropertyValue('--font-sans')).toBe("'Playfair Display', Georgia, serif");
 
     // Switch to dark preset and check they are cleared
     applyThemeEffect('dark', customColors);

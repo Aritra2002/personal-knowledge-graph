@@ -20,26 +20,37 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
   
   const currentTheme = localStorage.getItem('aethermind-theme') || 'dark';
   let bg = '#06071a';
+  let sidebarBg = '#0f1428';
   let text = '#ffffff';
   let accent = '#7c3aed';
+  let accentSec = '#06b6d4';
   let link = '#ffffff4d';
+  let font = 'sans';
   let customThemeCSS = '';
   try {
     const custom = JSON.parse(localStorage.getItem('aethermind-custom-themes') || '{}');
     if (custom && Object.keys(custom).length > 0) {
       bg = normalizeHex(custom.bgPrimary, '#06071a');
+      sidebarBg = normalizeHex(custom.sidebarBg, '#0f1428');
       text = normalizeHex(custom.textPrimary, '#ffffff');
       accent = normalizeHex(custom.accentPrimary, '#7c3aed');
+      accentSec = normalizeHex(custom.accentSecondary, '#06b6d4');
       link = custom.linkColor || '#ffffff4d';
+      font = custom.fontFamily === 'serif' ? 'serif' : 'sans';
+      
+      const fontVal = font === 'serif'
+        ? "'Playfair Display', Georgia, serif"
+        : "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
       
       customThemeCSS = `
   html[data-theme="custom"] {
     --bg-color: ${bg};
-    --surface-color: ${bg};
-    --surface-hover: rgba(255, 255, 255, 0.05);
+    --surface-color: ${sidebarBg};
+    --surface-hover: ${accentSec}1a;
     --text-primary: ${text};
     --accent: ${accent};
     --border-color: ${link};
+    --font-family: ${fontVal};
   }
   `;
     }
@@ -53,6 +64,9 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AetherMind Export - ${safeTitle}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* Preset theme configurations */
   :root, html[data-theme="dark"] {
@@ -62,6 +76,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --text-primary: #ffffff;
     --accent: #7c3aed;
     --border-color: rgba(255, 255, 255, 0.08);
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
   html[data-theme="light"] {
     --bg-color: #f8fafc;
@@ -70,6 +85,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --text-primary: #0f172a;
     --accent: #4f46e5;
     --border-color: #cbd5e1;
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
   html[data-theme="sepia"] {
     --bg-color: #f4ecd8;
@@ -78,6 +94,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --text-primary: #5c4033;
     --accent: #a0522d;
     --border-color: #d2b48c;
+    --font-family: 'Playfair Display', Georgia, serif;
   }
   html[data-theme="midnight"] {
     --bg-color: #020205;
@@ -86,6 +103,7 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --text-primary: #f8fafc;
     --accent: #e11d48;
     --border-color: #27272a;
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
   html[data-theme="ocean"] {
     --bg-color: #051622;
@@ -94,11 +112,12 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     --text-primary: #e0f2fe;
     --accent: #0ea5e9;
     --border-color: #1e3a5f;
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
   ${customThemeCSS}
   * { box-sizing: border-box; }
   body { 
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+    font-family: var(--font-family); 
     margin: 0; 
     background: var(--bg-color); 
     color: var(--text-primary); 
@@ -323,12 +342,31 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
           <input type="color" id="customBg" class="custom-color-picker">
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+          <span style="color: var(--text-primary); opacity: 0.7;">Sidebar Bg</span>
+          <input type="color" id="customSidebarBg" class="custom-color-picker">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
           <span style="color: var(--text-primary); opacity: 0.7;">Text Color</span>
           <input type="color" id="customText" class="custom-color-picker">
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
           <span style="color: var(--text-primary); opacity: 0.7;">Accent Color</span>
           <input type="color" id="customAccent" class="custom-color-picker">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+          <span style="color: var(--text-primary); opacity: 0.7;">Sec. Accent</span>
+          <input type="color" id="customAccentSec" class="custom-color-picker">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+          <span style="color: var(--text-primary); opacity: 0.7;">Lines & Borders</span>
+          <input type="color" id="customLink" class="custom-color-picker">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem;">
+          <span style="color: var(--text-primary); opacity: 0.7;">Font Style</span>
+          <select id="customFont" style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.7rem; padding: 2px 6px; outline: none; cursor: pointer; font-family: inherit;">
+            <option value="sans">Modern Sans</option>
+            <option value="serif">Classic Serif</option>
+          </select>
         </div>
       </div>
     </div>
@@ -411,32 +449,54 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     const savedTheme = safeStorage.getItem('aethermind-export-theme') || '${currentTheme}';
     const builder = document.getElementById('customThemeBuilder');
     const customBg = document.getElementById('customBg');
+    const customSidebarBg = document.getElementById('customSidebarBg');
     const customText = document.getElementById('customText');
     const customAccent = document.getElementById('customAccent');
+    const customAccentSec = document.getElementById('customAccentSec');
+    const customLink = document.getElementById('customLink');
+    const customFont = document.getElementById('customFont');
 
     // Load custom colors from export file's local storage or fallback to baked-in colors
     let currentCustom = {
       bg: getStoredColor('aethermind-export-custom-bg', '${bg}'),
+      sidebarBg: getStoredColor('aethermind-export-custom-sidebar-bg', '${sidebarBg}'),
       text: getStoredColor('aethermind-export-custom-text', '${text}'),
-      accent: getStoredColor('aethermind-export-custom-accent', '${accent}')
+      accent: getStoredColor('aethermind-export-custom-accent', '${accent}'),
+      accentSec: getStoredColor('aethermind-export-custom-accent-sec', '${accentSec}'),
+      link: getStoredColor('aethermind-export-custom-link', '${link}'),
+      font: safeStorage.getItem('aethermind-export-custom-font') || '${font}'
     };
 
     customBg.value = currentCustom.bg;
+    customSidebarBg.value = currentCustom.sidebarBg;
     customText.value = currentCustom.text;
     customAccent.value = currentCustom.accent;
+    customAccentSec.value = currentCustom.accentSec;
+    customLink.value = currentCustom.link;
+    customFont.value = currentCustom.font;
 
     const applyCustomThemeStyles = () => {
       const root = document.documentElement;
       root.style.setProperty('--bg-color', currentCustom.bg);
-      root.style.setProperty('--surface-color', currentCustom.bg);
+      root.style.setProperty('--surface-color', currentCustom.sidebarBg);
+      root.style.setProperty('--surface-hover', currentCustom.accentSec + '1a'); // 10% opacity
       root.style.setProperty('--text-primary', currentCustom.text);
       root.style.setProperty('--accent', currentCustom.accent);
+      root.style.setProperty('--border-color', currentCustom.link);
+      
+      const fontVal = currentCustom.font === 'serif' 
+        ? "'Playfair Display', Georgia, serif" 
+        : "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif";
+      root.style.setProperty('--font-family', fontVal);
 
       if (document.body) {
         document.body.style.setProperty('--bg-color', currentCustom.bg);
-        document.body.style.setProperty('--surface-color', currentCustom.bg);
+        document.body.style.setProperty('--surface-color', currentCustom.sidebarBg);
+        document.body.style.setProperty('--surface-hover', currentCustom.accentSec + '1a');
         document.body.style.setProperty('--text-primary', currentCustom.text);
         document.body.style.setProperty('--accent', currentCustom.accent);
+        document.body.style.setProperty('--border-color', currentCustom.link);
+        document.body.style.setProperty('--font-family', fontVal);
       }
     };
 
@@ -452,14 +512,20 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
         const root = document.documentElement;
         root.style.removeProperty('--bg-color');
         root.style.removeProperty('--surface-color');
+        root.style.removeProperty('--surface-hover');
         root.style.removeProperty('--text-primary');
         root.style.removeProperty('--accent');
+        root.style.removeProperty('--border-color');
+        root.style.removeProperty('--font-family');
 
         if (document.body) {
           document.body.style.removeProperty('--bg-color');
           document.body.style.removeProperty('--surface-color');
+          document.body.style.removeProperty('--surface-hover');
           document.body.style.removeProperty('--text-primary');
           document.body.style.removeProperty('--accent');
+          document.body.style.removeProperty('--border-color');
+          document.body.style.removeProperty('--font-family');
         }
         builder.style.display = 'none';
       }
@@ -470,10 +536,20 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
     });
 
     // Handle Custom Color Pickers
+    const keyMap = {
+      bg: 'bg',
+      sidebarBg: 'sidebar-bg',
+      text: 'text',
+      accent: 'accent',
+      accentSec: 'accent-sec',
+      link: 'link',
+      font: 'font'
+    };
     const handleColorChange = (key, val) => {
       if (currentCustom[key] === val) return;
       currentCustom[key] = val;
-      safeStorage.setItem('aethermind-export-custom-' + key, val);
+      const storageKey = 'aethermind-export-custom-' + (keyMap[key] || key);
+      safeStorage.setItem(storageKey, val);
       if (themeSelect.value === 'custom') {
         applyCustomThemeStyles();
       }
@@ -524,14 +600,69 @@ export const exportToHtml = async (pageId: number, pageTitle: string = 'Graph') 
       originalBgVal = null;
     });
 
+    let originalSidebarBgVal = null;
+    customSidebarBg.addEventListener('click', () => {
+      const val = customSidebarBg.value.toLowerCase();
+      if (val === '#ffffff' || val === '#000000') {
+        originalSidebarBgVal = val;
+        const fallbackAccent = (currentCustom.accent === '#ffffff' || currentCustom.accent === '#000000') ? '#7c3aed' : currentCustom.accent;
+        customSidebarBg.value = fallbackAccent;
+      }
+    });
+    customSidebarBg.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (originalSidebarBgVal !== null) {
+          customSidebarBg.value = originalSidebarBgVal;
+          handleColorChange('sidebarBg', originalSidebarBgVal);
+          originalSidebarBgVal = null;
+        }
+      }, 50);
+    });
+    customSidebarBg.addEventListener('change', () => {
+      originalSidebarBgVal = null;
+    });
+
+    let originalLinkVal = null;
+    customLink.addEventListener('click', () => {
+      const val = customLink.value.toLowerCase();
+      if (val === '#ffffff' || val === '#000000') {
+        originalLinkVal = val;
+        const fallbackAccent = (currentCustom.accent === '#ffffff' || currentCustom.accent === '#000000') ? '#7c3aed' : currentCustom.accent;
+        customLink.value = fallbackAccent;
+      }
+    });
+    customLink.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (originalLinkVal !== null) {
+          customLink.value = originalLinkVal;
+          handleColorChange('link', originalLinkVal);
+          originalLinkVal = null;
+        }
+      }, 50);
+    });
+    customLink.addEventListener('change', () => {
+      originalLinkVal = null;
+    });
+
     customBg.addEventListener('input', (e) => handleColorChange('bg', e.target.value));
     customBg.addEventListener('change', (e) => handleColorChange('bg', e.target.value));
+
+    customSidebarBg.addEventListener('input', (e) => handleColorChange('sidebarBg', e.target.value));
+    customSidebarBg.addEventListener('change', (e) => handleColorChange('sidebarBg', e.target.value));
 
     customText.addEventListener('input', (e) => handleColorChange('text', e.target.value));
     customText.addEventListener('change', (e) => handleColorChange('text', e.target.value));
 
     customAccent.addEventListener('input', (e) => handleColorChange('accent', e.target.value));
     customAccent.addEventListener('change', (e) => handleColorChange('accent', e.target.value));
+
+    customAccentSec.addEventListener('input', (e) => handleColorChange('accentSec', e.target.value));
+    customAccentSec.addEventListener('change', (e) => handleColorChange('accentSec', e.target.value));
+
+    customLink.addEventListener('input', (e) => handleColorChange('link', e.target.value));
+    customLink.addEventListener('change', (e) => handleColorChange('link', e.target.value));
+
+    customFont.addEventListener('change', (e) => handleColorChange('font', e.target.value));
 
     // Initial theme apply
     updateTheme(savedTheme);
