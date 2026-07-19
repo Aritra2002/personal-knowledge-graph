@@ -58,7 +58,7 @@ export default function App() {
   const [showDeletePageConfirm, setShowDeletePageConfirm] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [showDiscoveryDigest, setShowDiscoveryDigest] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth >= 768);
   const viewport = useViewport();
   const isDesktop = viewport === 'lg';
   const [showMobileMenu, setShowMobileMenu] = useState(false);
