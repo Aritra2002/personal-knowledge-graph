@@ -201,7 +201,7 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
       <div className="settings-section">
         <h3>Graph Automation (Local ML)</h3>
         <p className="section-desc">Run local Transformers.js models to analyze and organize your notes offline.</p>
-        <div className="action-buttons-grid" style={{ marginBottom: '15px' }}>
+        <div className="action-buttons-grid" style={{ marginBottom: '15px', gridTemplateColumns: '1fr' }}>
           <button 
             className="settings-action-btn" 
             onClick={async () => {
@@ -220,7 +220,7 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
             <RotateCcw size={16} className={isClustering ? 'spin-pulse' : ''} />
             <span>{isClustering ? 'Clustering...' : 'Cluster Unlinked Notes'}</span>
           </button>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
               <div style={{ paddingRight: '12px' }}>
                 <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '6px' }}>NLP Clustering</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Inject invisible links between semantically similar notes on the graph</div>
