@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, setMonth, setYear, getDay } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, FileText } from 'lucide-react';
+import { Calendar, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dropdown } from './ui/Dropdown';
 
 interface JournalCalendarProps {
@@ -35,6 +35,16 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
       setCurrentMonth(setYear(currentMonth, y));
       setSelectedDate(null);
     }
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    setSelectedDate(null);
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+    setSelectedDate(null);
   };
   
   const monthStart = startOfMonth(currentMonth);
@@ -93,13 +103,31 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
           </h3>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button 
+            className="btn btn-icon btn-ghost" 
+            onClick={() => handlePrevMonth()} 
+            aria-label="Previous Month"
+            style={{ minHeight: 'auto', padding: '6px' }}
+          >
+            <ChevronLeft size={16} />
+          </button>
+          
           <Dropdown
             value={currentMonth.getMonth()}
             onChange={(val) => { setCurrentMonth(setMonth(currentMonth, val as number)); setSelectedDate(null); }}
             options={Array.from({ length: 12 }).map((_, i) => ({ value: i, label: format(new Date(2020, i, 1), 'MMMM') }))}
             style={{ width: '120px' }}
           />
+
+          <button 
+            className="btn btn-icon btn-ghost" 
+            onClick={() => handleNextMonth()} 
+            aria-label="Next Month"
+            style={{ minHeight: 'auto', padding: '6px' }}
+          >
+            <ChevronRight size={16} />
+          </button>
           
           <Dropdown
             isSearchable={true}

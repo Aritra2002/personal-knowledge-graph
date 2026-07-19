@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - **Interactive Activity Journal**: Clicking on a note in the Activity Journal list now closes the settings modal and opens the full editor drawer.
+- **Activity Journal Month Navigation**: Added previous and next month chevron buttons next to the dropdown menu to quickly scrub months before and after.
 - **Node Connection Context**: Displays styled badges showing which page each note belongs to. Displays a detailed links list (`🔗 Connected to: [Note Name]`) showing links/connections between the notes created on the selected date.
 - **History Timeline & Scrubber**: Added exact datetime input capability to the scrubber, fixed default node inception date, and visually forced custom datetime formats on the native date picker.
 
