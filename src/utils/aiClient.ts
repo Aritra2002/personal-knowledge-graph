@@ -9,11 +9,26 @@ export interface AIConfig {
 }
 
 export const getAIConfig = (): AIConfig => {
+  const provider = (localStorage.getItem('aiProvider') as AIProvider) || 'openai';
+  const defaultBaseUrl: Record<string, string> = {
+    openai: 'https://api.openai.com/v1',
+    anthropic: 'https://api.anthropic.com',
+    deepseek: 'https://api.deepseek.com',
+    google: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+    openrouter: 'https://openrouter.ai/api/v1',
+  };
+  const defaultModel: Record<string, string> = {
+    openai: 'gpt-4o-mini',
+    anthropic: 'claude-3-5-sonnet-20240620',
+    deepseek: 'deepseek-chat',
+    google: 'gemini-2.5-flash',
+    openrouter: 'google/gemini-2.5-flash',
+  };
   return {
-    provider: (localStorage.getItem('aiProvider') as AIProvider) || 'openai',
-    baseUrl: localStorage.getItem('aiBaseUrl') || '',
+    provider,
+    baseUrl: localStorage.getItem('aiBaseUrl') || defaultBaseUrl[provider] || '',
     apiKey: localStorage.getItem('aiApiKey') || '',
-    model: localStorage.getItem('aiModel') || '',
+    model: localStorage.getItem('aiModel') || defaultModel[provider] || '',
   };
 };
 
