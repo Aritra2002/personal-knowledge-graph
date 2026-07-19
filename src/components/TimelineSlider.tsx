@@ -106,24 +106,49 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
           <span className="timeline-label">History Scrubber:</span>
           <span className="timeline-dates" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {formatDate(minDate)} - 
-            <input 
-              type="datetime-local" 
-              value={getDatetimeLocalString(value)}
-              min={getDatetimeLocalString(minDate)}
-              max={getDatetimeLocalString(maxDate)}
-              onChange={handleDateInputChange}
-              className="timeline-date-input"
-              style={{
-                background: 'rgba(0,0,0,0.2)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-primary)',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontSize: '0.85rem',
-                outline: 'none',
-                fontFamily: 'inherit'
-              }}
-            />
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <div 
+                className="timeline-date-display"
+                style={{
+                  background: 'rgba(0,0,0,0.2)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'var(--text-primary)',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  fontSize: '0.85rem',
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  display: 'inline-block',
+                  minWidth: '160px',
+                  textAlign: 'center'
+                }}
+              >
+                {formatDate(value)}
+              </div>
+              <input 
+                type="datetime-local" 
+                value={getDatetimeLocalString(value)}
+                min={getDatetimeLocalString(minDate)}
+                max={getDatetimeLocalString(maxDate)}
+                onChange={handleDateInputChange}
+                onClick={(e) => {
+                  try {
+                    if ('showPicker' in HTMLInputElement.prototype) {
+                      e.currentTarget.showPicker();
+                    }
+                  } catch (err) {}
+                }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
           </span>
         </div>
         {dateRange && (
