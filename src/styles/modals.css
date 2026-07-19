@@ -23,7 +23,7 @@
 .settings-section { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
 .settings-section h3 { font-size: 0.95rem; font-weight: 600; }
 .section-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 8px; }
-.action-buttons-grid { display: flex; flex-direction: column; gap: 12px; }
+.action-buttons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .settings-action-btn { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.85rem; font-weight: 500; transition: background 0.2s ease, color 0.2s ease; text-align: left; }
 .settings-action-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); }
 .settings-action-btn:active { transform: scale(0.96); }
