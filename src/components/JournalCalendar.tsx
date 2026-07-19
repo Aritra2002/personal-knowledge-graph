@@ -359,7 +359,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '25vh', overflowY: 'auto', scrollbarGutter: 'stable', paddingRight: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '320px', overflowY: 'auto', scrollbarGutter: 'stable', paddingRight: '8px' }}>
                   {selectedNotes.length > 0 ? (
                     selectedNotes.map(note => {
                       const page = pages.find(p => p.id === note.pageId);
