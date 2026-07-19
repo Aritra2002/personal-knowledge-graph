@@ -1,18 +1,20 @@
-import { pipeline, env } from '@xenova/transformers';
 import { db, type Note } from '../db';
-
-// Disable local models so it fetches directly from Hugging Face hub
-// This prevents Vite from returning index.html for model files, which causes the "<!doctype" JSON parse error.
-env.allowLocalModels = false;
-env.useBrowserCache = false;
 
 type FeatureExtractionPipeline = (text: string, options?: { pooling?: string; normalize?: boolean }) => Promise<{ data: Float32Array | number[] }>;
 let embedder: FeatureExtractionPipeline | null = null;
+let transformersModule: any = null;
 
 // Initialize the model (downloads on first run)
 export const initEmbedder = async () => {
   if (!embedder) {
-    embedder = (await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')) as unknown as FeatureExtractionPipeline;
+    if (!transformersModule) {
+      transformersModule = await import('@xenova/transformers');
+      // Disable local models so it fetches directly from Hugging Face hub
+      // This prevents Vite from returning index.html for model files, which causes the "<!doctype" JSON parse error.
+      transformersModule.env.allowLocalModels = false;
+      transformersModule.env.useBrowserCache = false;
+    }
+    embedder = (await transformersModule.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')) as unknown as FeatureExtractionPipeline;
   }
   return embedder;
 };

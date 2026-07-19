@@ -444,7 +444,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
       </div>
 
       {/* Main Body Viewport */}
-      <div className="editor-body" style={{ height: '100%', display: 'flex', flexDirection: 'column', marginTop: '12px' }}>
+      <div className="editor-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: '12px', minHeight: 0 }}>
         {editMode ? (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -491,7 +491,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center' }}>
               <button 
                 className="btn btn-primary btn-sm" 
@@ -505,7 +505,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
               id="editor-note-preview"
               className="note-preview markdown-body"
               dangerouslySetInnerHTML={{ __html: getRenderedContent() }}
-              style={{ flex: 1, overflowY: 'auto' }}
+              style={{ width: '100%' }}
             />
           </div>
         )}

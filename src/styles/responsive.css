@@ -11,12 +11,10 @@
   .right-sidebar {
     position: fixed; top: 0; left: 0; right: 0;
     bottom: calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, 0px));
-    width: 100% !important; z-index: 20;
-    transform: translateY(100%); opacity: 0; visibility: hidden;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0.4s;
+    width: 100% !important; z-index: 105;
     background: var(--bg-primary);
   }
-  .right-sidebar.open { transform: translateY(0); opacity: 1; visibility: visible; }
+  .right-sidebar.open { }
   .sidebar-tab-trigger { display: none !important; }
   .canvas-controls { top: 76px; bottom: auto; left: 8px; }
   .canvas-help-box { top: 76px; bottom: auto; right: 8px; }
@@ -47,12 +45,10 @@
   .right-sidebar {
     position: fixed; top: 0; left: 0; right: 0;
     bottom: calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, 0px));
-    width: 100% !important; z-index: 20;
-    transform: translateY(100%); opacity: 0; visibility: hidden;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0.4s;
+    width: 100% !important; z-index: 105;
     background: var(--bg-primary);
   }
-  .right-sidebar.open { transform: translateY(0); opacity: 1; visibility: visible; }
+  .right-sidebar.open { }
   .sidebar-tab-trigger { display: none !important; }
   .canvas-controls { top: 76px; bottom: auto; left: 8px; }
   .canvas-help-box { top: 76px; bottom: auto; right: 8px; }

@@ -873,9 +873,9 @@ ${summaries}
         <AnimatePresence>
           {isSidebarOpen && (
             <motion.div 
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: sidebarWidth, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
+              initial={viewport === 'sm' ? { y: '100%', opacity: 0 } : { width: 0, opacity: 0 }}
+              animate={viewport === 'sm' ? { y: 0, opacity: 1 } : { width: sidebarWidth, opacity: 1 }}
+              exit={viewport === 'sm' ? { y: '100%', opacity: 0 } : { width: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className={`right-sidebar open`}
               style={{ 

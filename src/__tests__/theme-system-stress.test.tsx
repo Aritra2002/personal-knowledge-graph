@@ -123,7 +123,7 @@ describe('Theme System & Offline Export Stress Tests', () => {
     // Retrieve the blob passed to createObjectURL
     expect(mockCreateObjectURL).toHaveBeenCalled();
     const blob: Blob = mockCreateObjectURL.mock.calls[0][0] as Blob;
-    capturedHtml = await blob.text();
+    const capturedHtml = await blob.text();
 
     // Verify metadata and structure
     expect(capturedHtml).toContain('<!DOCTYPE html>');

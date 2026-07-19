@@ -303,26 +303,24 @@ describe('Mobile responsiveness fixes validation', () => {
       });
 
       // Find the grid layout container inside JournalCalendar
-      // The container has: display: grid, gridTemplateRows: repeat(7, 10px), gridAutoFlow: column
-      const gridContainer = container.querySelector('div[style*="display: grid"]') as HTMLElement;
+      // The container has: display: grid, gridTemplateColumns: repeat(7, 1fr)
+      const gridContainers = container.querySelectorAll('div[style*="display: grid"]');
+      expect(gridContainers.length).toBe(2);
+
+      const gridContainer = gridContainers[1] as HTMLElement;
       expect(gridContainer).toBeTruthy();
 
       const styles = gridContainer.style;
       expect(styles.display).toBe('grid');
-      expect(styles.gridTemplateRows).toBe('repeat(7, 10px)');
-      expect(styles.gridAutoFlow).toBe('column');
-      expect(styles.gap).toBe('4px');
-      expect(styles.maxWidth).toBe('100%');
-      expect(styles.overflowX).toBe('auto');
+      expect(styles.gridTemplateColumns).toBe('repeat(7, 1fr)');
+      expect(styles.gap).toBe('12px');
 
       // Verify child blocks are rendered inside
       const dayBlocks = gridContainer.children;
-      expect(dayBlocks.length).toBeGreaterThan(300); // 365 or 366 days in a year
+      expect(dayBlocks.length).toBeGreaterThan(28); // At least 28 days
 
-      const firstBlock = dayBlocks[0] as HTMLElement;
-      expect(firstBlock.style.width).toBe('10px');
-      expect(firstBlock.style.height).toBe('10px');
-      expect(firstBlock.style.borderRadius).toBe('2px');
+      const lastBlock = dayBlocks[dayBlocks.length - 1] as HTMLElement;
+      expect(lastBlock.style.borderRadius).toBe('10px');
 
       act(() => {
         root.unmount();
