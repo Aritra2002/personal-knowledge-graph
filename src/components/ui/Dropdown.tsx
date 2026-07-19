@@ -100,6 +100,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       }
     }
   };
+  const computedMaxLength = maxLength ?? (options.length > 0 ? Math.max(...options.map(opt => String(opt.label).length)) : undefined);
 
   return (
     <div 
@@ -124,7 +125,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            maxLength={maxLength}
+            maxLength={computedMaxLength}
             onClick={(e) => {
               e.stopPropagation();
               setIsOpen(true);
