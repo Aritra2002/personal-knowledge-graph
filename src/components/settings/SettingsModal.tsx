@@ -101,6 +101,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
                 onNlpClusteringChange={props.onNlpClusteringChange}
                 activePageId={props.activePageId}
                 pageTitle={props.pageTitle}
+                onSaveSnapshot={props.onSaveSnapshot}
+                onViewSnapshots={props.onViewSnapshots}
               />
             )}
             {activeTab === 'journal' && <JournalCalendar onSelectNote={props.onSelectNote} />}
