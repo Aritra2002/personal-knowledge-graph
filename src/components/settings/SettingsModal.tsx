@@ -24,6 +24,7 @@ interface SettingsModalProps {
   customThemeColors: Record<string, string>;
   onCustomThemeColorChange: (key: string, color: string) => void;
   onCustomThemeReset: () => void;
+  onSelectNote?: (title: string) => void;
 }
 
 type TabType = 'data' | 'journal' | 'ai' | 'appearance' | 'about';
@@ -102,7 +103,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
                 pageTitle={props.pageTitle}
               />
             )}
-            {activeTab === 'journal' && <JournalCalendar />}
+            {activeTab === 'journal' && <JournalCalendar onSelectNote={props.onSelectNote} />}
             {activeTab === 'ai' && <AiSettingsTab />}
             {activeTab === 'appearance' && (
               <AppearanceSettingsTab

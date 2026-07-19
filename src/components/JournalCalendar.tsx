@@ -6,11 +6,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, FileText } from 'lucide-react';
 import { Dropdown } from './ui/Dropdown';
 
-export const JournalCalendar: React.FC = () => {
+interface JournalCalendarProps {
+  onSelectNote?: (title: string) => void;
+}
+
+export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }) => {
   const notes = useLiveQuery(() => db.notes.toArray()) || [];
   const pages = useLiveQuery(() => db.pages.toArray()) || [];
+  const links = useLiveQuery(() => db.links.toArray()) || [];
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [hoveredNoteId, setHoveredNoteId] = useState<number | null>(null);
 
 
   const handleYearSubmit = (valStr: string | number) => {
@@ -200,18 +206,53 @@ export const JournalCalendar: React.FC = () => {
                   {selectedNotes.length > 0 ? (
                     selectedNotes.map(note => {
                       const page = pages.find(p => p.id === note.pageId);
+                      const related = selectedNotes.filter(sn => {
+                        if (sn.id === note.id) return false;
+                        return links.some(l => 
+                          (l.sourceId === note.id && l.targetId === sn.id) ||
+                          (l.sourceId === sn.id && l.targetId === note.id)
+                        );
+                      });
+                      const isHovered = hoveredNoteId === note.id;
+                      
                       return (
-                        <div key={note.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                          <FileText size={14} style={{ color: note.color || 'var(--accent-primary)', flexShrink: 0 }} />
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div 
+                          key={note.id} 
+                          onMouseEnter={() => setHoveredNoteId(note.id!)}
+                          onMouseLeave={() => setHoveredNoteId(null)}
+                          onClick={() => onSelectNote && onSelectNote(note.title)}
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '12px', 
+                            padding: '12px', 
+                            background: isHovered ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)', 
+                            borderRadius: '8px', 
+                            border: isHovered ? '1px solid rgba(124, 58, 237, 0.4)' : '1px solid rgba(255, 255, 255, 0.05)', 
+                            width: '100%',
+                            cursor: onSelectNote ? 'pointer' : 'default',
+                            transform: isHovered ? 'translateY(-1px)' : 'none',
+                            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                            boxShadow: isHovered ? '0 4px 12px rgba(0, 0, 0, 0.3)' : 'none'
+                          }}
+                        >
+                          <FileText size={16} style={{ color: note.color || 'var(--accent-primary)', flexShrink: 0 }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden', flex: 1 }}>
+                            <span style={{ fontSize: '0.92rem', fontWeight: 500, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {note.title || 'Untitled Note'}
                             </span>
-                            {page && (
-                              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                                Page: {page.title}
-                              </span>
-                            )}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                              {page && (
+                                <span style={{ backgroundColor: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.25)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', color: '#a78bfa', fontWeight: 500 }}>
+                                  Page: {page.title}
+                                </span>
+                              )}
+                              {related.length > 0 && (
+                                <span style={{ backgroundColor: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.25)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', color: '#22d3ee', fontWeight: 500 }}>
+                                  🔗 Connected to: {related.map(r => r.title).join(', ')}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );

@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.28.2] - 2026-07-19
+
+### ✨ Features
+- **Interactive Activity Journal**: Clicking on a note in the Activity Journal list now closes the settings modal and opens the full editor drawer.
+- **Node Connection Context**: Displays styled badges showing which page each note belongs to. Displays a detailed links list (`🔗 Connected to: [Note Name]`) showing links/connections between the notes created on the selected date.
+- **History Timeline & Scrubber**: Added exact datetime input capability to the scrubber, fixed default node inception date, and visually forced custom datetime formats on the native date picker.
+
+### 🎨 UI/UX
+- **Mobile Sidebar Layout & z-index**: Elevated mobile right-sidebar `z-index` to 105 to float on top of the app header, making the close button and editor action header fully visible and clickable.
+- **Natural Sheet Animations**: Removed conflicting CSS transform transitions on mobile, and configured Framer Motion spring parameters to animate the sidebar sliding up/down on mobile and resizing width-wise on desktop.
+- **Editor Body Heights**: Resolved scrolling clipping by changing the editor body height to `flex: 1` and `min-height: 0`. Removed double scrollbars in preview mode so the preview content, related notes, and connections scroll together as a single container.
+- **Dropdown & Page Selector Bounds**: Prevented the app header from clipping page selector dropdown menus.
+
+### 🔧 Developer Experience & Bug Fixes
+- **Vitest Compilation Isolation**: Dynamically lazy-loaded `@xenova/transformers` inside `initEmbedder` to bypass `sharp` binary loading errors on Windows.
+- **Syntax & Reference Fixes**: Fixed a `ReferenceError: capturedHtml is not defined` syntax bug in the theme system stress test and updated legacy `JournalCalendar` test expectations to match the current monthly calendar grid structure.
+
 ## [1.28.1] - 2026-07-18
 
 ### 🎨 UI/UX

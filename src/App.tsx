@@ -1007,6 +1007,10 @@ ${summaries}
       {showSettings && (
         <SettingsModal
           onClose={() => setShowSettings(false)}
+          onSelectNote={(title) => {
+            setShowSettings(false);
+            handleJumpToNote(title);
+          }}
           onRefreshData={() => {
             setActiveNoteId(null);
             setHistoricalSnapshot(null);
