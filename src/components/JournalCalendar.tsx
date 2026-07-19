@@ -19,10 +19,17 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
   const [hoveredNoteId, setHoveredNoteId] = useState<number | null>(null);
 
 
+  const startYear = 2026;
+  const currentYearObj = new Date().getFullYear();
+  const endYear = Math.round((currentYearObj + 100) / 100) * 100;
+
+  const isPrevMonthDisabled = currentMonth.getFullYear() === startYear && currentMonth.getMonth() === 0;
+  const isNextMonthDisabled = currentMonth.getFullYear() === endYear && currentMonth.getMonth() === 11;
+  const isPrevYearDisabled = currentMonth.getFullYear() === startYear;
+  const isNextYearDisabled = currentMonth.getFullYear() === endYear;
+
   const handleYearSubmit = (valStr: string | number) => {
     const val = valStr.toString();
-    const startYear = 2026;
-    const currentYearObj = new Date().getFullYear();
     
     if (val.trim() === '') {
       setCurrentMonth(setYear(currentMonth, currentYearObj));
@@ -31,28 +38,32 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
     }
 
     const y = parseInt(val);
-    if (!isNaN(y) && y >= startYear) {
+    if (!isNaN(y) && y >= startYear && y <= endYear) {
       setCurrentMonth(setYear(currentMonth, y));
       setSelectedDate(null);
     }
   };
 
   const handlePrevMonth = () => {
+    if (isPrevMonthDisabled) return;
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
     setSelectedDate(null);
   };
 
   const handleNextMonth = () => {
+    if (isNextMonthDisabled) return;
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
     setSelectedDate(null);
   };
 
   const handlePrevYear = () => {
+    if (isPrevYearDisabled) return;
     setCurrentMonth(new Date(currentMonth.getFullYear() - 1, currentMonth.getMonth(), 1));
     setSelectedDate(null);
   };
 
   const handleNextYear = () => {
+    if (isNextYearDisabled) return;
     setCurrentMonth(new Date(currentMonth.getFullYear() + 1, currentMonth.getMonth(), 1));
     setSelectedDate(null);
   };
@@ -119,14 +130,15 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button 
               onClick={() => handlePrevMonth()} 
+              disabled={isPrevMonthDisabled}
               aria-label="Previous Month"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)', 
                 border: '1px solid rgba(255, 255, 255, 0.1)', 
                 borderRadius: '6px', 
-                color: 'var(--text-primary)', 
+                color: isPrevMonthDisabled ? 'rgba(255, 255, 255, 0.2)' : 'var(--text-primary)', 
                 padding: '6px', 
-                cursor: 'pointer',
+                cursor: isPrevMonthDisabled ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -137,6 +149,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                 aspectRatio: '1',
                 outline: 'none',
                 boxShadow: 'none',
+                opacity: isPrevMonthDisabled ? 0.5 : 1,
                 transition: 'all 0.2s ease'
               }}
             >
@@ -152,14 +165,15 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
 
             <button 
               onClick={() => handleNextMonth()} 
+              disabled={isNextMonthDisabled}
               aria-label="Next Month"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)', 
                 border: '1px solid rgba(255, 255, 255, 0.1)', 
                 borderRadius: '6px', 
-                color: 'var(--text-primary)', 
+                color: isNextMonthDisabled ? 'rgba(255, 255, 255, 0.2)' : 'var(--text-primary)', 
                 padding: '6px', 
-                cursor: 'pointer',
+                cursor: isNextMonthDisabled ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -170,6 +184,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                 aspectRatio: '1',
                 outline: 'none',
                 boxShadow: 'none',
+                opacity: isNextMonthDisabled ? 0.5 : 1,
                 transition: 'all 0.2s ease'
               }}
             >
@@ -181,14 +196,15 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button 
               onClick={() => handlePrevYear()} 
+              disabled={isPrevYearDisabled}
               aria-label="Previous Year"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)', 
                 border: '1px solid rgba(255, 255, 255, 0.1)', 
                 borderRadius: '6px', 
-                color: 'var(--text-primary)', 
+                color: isPrevYearDisabled ? 'rgba(255, 255, 255, 0.2)' : 'var(--text-primary)', 
                 padding: '6px', 
-                cursor: 'pointer',
+                cursor: isPrevYearDisabled ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -199,6 +215,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                 aspectRatio: '1',
                 outline: 'none',
                 boxShadow: 'none',
+                opacity: isPrevYearDisabled ? 0.5 : 1,
                 transition: 'all 0.2s ease'
               }}
             >
@@ -207,7 +224,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
             
             <Dropdown
               isSearchable={true}
-              allowCustomValue={true}
+              allowCustomValue={false}
               dynamicWidth={true}
               value={currentMonth.getFullYear()}
               onChange={(val) => handleYearSubmit(val)}
@@ -223,14 +240,15 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
 
             <button 
               onClick={() => handleNextYear()} 
+              disabled={isNextYearDisabled}
               aria-label="Next Year"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)', 
                 border: '1px solid rgba(255, 255, 255, 0.1)', 
                 borderRadius: '6px', 
-                color: 'var(--text-primary)', 
+                color: isNextYearDisabled ? 'rgba(255, 255, 255, 0.2)' : 'var(--text-primary)', 
                 padding: '6px', 
-                cursor: 'pointer',
+                cursor: isNextYearDisabled ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -241,6 +259,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                 aspectRatio: '1',
                 outline: 'none',
                 boxShadow: 'none',
+                opacity: isNextYearDisabled ? 0.5 : 1,
                 transition: 'all 0.2s ease'
               }}
             >

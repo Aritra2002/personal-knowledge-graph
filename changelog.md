@@ -4,7 +4,8 @@
 
 ### ✨ Features
 - **Interactive Activity Journal**: Clicking on a note in the Activity Journal list now closes the settings modal and opens the full editor drawer.
-- **Activity Journal Navigation Polish**: Added dedicated previous and next chevron buttons around both the **Month** and **Year** dropdowns to allow swift chronological navigation.
+- **Activity Journal Navigation Polish**: Added dedicated previous and next chevron buttons around both the **Month** and **Year** dropdowns to allow swift chronological navigation. Restricted controls to system boundaries (January 2026 to December of the end year), disabling the previous/next buttons accordingly to prevent invalid navigation.
+- **Year Dropdown Restrictions**: Prevented typing custom years not present in the options list (`allowCustomValue={false}`) and enforced boundary validation checks inside the submit handler to prevent out-of-bound dates.
 - **Node Connection Context**: Displays styled badges showing which page each note belongs to. Displays a detailed links list (`🔗 Connected to: [Note Name]`) showing links/connections between the notes created on the selected date.
 - **History Timeline & Scrubber**: Added exact datetime input capability to the scrubber, fixed default node inception date, and visually forced custom datetime formats on the native date picker.
 
