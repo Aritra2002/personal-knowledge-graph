@@ -4,10 +4,15 @@ import { generateEmbedding } from '../utils/vectorSearch';
 
 // Helper to extract wiki-links from markdown content
 export function extractWikiLinks(content: string): string[] {
+  // Remove markdown code blocks and inline code to prevent parsing wikilinks inside them
+  const withoutCode = content
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`]*`/g, '');
+
   const regex = /\[\[(.*?)\]\]/g;
   const links: string[] = [];
   let match;
-  while ((match = regex.exec(content)) !== null) {
+  while ((match = regex.exec(withoutCode)) !== null) {
     const title = match[1].trim();
     if (title && !links.includes(title)) {
       links.push(title);
