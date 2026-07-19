@@ -95,8 +95,39 @@
   }
   .journal-controls {
     width: 100%;
-    justify-content: flex-start;
-    gap: 8px !important;
+    justify-content: space-between;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+  }
+  .journal-nav-group {
+    flex: 1;
+    min-width: 0;
+    gap: 4px !important;
+    justify-content: space-between;
+  }
+  .journal-nav-btn {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    padding: 4px !important;
+  }
+  .journal-nav-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  .journal-dropdown-month, .journal-dropdown-year {
+    flex: 1;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .journal-dropdown-month .dropdown-trigger, .journal-dropdown-year .dropdown-trigger {
+    padding: 4px 6px !important;
+    font-size: 0.8rem !important;
+  }
+  .journal-dropdown-month .dropdown-trigger svg, .journal-dropdown-year .dropdown-trigger svg {
+    width: 14px;
+    height: 14px;
   }
   /* Scale down all UI on mobile */
   html {

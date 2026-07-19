@@ -127,8 +127,9 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
         
         <div className="journal-controls" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {/* Month Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="journal-nav-group" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button 
+              className="journal-nav-btn"
               onClick={() => handlePrevMonth()} 
               disabled={isPrevMonthDisabled}
               aria-label="Previous Month"
@@ -157,6 +158,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
             </button>
             
             <Dropdown
+              className="journal-dropdown-month"
               value={currentMonth.getMonth()}
               onChange={(val) => { setCurrentMonth(setMonth(currentMonth, val as number)); setSelectedDate(null); }}
               options={Array.from({ length: 12 }).map((_, i) => ({ value: i, label: format(new Date(2020, i, 1), 'MMMM') }))}
@@ -164,6 +166,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
             />
 
             <button 
+              className="journal-nav-btn"
               onClick={() => handleNextMonth()} 
               disabled={isNextMonthDisabled}
               aria-label="Next Month"
@@ -193,8 +196,9 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
           </div>
 
           {/* Year Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="journal-nav-group" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button 
+              className="journal-nav-btn"
               onClick={() => handlePrevYear()} 
               disabled={isPrevYearDisabled}
               aria-label="Previous Year"
@@ -223,6 +227,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
             </button>
             
             <Dropdown
+              className="journal-dropdown-year"
               isSearchable={true}
               allowCustomValue={false}
               dynamicWidth={true}
@@ -239,6 +244,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
             />
 
             <button 
+              className="journal-nav-btn"
               onClick={() => handleNextYear()} 
               disabled={isNextYearDisabled}
               aria-label="Next Year"
