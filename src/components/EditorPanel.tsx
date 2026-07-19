@@ -446,7 +446,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
       {/* Main Body Viewport */}
       <div className="editor-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: '12px', minHeight: 0 }}>
         {editMode ? (
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', flexShrink: 0 }}>
             <div style={{ display: 'flex', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="btn btn-primary btn-sm" onClick={() => setEditMode(false)} style={{ marginRight: '8px' }}><PenTool size={14} /> Finish Editing Mode</button>
               <button className="icon-btn" onClick={() => insertText('**', '**')} aria-label="Bold" title="Bold"><Bold size={14} /></button>
@@ -464,7 +464,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
                 onChange={handleContentChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your markdown notes here. Use [[Double Brackets]] to link nodes. Type '/' for block commands..."
-                style={{ flex: 1, minHeight: '60vh' }}
+                style={{ flex: 1 }}
               />
               {slashMenuPos && (
                 <div style={{
