@@ -18,6 +18,7 @@ interface DropdownProps {
   placeholder?: string;
   style?: React.CSSProperties;
   className?: string;
+  maxLength?: number;
 }
 
 export const Dropdown: React.FC<DropdownProps> = ({
@@ -29,7 +30,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   dynamicWidth = false,
   placeholder = 'Select...',
   style = {},
-  className = ''
+  className = '',
+  maxLength
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -122,6 +124,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
+            maxLength={maxLength}
             onClick={(e) => {
               e.stopPropagation();
               setIsOpen(true);

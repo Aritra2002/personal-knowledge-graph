@@ -231,6 +231,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
               isSearchable={true}
               allowCustomValue={false}
               dynamicWidth={true}
+              maxLength={4}
               value={currentMonth.getFullYear()}
               onChange={(val) => handleYearSubmit(val)}
               options={(() => {
