@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { callAI } from '../utils/aiClient';
 import { semanticSearch } from '../utils/vectorSearch';
+import { searchDocuments, buildRagContext } from '../utils/rag';
 import { marked } from 'marked';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { parseAiResponse, executeAiAction, validateActionPreflight, AiAction } from '../utils/aiActions';
@@ -96,17 +97,36 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activeP
 
       finalQuery = contextPrefix ? contextPrefix + query : query;
       
-      // Perform Local RAG: Find top 5 relevant notes based on the user's query
-      const relevantNotes = await semanticSearch(query, 5);
-      
-      const systemPrompt = `You are an AI assistant integrated into a personal knowledge graph app. 
+      // Detect if user explicitly asks about their own data
+      const asksAboutOwnData = /(?:my|the|from|in|across|among)\s+(?:notes?|documents?|files?|data|knowledge|graph|nodes?|content|uploaded)/i.test(query)
+        || /what\s+(?:do\s+)?(?:I|we)\s+have\s+(?:on|about|regarding)/i.test(query)
+        || /(?:according|based)\s+to\s+(?:my|the)/i.test(query)
+        || /(?:search|find|look)\s+(?:in|through|my)\s+(?:notes?|documents?|files?|data)/i.test(query);
 
-Your primary role:
-1. **When user asks you to CREATE notes/nodes** on any topic: Use your full knowledge to generate rich, detailed content. Do NOT restrict yourself to what already exists in the graph. Create comprehensive new notes freely.
-2. **When user asks questions ABOUT existing notes**: Use the retrieved notes context to answer accurately.
-3. **When user asks general questions**: Answer from your full knowledge base.
+      let ragContext = '';
+      let notesContext = '';
 
-The retrieved notes below are provided ONLY as optional context. They are NOT constraints. You are always free to create notes on entirely new topics the user asks about.
+      if (asksAboutOwnData) {
+        // Search both notes and RAG documents
+        const [relevantNotes, ragResults] = await Promise.all([
+          semanticSearch(query, 5),
+          searchDocuments(query, 5),
+        ]);
+        ragContext = buildRagContext(ragResults);
+        notesContext = relevantNotes.length > 0
+          ? relevantNotes.map(n => `Title: ${n.title}\nContent: ${n.content}`).join('\n\n---\n\n')
+          : '';
+      }
+
+      const systemPrompt = `You are an AI assistant integrated into a personal knowledge graph app.
+
+BEHAVIOR RULES:
+1. **Default mode — answer freely from your knowledge.** You are a powerful AI. Answer any question using your full knowledge base. Do NOT restrict yourself to the user's notes or documents unless they explicitly ask.
+2. **When user explicitly asks about their data** ("my notes", "from my documents", "what do I have on X", "search my files"): Use the retrieved context provided below to answer. If no relevant context is found, say so.
+3. **When user asks to CREATE notes**: Use your full knowledge to generate rich, detailed content freely.
+4. **When given web content**: Summarize it into a detailed, well-formatted note.
+
+CRITICAL: The retrieved context (notes/documents) is ONLY provided when the user explicitly asks about their own data. When no context is provided, answer from your general knowledge — do not say "I don't have that information" just because no context was given.
 
 CRITICAL RULES FOR NOTE CONTENT:
 - NEVER write "Related Notes", "## Related", "## Connections", "## See Also", or similar footer sections inside note content.
@@ -136,15 +156,15 @@ When you need to perform an action, include a JSON block:
 Available actions: create_note, edit_note, delete_note, create_link, delete_link.
 For edit_note include "newContent" or "newTitle". For delete actions include "reason".
 Always follow the JSON block with a human-readable explanation.
-Only perform actions the user explicitly requested.
-
-When given web content, summarize it into a detailed, well-formatted note. Extract key ideas, methodology, and conclusions. Use the page title as the note title unless specified otherwise.`;
+Only perform actions the user explicitly requested.`;
       
-      const notesContext = relevantNotes.length > 0 
-        ? relevantNotes.map(n => `Title: ${n.title}\nContent: ${n.content}`).join('\n\n---\n\n')
-        : "No existing notes found in this graph yet.";
+      const contextParts: string[] = [];
+      if (ragContext) contextParts.push(`<document_context>\n${ragContext}\n</document_context>`);
+      if (notesContext) contextParts.push(`<existing_notes>\n${notesContext}\n</existing_notes>`);
 
-      const userPrompt = `Existing graph notes (optional context - use only if relevant to the request):\n<existing_notes>\n${notesContext}\n</existing_notes>\n\nUser request: ${finalQuery}`;
+      const userPrompt = contextParts.length > 0
+        ? `${contextParts.join('\n\n')}\n\nUser request: ${finalQuery}`
+        : `User request: ${finalQuery}`;
       
       let fullResponse = "";
       await callAI(systemPrompt, userPrompt, (text) => {

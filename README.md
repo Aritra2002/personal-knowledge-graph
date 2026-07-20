@@ -4,7 +4,7 @@
   <p><strong>A Next-Generation, Local-First Personal Knowledge Graph</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/version-1.28.3-blue.svg?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/version-1.29.0-blue.svg?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/license-AGPLv3-red.svg?style=flat-square" alt="AGPLv3 License" />
     <img src="https://img.shields.io/badge/React-18-61DAFB.svg?style=flat-square&logo=react" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?style=flat-square&logo=typescript" alt="TypeScript" />
@@ -37,8 +37,9 @@
 - **Customizable Nodes & Edges**: Color-code by category (General, Work, Personal, Ideas) and adjust physics settings (link distance, repulsion strength) for the perfect layout.
 
 ### 🧠 **Deep AI & Machine Learning Integration**
-- **Semantic Clustering**: Run in-browser ML (via `Xenova/transformers.js`) to autonomously discover and link unlinked notes based on semantic similarity.
-- **Document-to-Graph Generation**: Upload `.txt`, `.md`, or `.pdf` (via `pdfjs-dist`) documents. AetherMind's AI breaks down the text and automatically structures it into interconnected nodes and links on your canvas.
+- **Unified RAG System**: Every piece of data — uploaded documents, manual notes, AI-generated notes, and ZIP imports — is automatically indexed and searchable. Ask AI searches your documents and notes when you explicitly ask about your data.
+- **Semantic Clustering**: Run in-browser ML (via `Xenova/transformers.js` with TF-IDF fallback) to autonomously discover and link unlinked notes based on semantic similarity.
+- **Document-to-Graph Generation**: Upload `.txt`, `.md`, `.pdf`, `.docx`, `.pptx`, or `.csv` documents. AetherMind indexes them for RAG search AND uses AI to structure them into interconnected nodes and links on your canvas.
 - **AI Co-Authoring**: Seamlessly ask the AI to expand your knowledge base. It can execute complex batch actions, generating entire interconnected sub-graphs of multiple nodes and links in a single turn.
 - **"Why Connected?" AI Explanations**: Hover over any edge/link on your graph canvas to generate AI explanations of the semantic relationship between those two connected ideas.
 - **Discovery Digest**: Open the app to a daily serendipitous connection bridging an old, forgotten note with a recent thought.

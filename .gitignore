@@ -139,3 +139,7 @@ eslint*.txt
 test_*.py
 .tempmediaStorage/
 eslint_report.json
+
+# RAG data
+*.db
+chroma_data/

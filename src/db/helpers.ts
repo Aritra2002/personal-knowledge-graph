@@ -1,6 +1,7 @@
 import { db } from './index';
 import type { Note, Link } from './index';
 import { generateEmbedding } from '../utils/vectorSearch';
+import { ingestNote, removeNoteFromRag } from '../utils/rag';
 
 // Helper to extract wiki-links from markdown content
 export function extractWikiLinks(content: string): string[] {
@@ -80,17 +81,16 @@ export async function syncLinksForNote(noteId: number, content: string, linkedNo
 
 // Create a new note
 export async function createNote(pageId: number, title: string, category = 'general'): Promise<number> {
-  return await db.transaction('rw', [db.notes], async () => {
+  const id = await db.transaction('rw', [db.notes], async () => {
     const normalizedTitle = title.trim();
     if (!normalizedTitle) throw new Error('Title cannot be empty');
 
-    // Check if a note exists with this title in the current page
     const existing = await db.notes.where('title').equalsIgnoreCase(normalizedTitle).and(n => n.pageId === pageId).first();
     if (existing) {
       return existing.id!;
     }
 
-    const id = await db.notes.add({
+    const newId = await db.notes.add({
       pageId,
       title: normalizedTitle,
       content: '',
@@ -100,8 +100,13 @@ export async function createNote(pageId: number, title: string, category = 'gene
       updatedAt: Date.now()
     });
 
-    return id;
+    return newId;
   });
+
+  // Ingest into RAG outside the transaction
+  ingestNote(id as number, title, '').catch(() => {});
+
+  return id;
 }
 
 // Update an existing note
@@ -128,15 +133,21 @@ export async function updateNote(id: number, updates: Partial<Note>, preventBlan
       }
     }
   });
+
+  // Ingest into RAG outside the transaction
+  if (updates.content !== undefined) {
+    const fullNote = await db.notes.get(id);
+    if (fullNote) {
+      ingestNote(id, fullNote.title, fullNote.content).catch(() => {});
+    }
+  }
 }
 
 // Delete note and clean up its links
 export async function deleteNote(id: number): Promise<void> {
   await db.transaction('rw', [db.notes, db.links], async () => {
-    // Delete the note
     await db.notes.delete(id);
 
-    // Find and delete links where this note is source or target
     const sourceLinks = await db.links.where('sourceId').equals(id).toArray();
     const targetLinks = await db.links.where('targetId').equals(id).toArray();
     
@@ -145,6 +156,9 @@ export async function deleteNote(id: number): Promise<void> {
       await db.links.bulkDelete(linkIdsToDelete);
     }
   });
+
+  // Remove from RAG
+  removeNoteFromRag(id).catch(() => {});
 }
 
 // Seed Database with Demo Notes

@@ -20,9 +20,9 @@ import { MobileNav } from './components/MobileNav';
 import { NoteMiniCard } from './components/NoteMiniCard';
 import { DiscoveryDigestModal } from './components/DiscoveryDigestModal';
 import { Dropdown } from './components/ui/Dropdown';
+import { ingestDocument } from './utils/rag';
 
 import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Compass, FileArchive, FileUp } from 'lucide-react';
-import { callAI } from './utils/aiClient';
 
 function useViewport() {
   const [viewport, setViewport] = useState<'sm' | 'md' | 'lg'>('lg');
@@ -494,6 +494,14 @@ export default function App() {
         });
 
         showToast('ZIP imported successfully!', 'success');
+
+        // Ingest imported notes into RAG
+        const notesForRag = await db.notes.where({ pageId: currentPageId }).toArray();
+        for (const note of notesForRag) {
+          if (note.content) {
+            ingestDocument(`[Note] ${note.title}`, note.content, { source: 'zip-import', noteId: note.id }).catch(() => {});
+          }
+        }
       } catch (err: unknown) {
         showToast(`Failed to import ZIP: ${err instanceof Error ? err.message : String(err)}`, 'error');
       }
@@ -504,19 +512,19 @@ export default function App() {
   const handleUploadDocument = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.txt,.md,.pdf';
+    input.accept = '.txt,.md,.pdf,.docx,.pptx,.csv';
     input.onchange = async (e: Event) => {
       const target = e.target as HTMLInputElement;
       if (!target.files || target.files.length === 0) return;
       const file = target.files[0];
-      
+
       setDocLoading(true);
-      setDocStatus('Reading document layout...');
-      
+      setDocStatus('Reading document...');
+
       try {
         let textContent = '';
         if (file.name.endsWith('.pdf')) {
-          setDocStatus('Extracting text content...');
+          setDocStatus('Extracting PDF text...');
           const { extractTextFromPDF } = await import('./utils/pdf');
           textContent = await extractTextFromPDF(file);
         } else {
@@ -527,13 +535,30 @@ export default function App() {
             reader.readAsText(file);
           });
         }
-        
+
         if (!textContent.trim()) {
           throw new Error('Document content is empty');
         }
 
+        // Step 1: Ingest into RAG for unified search
+        setDocStatus('Indexing for search...');
+        await ingestDocument(file.name, textContent, { source: 'upload' }, (msg) => {
+          setDocStatus(msg);
+        });
+
+        // Step 2: AI decomposition into linked notes
+        const { parseAiResponse, executeAiAction } = await import('./utils/aiActions');
+        const { callAI, getAIConfig } = await import('./utils/aiClient');
+
+        // Check if AI is configured
+        const aiConfig = getAIConfig();
+        if (!aiConfig.apiKey && aiConfig.provider !== 'custom') {
+          showToast('AI not configured — document indexed for search only. Add an API key in Settings to enable note creation.', 'info');
+          return;
+        }
+
         const maxChars = 15000;
-        const chunks = [];
+        const chunks: string[] = [];
         let currentPos = 0;
         while (currentPos < textContent.length) {
           let nextPos = currentPos + maxChars;
@@ -541,135 +566,88 @@ export default function App() {
             chunks.push(textContent.slice(currentPos));
             break;
           }
-          const searchStart = Math.max(currentPos, nextPos - 3000);
-          const searchArea = textContent.slice(searchStart, nextPos);
-
-          let breakIndex = searchArea.lastIndexOf('\n\n');
-          if (breakIndex === -1) {
-            breakIndex = searchArea.lastIndexOf('\n');
-          }
-          if (breakIndex === -1) {
-            breakIndex = searchArea.lastIndexOf('. ');
-          }
-
-          if (breakIndex !== -1) {
-            nextPos = searchStart + breakIndex + (searchArea.substring(breakIndex).startsWith('\n\n') ? 2 : 1);
-          }
-
+          const searchArea = textContent.slice(Math.max(currentPos, nextPos - 3000), nextPos);
+          let breakIdx = searchArea.lastIndexOf('\n\n');
+          if (breakIdx === -1) breakIdx = searchArea.lastIndexOf('\n');
+          if (breakIdx === -1) breakIdx = searchArea.lastIndexOf('. ');
+          if (breakIdx !== -1) nextPos = Math.max(currentPos, nextPos - 3000) + breakIdx + 1;
           chunks.push(textContent.slice(currentPos, nextPos));
           currentPos = nextPos;
         }
 
-        const { parseAiResponse, executeAiAction } = await import('./utils/aiActions');
-        
-        // Track nodes created during this process
         const createdNodes: { title: string; content: string }[] = [];
+        let aiErrors = 0;
 
         for (let i = 0; i < chunks.length; i++) {
-          setDocStatus(`Running AI conceptual analysis on chunk ${i + 1} of ${chunks.length}...`);
-
-          const existingNodeTitles = createdNodes.map(n => n.title).join(', ');
-          const systemPrompt = `You are a conceptual knowledge map architect. You analyze the provided document text and extract key concepts, ideas, terms, or sections.
-You must output a JSON list of actions to structure this document into a knowledge graph.
-You can create new notes and links between them.
-Output ONLY a JSON block containing the actions you want to perform. Do not include any extra text.
-
-CRITICAL RULES:
-- NEVER write "Related Notes", "## Related", "## Connections", or similar sections inside note content.
-- NEVER append connection/link text at the end of note content.
-- To connect notes, ALWAYS use a separate { "action": "create_link", "from": "...", "to": "..." } action.
-- Use [[Node Title]] inside content ONLY for inline contextual references, not as a list of related notes.
-- Every "linkTo" or "create_link" action must have a corresponding note that exists or will be created.
-
-Write highly detailed, comprehensive content.
-When writing notes, aggressively use rich Markdown formatting to structure the content beautifully. You MUST use the following supported syntax:
-- **bold**, *italic*, ~~strikethrough~~ for emphasis
-- #, ##, ### for clear hierarchical headings
-- Bulleted lists (-) and numbered lists (1.) for readability
-- Task lists (- [ ]) for action items
-- \`inline code\` and \`\`\`language code blocks \`\`\`
-- > Blockquotes for important callouts or quotes
-- [Link Text](https://...) for external hyperlinks
-- [[Node Title]] only for inline contextual references within prose (not as a footer list)
+          setDocStatus(`Analyzing chunk ${i + 1}/${chunks.length}...`);
+          const existingTitles = createdNodes.map(n => n.title).join(', ');
+          const systemPrompt = `You are a knowledge graph architect. Analyze the document and extract key concepts as notes with links.
+Output ONLY a JSON block. Rules:
+- Use rich Markdown in note content (bold, headings, lists, code blocks)
+- Connect notes via create_link actions, NOT via footer lists
+- Use [[Title]] only for inline references
 
 Format:
 \`\`\`json
 [
-  { "action": "create_note", "title": "Concept A", "content": "Detailed explanation of concept A...", "tags": ["tag1"] },
-  { "action": "create_note", "title": "Concept B", "content": "Detailed explanation of concept B...", "tags": ["tag2"] },
+  { "action": "create_note", "title": "Concept A", "content": "Detailed explanation...", "tags": ["tag1"] },
   { "action": "create_link", "from": "Concept A", "to": "Concept B" }
 ]
-\`\`\`
-`;
-          let userPrompt = `Please analyze the following document chunk and decompose it into a structured set of notes and links.
-`;
-          if (existingNodeTitles) {
-            userPrompt += `\nFor context, the following notes already exist: ${existingNodeTitles}. You can create links to them or create new notes if necessary.\n`;
-          }
-          userPrompt += `
---- DOCUMENT START ---
-${chunks[i]}
---- DOCUMENT END ---
-`;
+\`\`\``;
+          let userPrompt = `Analyze this chunk and create notes + links:\n`;
+          if (existingTitles) userPrompt += `Existing notes: ${existingTitles}\n`;
+          userPrompt += `\n---\n${chunks[i]}\n---`;
 
           try {
-            const aiResponse = await callAI(systemPrompt, userPrompt);
+            let aiResponse = '';
+            await callAI(systemPrompt, userPrompt, (text) => { aiResponse = text; });
             const parsed = parseAiResponse(aiResponse);
             if (parsed && parsed.actions.length > 0) {
-              setDocStatus(`Executing actions for chunk ${i + 1}...`);
               for (const action of parsed.actions) {
                 await executeAiAction(action, currentPageId);
                 if (action.action === 'create_note') {
                   const existing = createdNodes.find(n => n.title === action.title);
-                  if (existing) {
-                    existing.content += `\n\n${action.content}`;
-                  } else {
-                    createdNodes.push({ title: action.title, content: action.content });
-                  }
+                  if (existing) existing.content += `\n\n${action.content}`;
+                  else createdNodes.push({ title: action.title, content: action.content });
                 }
               }
+            } else {
+              aiErrors++;
+              console.warn(`Chunk ${i + 1}: AI response contained no actionable JSON`, aiResponse.substring(0, 200));
             }
-          } catch (chunkError: unknown) {
-            console.error(`AI failed on chunk ${i + 1}:`, chunkError);
-            showToast(`Skipped chunk ${i + 1} due to AI error: ${chunkError instanceof Error ? chunkError.message : String(chunkError)}`, 'error');
-            // Continue processing the next chunks instead of aborting the whole document
+          } catch (chunkErr) {
+            console.error(`AI failed on chunk ${i + 1}:`, chunkErr);
+            aiErrors++;
           }
         }
 
+        // Final linking pass
         if (createdNodes.length > 1) {
-          setDocStatus('Finalizing connections across all chunks...');
-          const systemPromptLinker = `You are a conceptual knowledge map architect. Review the provided list of newly created concepts and their summaries.
-Identify missing relationships between them and output a JSON list of link actions to connect related concepts.
-Output ONLY a JSON block containing the actions. Do not include any extra text.
-
-Format:
-\`\`\`json
-[
-  { "action": "create_link", "from": "Concept A", "to": "Concept B" }
-]
-\`\`\`
-`;
-          const summaries = createdNodes.map(n => `- **${n.title}**: ${n.content.substring(0, 200)}...`).join('\n');
-          const userPromptLinker = `Please review the following concepts and generate 'create_link' actions to connect related ones:
-
-${summaries}
-`;
-          const linkResponse = await callAI(systemPromptLinker, userPromptLinker);
-          const linkParsed = parseAiResponse(linkResponse);
-          if (linkParsed && linkParsed.actions.length > 0) {
-            await db.transaction('rw', [db.notes, db.links], async () => {
-              for (const action of linkParsed.actions) {
-                if (action.action === 'create_link') {
-                  await executeAiAction(action, currentPageId);
-                }
-              }
-            });
+          setDocStatus('Linking concepts...');
+          const summaries = createdNodes.map(n => `- **${n.title}**: ${n.content.substring(0, 200)}`).join('\n');
+          try {
+            const linkResponse = await callAI(
+              'Output a JSON array of create_link actions to connect related concepts. Format: [{"action":"create_link","from":"A","to":"B"}]',
+              `Connect these:\n${summaries}`
+            );
+            const linkParsed = parseAiResponse(linkResponse);
+            if (linkParsed?.actions.length) {
+              for (const action of linkParsed.actions) await executeAiAction(action, currentPageId);
+            }
+          } catch {
+            // Linking is best-effort
           }
         }
-        
-        showToast('Document uploaded and structured successfully!', 'success');
+
+        if (createdNodes.length > 0) {
+          showToast(`"${file.name}" processed — ${createdNodes.length} notes created!`, 'success');
+        } else if (aiErrors > 0) {
+          showToast(`Document indexed but AI couldn't create notes. Check your AI settings.`, 'error');
+        } else {
+          showToast(`"${file.name}" indexed for search.`, 'success');
+        }
       } catch (err: unknown) {
-        showToast(`Failed to upload document: ${err instanceof Error ? err.message : String(err)}`, 'error');
+        showToast(`Failed: ${err instanceof Error ? err.message : String(err)}`, 'error');
       } finally {
         setDocLoading(false);
         setDocStatus('');
@@ -739,30 +717,30 @@ ${summaries}
               />
             </div>
             <div className="header-controls" style={{ marginLeft: 'auto' }}>
-              <button className="header-btn icon-only-btn" onClick={() => setShowReview(true)} title="Review">
+              <button className="header-btn" onClick={() => setShowReview(true)} title="Review">
                 <Brain size={16} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={() => setShowDiscoveryDigest(true)} title="Discovery Digest">
+              <button className="header-btn" onClick={() => setShowDiscoveryDigest(true)} title="Discovery Digest">
                 <Compass size={16} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} title="Ask AI">
+              <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} title="Ask AI">
                 <Sparkles size={16} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={handleCreateDailyNote} title="Daily Note">
+              <button className="header-btn" onClick={handleCreateDailyNote} title="Daily Note">
                 <Calendar size={16} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={handleImportZip} title="Import ZIP">
+              <button className="header-btn" onClick={handleImportZip} title="Import ZIP">
                 <FileArchive size={16} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={handleUploadDocument} title="Upload Document">
+              <button className="header-btn" onClick={handleUploadDocument} title="Upload Document">
                 <FileUp size={16} />
               </button>
 
-              <button className="header-btn icon-only-btn primary-btn" onClick={() => setShowNewPage(true)} title="New Page">
+              <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)} title="New Page">
                 <Plus size={16} />
               </button>
-              <button className="header-btn icon-only-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
-                <Settings size={18} />
+              <button className="header-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
+                <Settings size={16} />
               </button>
             </div>
           </>
@@ -810,8 +788,8 @@ ${summaries}
               <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)}>
                 <Plus size={16} /> New Page
               </button>
-              <button className="header-btn icon-only-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
-                <Settings size={18} />
+              <button className="header-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
+                <Settings size={16} />
               </button>
             </div>
           </>

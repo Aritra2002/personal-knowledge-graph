@@ -53,12 +53,24 @@ export interface GraphSnapshot {
   linksData: string; // Serialized links
 }
 
+export interface DocumentChunk {
+  id?: number;
+  documentId: string;
+  documentName: string;
+  chunkIndex: number;
+  content: string;
+  embedding: number[];
+  metadata: Record<string, unknown>;
+  createdAt: number;
+}
+
 export class AetherMindDB extends Dexie {
   pages!: Table<Page, number>;
   notes!: Table<Note, number>;
   links!: Table<Link, number>;
   categories!: Table<Category, string>;
   snapshots!: Table<GraphSnapshot, number>;
+  documents!: Table<DocumentChunk, number>;
 
   constructor() {
     super('aether_mind_db');
@@ -99,6 +111,11 @@ export class AetherMindDB extends Dexie {
     // Version 6: Link Explanations
     this.version(6).stores({
       links: '++id, sourceId, targetId, [sourceId+targetId], explanation'
+    });
+
+    // Version 7: Document chunks for RAG
+    this.version(7).stores({
+      documents: '++id, documentId, documentName, createdAt'
     });
   }
 }

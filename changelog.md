@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.29.0] - 2026-07-20
+
+### ✨ Features & Improvements
+- **Unified RAG (Retrieval-Augmented Generation) System**: Integrated a full RAG pipeline into AetherMind. All data — uploaded documents, manually created notes, AI-generated notes, and ZIP imports — is now automatically indexed, chunked, and embedded for semantic search.
+- **Document Upload → RAG + Notes**: Uploading a document (`.txt`, `.md`, `.pdf`, `.docx`, `.pptx`, `.csv`) now does two things: (1) indexes the document into RAG for search, and (2) uses AI to decompose it into linked knowledge graph nodes.
+- **Ask AI with RAG Context**: The Ask AI modal now searches both your notes and uploaded documents when you explicitly ask about your data ("my notes", "from my documents", "what do I have on X"). By default, AI answers freely from its general knowledge.
+- **Auto-Indexing on Note Edit**: Manually creating or editing notes automatically indexes them into RAG — no AI required. Deleting notes removes them from RAG.
+- **ZIP Import → RAG**: Imported notes from ZIP archives are now also indexed into RAG.
+- **TF-IDF Fallback Embeddings**: When the browser can't load the WASM backend for `@xenova/transformers`, the system automatically falls back to a pure-JS TF-IDF embedding method — RAG works everywhere.
+- **Unified File Upload**: Document upload now supports `.txt`, `.md`, `.pdf`, `.docx`, `.pptx`, and `.csv` files.
+- **AI Provider-Agnostic RAG**: The RAG search results are sent to whatever AI provider you have configured (OpenAI, Anthropic, Ollama, Groq, etc.) — no hardcoded local models.
+
+### 🎨 UI/UX
+- **Unified Header Buttons**: All navbar buttons now use the same consistent sizing (`min-height: 36px`, `min-width: 36px`, `padding: 8px 14px`). Removed the `icon-only-btn` class for uniform button appearance.
+- **Settings Icon Size Standardized**: All icon buttons use `size={16}` consistently.
+
+### 🔧 Bug Fixes
+- **Dexie Transaction Lock Conflicts**: Moved RAG ingestion (`ingestNote`, `removeNoteFromRag`) outside of Dexie database transactions to prevent table lock conflicts that silently blocked note creation.
+- **Document Upload AI Streaming**: Changed document upload AI calls from non-streaming to streaming mode, matching the working pattern used in Ask AI modal.
+- **Misleading Success Toast**: Document upload now shows accurate messages — "X notes created" only when notes are actually created, and "AI couldn't create notes" when the AI fails.
+- **AI Config Check**: Document upload now checks if AI is configured before attempting decomposition, showing a helpful message if missing.
+- **Duplicate Variable Fix**: Fixed `importedNotes` variable collision in ZIP import RAG ingestion code.
+
+### 🏗️ Architecture
+- **New Database Table**: Added `documents` table (Dexie v7) for RAG chunk storage with embeddings.
+- **New File**: `src/utils/rag.ts` — RAG engine with document chunking, embedding, ingestion, search, and note indexing.
+- **Deleted**: `src/components/RagChatModal.tsx` — removed in favor of unified Ask AI with RAG.
+- **Modified Files**: `App.tsx`, `AskAiModal.tsx`, `db/helpers.ts`, `db/index.ts`, `vectorSearch.ts`, `buttons.css`, `responsive.css`.
+
 ## [1.28.3] - 2026-07-20
 
 ### ✨ Features & Improvements

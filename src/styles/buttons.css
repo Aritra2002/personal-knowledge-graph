@@ -160,11 +160,15 @@
 .header-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
   border-radius: 8px;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  min-height: 36px;
+  min-width: 36px;
+  white-space: nowrap;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.03);
@@ -189,5 +193,3 @@
 }
 .header-btn.primary-btn:hover::after { transform: translateX(100%); }
 .header-btn.primary-btn:hover { box-shadow: 0 4px 20px rgba(124, 58, 237, 0.6); }
-
-.icon-only-btn { padding: 8px; border-radius: 8px; aspect-ratio: 1; }
