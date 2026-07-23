@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fira+Code:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
 
   /* Breakpoints */
   --bp-sm: 480px;
@@ -44,7 +44,10 @@
   --z-mobile-nav: 100;
   --z-modal-backdrop: 900;
   --z-modal: 1000;
+  --z-command-palette: 950;
   --z-popover: 1100;
+  --z-tooltip: 1100;
+  --z-modal-overlay: 10000;
   --z-toast: 9999;
 
   /* Colors */
@@ -61,6 +64,8 @@
   --node-personal: #7c3aed;
   --node-ideas: #f59e0b;
   --node-amber: #f59e0b;
+  --node-cyan: #22d3ee;
+  --accent-danger: #ef4444;
   --link-color: rgba(255, 255, 255, 0.3);
   --link-highlight: #06b6d4;
 
@@ -123,6 +128,13 @@ html[data-theme="light"] {
   --input-focus-glow: rgba(79, 70, 229, 0.15);
   --link-color: rgba(15, 23, 42, 0.15);
   --link-highlight: #4f46e5;
+  --node-indigo: #4f46e5;
+  --node-personal: #7c3aed;
+  --node-work: #06b6d4;
+  --node-ideas: #f59e0b;
+  --node-amber: #eab308;
+  --node-emerald: #10b981;
+  --node-cyan: #06b6d4;
   --code-bg: rgba(15, 23, 42, 0.06);
   --pre-bg: rgba(15, 23, 42, 0.03);
 }
@@ -161,6 +173,13 @@ html[data-theme="sepia"] {
   --input-focus-glow: rgba(160, 82, 45, 0.15);
   --link-color: rgba(92, 64, 51, 0.2);
   --link-highlight: #a0522d;
+  --node-indigo: #7c3aed;
+  --node-personal: #a0522d;
+  --node-work: #cd853f;
+  --node-ideas: #b8860b;
+  --node-amber: #b8860b;
+  --node-emerald: #2d8a4e;
+  --node-cyan: #2dd4bf;
   --code-bg: rgba(92, 64, 51, 0.08);
   --pre-bg: rgba(92, 64, 51, 0.04);
 }
@@ -199,6 +218,13 @@ html[data-theme="midnight"] {
   --input-focus-glow: rgba(225, 29, 72, 0.2);
   --link-color: rgba(255, 255, 255, 0.15);
   --link-highlight: #e11d48;
+  --node-indigo: #a855f7;
+  --node-personal: #e11d48;
+  --node-work: #a855f7;
+  --node-ideas: #f59e0b;
+  --node-amber: #f59e0b;
+  --node-emerald: #10b981;
+  --node-cyan: #22d3ee;
 }
 
 /* OCEAN THEME */
@@ -235,6 +261,13 @@ html[data-theme="ocean"] {
   --input-focus-glow: rgba(14, 165, 233, 0.25);
   --link-color: rgba(125, 211, 252, 0.2);
   --link-highlight: #2dd4bf;
+  --node-indigo: #0ea5e9;
+  --node-personal: #7c3aed;
+  --node-work: #2dd4bf;
+  --node-ideas: #f59e0b;
+  --node-amber: #f59e0b;
+  --node-emerald: #10b981;
+  --node-cyan: #22d3ee;
 }
 
 * {
@@ -255,17 +288,13 @@ body {
 }
 
 ::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 /* Scrollbars */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-
-/* Smooth transition for scrollbars */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.4); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.6); }
 
@@ -347,6 +376,15 @@ input[type="text"]:focus, input[type="number"]:focus, .note-textarea:focus, .cha
   box-shadow: 0 0 0 3px var(--input-focus-glow), inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-input::placeholder, textarea::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
+/* Missing component classes */
+.icon-only-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
+.icon-only-btn:hover { background: rgba(255, 255, 255, 0.05); }
+
+.form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+.text-input { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 10px 12px; color: var(--text-primary); font-size: 0.9rem; }
+
+@keyframes spin-pulse { 0% { transform: rotate(0deg) scale(1); opacity: 1; } 50% { transform: rotate(180deg) scale(1.2); opacity: 0.7; } 100% { transform: rotate(360deg) scale(1); opacity: 1; } }
+.spin-pulse { animation: spin-pulse 1.2s ease-in-out infinite; display: inline-flex; align-items: center; gap: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning { animation: spin 1s linear infinite; }

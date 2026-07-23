@@ -173,7 +173,7 @@
   border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.03);
 }
-.header-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); }
+.header-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15); }
 .header-btn:active:not(:disabled) { transform: scale(0.96); }
 .header-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .header-btn:disabled:hover { background: rgba(255, 255, 255, 0.03); border-color: var(--border-color); }

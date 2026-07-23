@@ -32,19 +32,10 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
   };
 
   const formatDate = (timestamp: number) => {
-    const d = new Date(timestamp);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[d.getMonth()];
-    // Although the user asked for "Jul 15", they didn't specify 0-padding for days. But 0-padding hours is specified. Let's pad just in case or just toString() for day since "Jul 15" has 2 digits natively. Actually, let's just use 2-digit day.
-    const dayStr = d.getDate().toString();
-    const year = d.getFullYear();
-    let hours = d.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const paddedHours = hours.toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
-    return `${month} ${dayStr}, ${year}, ${paddedHours}:${minutes} ${ampm}`;
+    return new Date(timestamp).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit'
+    });
   };
 
   const getDatetimeLocalString = (timestamp: number) => {
@@ -95,7 +86,14 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
   }
 
   if (notes.length < 2) {
-    return null;
+    return (
+      <div className="timeline-slider-panel glass-panel" style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+        <div className="timeline-info">
+          <Calendar size={14} className="timeline-icon" />
+          <span className="timeline-label" style={{ color: 'var(--text-secondary)' }}>Not enough notes for timeline (need at least 2)</span>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -132,11 +130,9 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
                 max={getDatetimeLocalString(maxDate)}
                 onChange={handleDateInputChange}
                 onClick={(e) => {
-                  try {
-                    if ('showPicker' in HTMLInputElement.prototype) {
-                      e.currentTarget.showPicker();
-                    }
-                  } catch (err) {}
+                  if ('showPicker' in HTMLInputElement.prototype) {
+                    e.currentTarget.showPicker();
+                  }
                 }}
                 style={{
                   position: 'absolute',

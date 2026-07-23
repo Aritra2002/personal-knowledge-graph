@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -37,6 +37,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   onSplitRight
 }) => {
   const { showToast } = useToast();
+  const abortRef = useRef<AbortController | null>(null);
   const allNotes = useLiveQuery(() => db.notes.toArray()) || [];
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -51,16 +52,19 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEditMode(false);
   }, [note?.id]);
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [slashMenuPos, setSlashMenuPos] = useState<{top: number, left: number} | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const connectedNodeIds = new Set(
+  const connectedNodeIds = useMemo(() => new Set(
     links
       .filter(l => l.sourceId === note?.id || l.targetId === note?.id)
-      .map(l => l.sourceId === note?.id ? l.targetId : l.sourceId)
-  );
+      .flatMap(l => [l.sourceId, l.targetId])
+  ), [links, note?.id]);
 
   // Load note values when selected note changes
   useEffect(() => {
@@ -77,7 +81,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   // Debounced auto-save functions
   const debouncedSaveContent = useDebounce(async (id: number, val: string) => {
     await updateNote(id, { content: val });
-  }, 500);
+  }, 500, (err) => showToast('Auto-save failed: ' + err, 'error'));
 
   const debouncedSaveTags = useDebounce(async (id: number, tagsStr: string) => {
     const tagsArray = tagsStr
@@ -183,7 +187,9 @@ LINKS: [[NoteTitle1]] [[NoteTitle2]]`;
 Current Note Title: ${note.title}
 Current Note Content: ${content}`;
 
-      const response = await callAI(systemPrompt, userPrompt);
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
+      const response = await callAI(systemPrompt, userPrompt, undefined, abortRef.current.signal);
       
       // Parse the response, expecting "TAGS: a, b" and "LINKS: [[c]]"
       const lines = response.split('\n');
@@ -238,7 +244,9 @@ Please provide a concise summary (TL;DR) of the provided note content. The summa
 Return exactly and ONLY the summary text, with no markdown code blocks or conversational filler.`;
 
       const userPrompt = `Note Content:\n${content}`;
-      const response = await callAI(systemPrompt, userPrompt);
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
+      const response = await callAI(systemPrompt, userPrompt, undefined, abortRef.current.signal);
       
       setAiSummary(response.trim());
     } catch (e: unknown) {
@@ -314,7 +322,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
   }, [editMode, content, onSplitRight, onJumpToNote]);
 
   // Convert [[Wiki Links]] in markdown content into custom links for rendering
-  const getRenderedContent = () => {
+  const renderedContent = useMemo(() => {
     if (!content) return '<p style="color: var(--text-secondary); font-style: italic; user-select: none;">No content yet. Write something...</p>';
     
     // Replace [[Wiki Note Name]] with a custom link schema <a href="#wiki-Wiki%20Note%20Name">Wiki Note Name</a>
@@ -333,7 +341,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
     } catch {
       return '<p>Error rendering markdown.</p>';
     }
-  };
+  }, [content]);
   if (!note) {
     return (
       <div className="editor-placeholder" style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -504,7 +512,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
               ref={previewRef}
               id="editor-note-preview"
               className="note-preview markdown-body"
-              dangerouslySetInnerHTML={{ __html: getRenderedContent() }}
+              dangerouslySetInnerHTML={{ __html: renderedContent }}
               style={{ width: '100%' }}
             />
           </div>
@@ -574,7 +582,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
                 return (
                   <div key={id} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '16px', fontSize: '0.85rem', transition: 'all 0.2s ease' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: `var(--node-${targetNode.category === 'work' ? 'emerald' : targetNode.category === 'ideas' ? 'amber' : 'indigo'})` }}></div>
-                    <span style={{ cursor: 'pointer' }} onClick={() => onJumpToNote(targetNode.title)}>{targetNode.title}</span>
+                    <button type="button" style={{ cursor: 'pointer', background: 'transparent', border: 'none', color: 'inherit', padding: 0, font: 'inherit' }} onClick={() => onJumpToNote(targetNode.title)} aria-label={`Open note ${targetNode.title}`}>{targetNode.title}</button>
                     
                     {onSplitRight && (
                       <button onClick={(e) => { e.stopPropagation(); onSplitRight(targetNode.title); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, marginLeft: '4px' }} title="Open in split view" aria-label="Open in split view">
@@ -583,14 +591,11 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
                     )}
 
                     <button onClick={async () => {
-                      // Remove outgoing links from this note
                       const newIds = (note.linkedNoteIds || []).filter(x => x !== id);
-                      // Escape target title for regex
                       const escapedTargetTitle = targetNode.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                       const regex = new RegExp(`\\[\\[${escapedTargetTitle}\\]\\]`, 'g');
                       const newContent = content.replace(regex, targetNode.title);
                       
-                      // Remove incoming links from the target note to this note
                       const targetIds = targetNode.linkedNoteIds || [];
                       const isIncomingExplicit = targetIds.includes(note.id!);
                       const escapedThisTitle = note.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -605,7 +610,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
 
                       await updateNote(note.id!, { linkedNoteIds: newIds, content: newContent });
                       setContent(newContent);
-                    }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }} title="Remove connection">
+                    }} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }} aria-label={`Remove connection to ${targetNode.title}`} title="Remove connection">
                       <X size={12} />
                     </button>
                   </div>
@@ -631,7 +636,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 'var(--z-modal, 1000)'
+          zIndex: 1000
         }}>
           <div className="glass-panel" style={{
             background: 'var(--bg-secondary)',
@@ -639,10 +644,11 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
             borderRadius: '12px',
             width: '80%',
             maxWidth: '500px',
+            maxHeight: '80%',
             position: 'relative',
             boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
           }}>
-            <button className="btn btn-icon close-btn" onClick={() => setAiSummary(null)} style={{ position: 'absolute', top: '16px', right: '16px' }}>
+            <button className="btn btn-icon close-btn" onClick={() => setAiSummary(null)} aria-label="Close AI summary" style={{ position: 'absolute', top: '16px', right: '16px' }}>
               <X size={18} />
             </button>
             <h3 style={{ marginTop: 0, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>

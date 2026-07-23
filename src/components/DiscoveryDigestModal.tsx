@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Note } from '../db';
 import { callAI } from '../utils/aiClient';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { Sparkles, X } from 'lucide-react';
 
 interface DiscoveryDigestModalProps {
@@ -14,49 +15,65 @@ export const DiscoveryDigestModal: React.FC<DiscoveryDigestModalProps> = ({ isOp
   const [digest, setDigest] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const abortRef = useRef<AbortController | null>(null);
 
-  const generateDigest = async () => {
-    try {
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setDigest(null);
+      setError('');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || isLoading) return;
+
+    let cancelled = false;
+
+    (async () => {
       setIsLoading(true);
       setDigest(null);
       setError('');
-      
+
       const now = Date.now();
       const oneMonthAgo = now - 30 * 24 * 60 * 60 * 1000;
       const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-      
+
       const oldNotes = notes.filter(n => n.createdAt < oneMonthAgo);
       const recentNotes = notes.filter(n => n.createdAt > sevenDaysAgo);
-      
+
       if (oldNotes.length === 0 || recentNotes.length === 0) {
-        setError('Not enough notes for a digest. Keep writing!');
-        setIsLoading(false);
+        if (!cancelled) {
+          setError('Not enough notes for a digest. Keep writing!');
+          setIsLoading(false);
+        }
         return;
       }
-      
+
       const randomOld = oldNotes[Math.floor(Math.random() * oldNotes.length)];
       const randomRecent = recentNotes[Math.floor(Math.random() * recentNotes.length)];
-      
+
       const systemPrompt = `You are an AI assistant helping discover surprising connections in a personal knowledge graph.`;
       const userPrompt = `Given these two notes, find a surprising connection between them.\n\nNote 1 (Old):\nTitle: ${randomOld.title}\nContent: ${randomOld.content}\n\nNote 2 (Recent):\nTitle: ${randomRecent.title}\nContent: ${randomRecent.content}\n\nProvide a short, insightful connection.`;
-      
-      await callAI(systemPrompt, userPrompt, (text) => {
-        setDigest(text);
-      });
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error generating digest');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    if (isOpen && !digest && !isLoading) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      generateDigest();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
+      try {
+        await callAI(systemPrompt, userPrompt, (text) => {
+          if (!cancelled) setDigest(text);
+        }, abortRef.current.signal);
+      } catch (err: unknown) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Error generating digest');
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [isOpen, digest, isLoading, notes]);
 
 
   if (!isOpen) return null;
@@ -77,7 +94,7 @@ export const DiscoveryDigestModal: React.FC<DiscoveryDigestModalProps> = ({ isOp
           {error && <div style={{ color: '#ef4444' }}>{error}</div>}
           {isLoading && !digest && <div className="spin-pulse" style={{ color: 'var(--text-secondary)' }}>Finding a surprising connection...</div>}
           {digest && (
-            <div className="markdown-body" dangerouslySetInnerHTML={{ __html: marked.parse(digest) as string }} />
+            <div className="markdown-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(digest) as string) }} />
           )}
         </div>
       </div>

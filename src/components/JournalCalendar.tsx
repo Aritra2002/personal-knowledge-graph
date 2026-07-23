@@ -19,8 +19,8 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
   const [hoveredNoteId, setHoveredNoteId] = useState<number | null>(null);
 
 
-  const startYear = 2026;
   const currentYearObj = new Date().getFullYear();
+  const startYear = currentYearObj - 1;
   const endYear = Math.round((currentYearObj + 100) / 100) * 100;
 
   const isPrevMonthDisabled = currentMonth.getFullYear() === startYear && currentMonth.getMonth() === 0;
@@ -114,6 +114,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={() => setSelectedDate(null)}
+      role="presentation"
       className="journal-calendar-container"
       style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', width: '100%', height: '100%' }}
     >
@@ -234,7 +235,8 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
               value={currentMonth.getFullYear()}
               onChange={(val) => handleYearSubmit(val)}
               options={(() => {
-                const startYear = 2026;
+                const noteYears = notes.length > 0 ? Math.min(...notes.filter(n => n.createdAt).map(n => new Date(n.createdAt!).getFullYear())) : 2026;
+                const startYear = noteYears;
                 const currentYearObj = new Date().getFullYear();
                 const endYear = Math.round((currentYearObj + 100) / 100) * 100;
                 const numYears = endYear - startYear + 1;
@@ -311,6 +313,10 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                   variants={itemVariants}
                   whileHover={{ scale: 1.1, zIndex: 10, transition: { duration: 0.2 } }}
                   onClick={() => setSelectedDate(dateStr)}
+                  onKeyDown={(e) => e.key === 'Enter' && setSelectedDate(dateStr)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${dateStr}: ${count} notes`}
                   title={`${dateStr}: ${count} notes across all pages`}
                   className="journal-day-block"
                   style={{
@@ -379,6 +385,10 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                           onMouseEnter={() => setHoveredNoteId(note.id!)}
                           onMouseLeave={() => setHoveredNoteId(null)}
                           onClick={() => onSelectNote && onSelectNote(note.title)}
+                          onKeyDown={onSelectNote ? (e) => e.key === 'Enter' && onSelectNote(note.title) : undefined}
+                          role="button"
+                          tabIndex={onSelectNote ? 0 : undefined}
+                          aria-label={onSelectNote ? `Open note ${note.title}` : undefined}
                           style={{ 
                             display: 'flex', 
                             alignItems: 'center', 

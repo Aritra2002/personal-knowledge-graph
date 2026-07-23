@@ -1,6 +1,34 @@
 # Changelog
 
-## [1.29.0] - 2026-07-20
+## [1.29.1] - 2026-07-23
+
+### 🐛 Bug Fixes
+- **Tailwind dead classes removed**: Replaced broken Tailwind utility classes in the doc-loading modal overlay with proper inline styles.
+- **responsive.css specificity conflict**: Removed conflicting `.canvas-controls` positioning from sub-breakpoints that was overridden by the generic `<767px` rule.
+- **Theme node color overrides**: Added `--node-*` color variable overrides to all theme blocks (light, sepia, midnight, ocean) so graph nodes respect the active theme.
+- **Personal category color**: Changed seed data `#ff0000` to `#f43f5e` for the personal category.
+- **syncLinksForNote bidirectional dedup**: Now checks both sourceId and targetId when detecting existing links, preventing duplicate bidirectional link records.
+- **Page delete cascade**: Deleting a page now also cleans up snapshots and document chunks.
+- **Debounced useViewport**: Added 150ms debounce to resize handler to reduce re-render storms.
+- **Snapshot sort order**: Fixed `.reverse().sortBy()` no-op — now properly sorts by timestamp descending.
+- **Snapshot restore phantom links**: Skip links whose note IDs weren't successfully remapped instead of falling back to stale IDs.
+- **RAG ingestNote delete-before-embed**: Embed chunks first, then atomically delete old + insert new in a single transaction.
+- **AI action pre-pass removed**: Removed pre-pass that created notes before user approval — all `create_note` actions are now staged for user confirmation alongside `edit_note` and `delete_note`.
+- **CommandPalette key handler re-binding**: Stabilized filteredNotes dependency using refs to prevent re-binding the keydown listener on every keystroke.
+- **CommandPalette placeholder**: Changed "Search existing pages..." to "Search notes..." to match actual search behavior.
+- **JournalCalendar hardcoded startYear**: Dynamically derives start year from the earliest note's creation date instead of hardcoding `2026`.
+- **DiscoveryDigestModal digest reset**: Added `setDigest(null)` on modal open so digest regenerates each time.
+- **MobileNav missing search button**: Added the Search tab button between Graph and Editor.
+- **ToastContext mobile-only bottom offset**: Toast container bottom calc now only includes mobile-nav-height on viewports < 768px; uses a simple `16px` on desktop.
+- **ErrorBoundary hardcoded background**: Uses `var(--bg-primary)` instead of hardcoded `#06071a`.
+- **GraphCanvas duplicate comment removed**: Removed duplicate `{/* Floating Canvas Controls */}` comment.
+- **GraphCanvas tooltip zIndex type**: Changed tooltip zIndex from CSS-var string `'var(--z-tooltip, 1100)'` to number `1100`.
+- **AI summary overlay zIndex**: Changed from string `'var(--z-modal, 1000)'` to number `1000` for type safety.
+- **Web-clipper manifest**: Removed unused `content_scripts` entry (popup uses `chrome.scripting.executeScript` instead).
+- **aiActions.ts content dedup**: Improved duplicate content detection to check both directions (existing contains new, new contains existing).
+
+### 🔧 Improvements
+- **ToastProvider**: Added debounced window resize listener to track mobile state for conditional styling.
 
 ### ✨ Features & Improvements
 - **Unified RAG (Retrieval-Augmented Generation) System**: Integrated a full RAG pipeline into AetherMind. All data — uploaded documents, manually created notes, AI-generated notes, and ZIP imports — is now automatically indexed, chunked, and embedded for semantic search.

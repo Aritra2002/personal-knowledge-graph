@@ -29,7 +29,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       <div className="settings-modal glass-panel" style={{ maxWidth: '400px' }}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isDestructive && <AlertTriangle size={20} color="#ef4444" />}
+            {isDestructive && <AlertTriangle size={20} color="var(--accent-danger, #ef4444)" />}
             <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{title}</h2>
           </div>
           <button className="btn btn-icon" onClick={onCancel} aria-label="Close"><X size={20} /></button>

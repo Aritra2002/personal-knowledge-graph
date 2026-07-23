@@ -123,12 +123,12 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
           if (json.categories) {
             await db.categories.bulkAdd(json.categories);
           } else {
-             const defaultCategories: Category[] = [
-               { id: 'general', label: 'General', color: '#94a3b8' },
-               { id: 'work', label: 'Work', color: '#38bdf8' },
-               { id: 'personal', label: 'Personal', color: '#ff0000' },
-               { id: 'ideas', label: 'Ideas', color: '#fcd34d' }
-             ];
+              const defaultCategories: Category[] = [
+                { id: 'general', label: 'General', color: '#818cf8' },
+                { id: 'work', label: 'Work', color: '#34d399' },
+                { id: 'personal', label: 'Personal', color: '#f43f5e' },
+                { id: 'ideas', label: 'Ideas', color: '#fbbf24' }
+              ];
              await db.categories.bulkAdd(defaultCategories);
           }
         });

@@ -2,7 +2,7 @@ import { db, type Note } from '../db';
 
 type FeatureExtractionPipeline = (text: string, options?: { pooling?: string; normalize?: boolean }) => Promise<{ data: Float32Array | number[] }>;
 let embedder: FeatureExtractionPipeline | null = null;
-let transformersModule: any = null;
+let transformersModule: { env: Record<string, boolean>; pipeline: (task: string, model: string) => Promise<unknown> } | null = null;
 let useFallback = false;
 const FALLBACK_DIM = 384;
 

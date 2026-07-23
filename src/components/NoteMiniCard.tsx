@@ -9,7 +9,6 @@ interface NoteMiniCardProps {
   category?: Category;
   onOpenEditor: () => void;
   onJumpToNote?: (title: string) => void;
-  onAskAi?: () => void; // Kept for prop signature compat but unused
   onClose: () => void;
 }
 

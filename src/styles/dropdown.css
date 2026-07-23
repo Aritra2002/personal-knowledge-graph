@@ -29,8 +29,8 @@
 
 .dropdown-trigger:focus-within,
 .dropdown-trigger.is-open {
-  border-color: var(--accent-primary, #00f0ff);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+  border-color: var(--accent-primary, #7c3aed);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
 }
 
 .dropdown-input {
@@ -108,8 +108,8 @@
 }
 
 .dropdown-option.is-selected {
-  background: rgba(0, 240, 255, 0.1);
-  color: var(--accent-primary, #00f0ff);
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--accent-primary, #7c3aed);
   font-weight: 500;
 }
 

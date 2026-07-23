@@ -77,12 +77,14 @@ export async function executeAiAction(
         // we should append the new content to the existing note content.
         const existingNote = await db.notes.get(noteId);
         if (existingNote && existingNote.content && existingNote.content.trim() !== '') {
-          // If the new content is exactly the same, or we're just hitting the same note again with a tiny change,
-          // we might just append if it's not already in there to avoid duplicates
-          if (!existingNote.content.includes(action.content)) {
-            content = `${existingNote.content}\n\n${content}`;
+          // Only suppress duplicate if the new content is already a substring
+          // OR if the existing content ends with the exact new content (common AI re-append pattern)
+          const existingTrimmed = existingNote.content.trim();
+          const newTrimmed = action.content.trim();
+          if (existingTrimmed.includes(newTrimmed) || newTrimmed.includes(existingTrimmed)) {
+            content = existingNote.content;
           } else {
-            content = existingNote.content; // Already contains it
+            content = `${existingNote.content}\n\n${content}`;
           }
         }
 

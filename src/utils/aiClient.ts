@@ -42,7 +42,8 @@ export const setAIConfig = (config: AIConfig) => {
 export const callAI = async (
   systemPrompt: string,
   userPrompt: string,
-  onStream?: (chunk: string) => void
+  onStream?: (chunk: string) => void,
+  signal?: AbortSignal
 ): Promise<string> => {
   const config = getAIConfig();
   if (!config.apiKey && config.provider !== 'custom') {
@@ -159,7 +160,8 @@ export const callAI = async (
     const response = await fetch(fetchUrl, {
       method: 'POST',
       headers: fetchHeaders,
-      body: fetchBody
+      body: fetchBody,
+      signal,
     });
 
     if (!response.ok) {
@@ -240,7 +242,7 @@ export const callAI = async (
   } catch (error: unknown) {
     console.error('AI call failed:', error);
     if (error instanceof TypeError && error.message === 'Failed to fetch' && endpoint.includes('11434')) {
-      throw new Error('Failed to connect to Ollama. This is likely a CORS issue. Please restart Ollama with the environment variable OLLAMA_ORIGINS="*" or "https://aritra2002.github.io". Original error: ' + String(error));
+      throw new Error('Failed to connect to Ollama. This is likely a CORS issue. Please restart Ollama with the environment variable OLLAMA_ORIGINS="*" or "https://aritra2002.github.io". Original error: ' + String(error), { cause: error });
     }
     throw error;
   }

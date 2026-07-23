@@ -54,14 +54,17 @@ export async function syncLinksForNote(noteId: number, content: string, linkedNo
     // Deduplicate targetIds
     const uniqueTargetIds = Array.from(new Set(targetIds));
 
-    // Fetch current database links where this note is the source
-    const existingLinks = await db.links.where('sourceId').equals(noteId).toArray();
-    const existingTargetIds = existingLinks.map(l => l.targetId);
+    // Fetch current database links where this note is the source OR target
+    const existingLinksAsSource = await db.links.where('sourceId').equals(noteId).toArray();
+    const existingLinksAsTarget = await db.links.where('targetId').equals(noteId).toArray();
+    const existingTargetIdsFromSource = existingLinksAsSource.map(l => l.targetId);
+    const existingSourceIdsFromTarget = existingLinksAsTarget.map(l => l.sourceId);
+    const allExistingConnectedIds = new Set([...existingTargetIdsFromSource, ...existingSourceIdsFromTarget]);
 
     // Links to add
-    const linksToAdd = uniqueTargetIds.filter(id => !existingTargetIds.includes(id) && id !== noteId);
-    // Links to remove
-    const linksToRemove = existingLinks.filter(l => !uniqueTargetIds.includes(l.targetId));
+    const linksToAdd = uniqueTargetIds.filter(id => !allExistingConnectedIds.has(id) && id !== noteId);
+    // Links to remove — remove outgoing links whose target is no longer wanted
+    const linksToRemove = existingLinksAsSource.filter(l => !uniqueTargetIds.includes(l.targetId));
 
     // Perform database changes
     if (linksToAdd.length > 0) {
@@ -104,7 +107,7 @@ export async function createNote(pageId: number, title: string, category = 'gene
   });
 
   // Ingest into RAG outside the transaction
-  ingestNote(id as number, title, '').catch(() => {});
+  ingestNote(id as number, title, '').catch(err => console.warn('RAG ingestion failed:', err));
 
   return id;
 }
@@ -128,7 +131,7 @@ export async function updateNote(id: number, updates: Partial<Note>, preventBlan
         if (updates.content !== undefined) {
           generateEmbedding(`${fullNote.title}\n\n${fullNote.content}`).then(emb => {
             db.notes.update(id, { embedding: emb });
-          }).catch(() => {});
+          }).catch(err => console.warn('Embedding generation failed:', err));
         }
       }
     }
@@ -138,7 +141,7 @@ export async function updateNote(id: number, updates: Partial<Note>, preventBlan
   if (updates.content !== undefined) {
     const fullNote = await db.notes.get(id);
     if (fullNote) {
-      ingestNote(id, fullNote.title, fullNote.content).catch(() => {});
+      ingestNote(id, fullNote.title, fullNote.content).catch(err => console.warn('RAG re-ingestion failed:', err));
     }
   }
 }
@@ -158,7 +161,7 @@ export async function deleteNote(id: number): Promise<void> {
   });
 
   // Remove from RAG
-  removeNoteFromRag(id).catch(() => {});
+  removeNoteFromRag(id).catch(err => console.warn('RAG removal failed:', err));
 }
 
 // Seed Database with Demo Notes
@@ -169,7 +172,7 @@ export async function seedDatabase(): Promise<void> {
     await db.categories.bulkPut([
       { id: 'general', label: 'General', color: '#818cf8' },
       { id: 'work', label: 'Work', color: '#34d399' },
-      { id: 'personal', label: 'Personal', color: '#ff0000' }, // Red
+      { id: 'personal', label: 'Personal', color: '#f43f5e' },
       { id: 'ideas', label: 'Ideas', color: '#fbbf24' }
     ]);
   }
@@ -212,7 +215,7 @@ export async function seedDatabase(): Promise<void> {
     {
       pageId: 1,
       title: 'Markdown Syntax',
-      content: 'AetherMind supports rich formatting via standard markdown.\n\n### Formatting Examples:\n- **Bold text** and *italic text*\n- [AetherMind File Links](file:///e:/Lab/Aethermind/PRD.md)\n- Lists:\n  1. First item\n  2. Second item\n\n### Code Blocks:\n```javascript\nconst hello = "AetherMind";\nconsole.log(`Welcome to ${hello}`);\n```\n\nYou can also link notes simply by typing their name inside double brackets. Try adding `[[New Ideas]]` somewhere in this file.',
+      content: 'AetherMind supports rich formatting via standard markdown.\n\n### Formatting Examples:\n- **Bold text** and *italic text*\n- [AetherMind File Links](https://example.com/PRD.md)\n- Lists:\n  1. First item\n  2. Second item\n\n### Code Blocks:\n```javascript\nconst hello = "AetherMind";\nconsole.log(`Welcome to ${hello}`);\n```\n\nYou can also link notes simply by typing their name inside double brackets. Try adding `[[New Ideas]]` somewhere in this file.',
       tags: ['markdown', 'editor'],
       category: 'work',
       createdAt: fixedTimestamp + 2000,

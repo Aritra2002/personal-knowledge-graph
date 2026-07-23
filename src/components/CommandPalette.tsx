@@ -20,6 +20,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const filteredRef = useRef<Note[]>([]);
+  const selectedIndexRef = useRef(selectedIndex);
+  const onSelectNoteRef = useRef(onSelectNote);
+  const onCloseRef = useRef(onClose);
+  selectedIndexRef.current = selectedIndex;
+  onSelectNoteRef.current = onSelectNote;
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (isOpen) {
@@ -37,31 +44,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     n.content.toLowerCase().includes(query.toLowerCase())
   ).slice(0, 8); // Show top 8 results
 
+  filteredRef.current = filteredNotes;
+
   useEffect(() => {
       // eslint-disable-next-line
     setSelectedIndex(0);
   }, [query]);
 
-  const totalItems = filteredNotes.length;
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
+      const fn = filteredRef.current;
+      const idx = selectedIndexRef.current;
 
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         e.preventDefault();
       } else if (e.key === 'ArrowDown') {
-
-        setSelectedIndex(prev => (prev < totalItems - 1 ? prev + 1 : prev));
+        setSelectedIndex(prev => (prev < fn.length - 1 ? prev + 1 : prev));
         e.preventDefault();
       } else if (e.key === 'ArrowUp') {
         setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
         e.preventDefault();
       } else if (e.key === 'Enter') {
-        if (filteredNotes[selectedIndex]) {
-          onSelectNote(filteredNotes[selectedIndex].title);
-          onClose();
+        if (fn[idx]) {
+          onSelectNoteRef.current(fn[idx].title);
+          onCloseRef.current();
         }
         e.preventDefault();
       }
@@ -69,20 +77,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredNotes, selectedIndex, onClose, onSelectNote, totalItems]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="command-palette-overlay" onClick={onClose}>
-      <div className="command-palette-modal glass-panel" onClick={e => e.stopPropagation()}>
+    <div className="command-palette-overlay" onClick={onClose} role="presentation">
+      <div className="command-palette-modal glass-panel" onClick={e => e.stopPropagation()} role="dialog" aria-label="Search pages">
         <div className="command-search-bar">
           <Search size={18} className="command-search-icon" />
           <input
             ref={inputRef}
             type="text"
             className="command-search-input"
-            placeholder="Search existing pages..."
+            placeholder="Search notes..."
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
@@ -96,12 +104,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               return (
                 <div
                   key={note.id}
+                  role="option"
+                  aria-selected={idx === selectedIndex}
                   className={`command-result-item ${idx === selectedIndex ? 'selected' : ''}`}
                   onClick={() => {
                     onSelectNote(note.title);
                     onClose();
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
+                  style={{ cursor: 'pointer' }}
                 >
                   <FileText size={16} className="command-item-icon" />
                   <div className="command-item-details">

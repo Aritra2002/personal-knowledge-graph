@@ -40,9 +40,16 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   const displayColor = color || defaultColor;
 
   useEffect(() => {
+    if (isOpen && popoverRef.current) {
+      const rect = popoverRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 200) {
+        (popoverRef.current.querySelector('.color-picker-popover') as HTMLElement)?.style.setProperty('top', 'auto');
+        (popoverRef.current.querySelector('.color-picker-popover') as HTMLElement)?.style.setProperty('bottom', 'calc(100% + 8px)');
+      }
+    }
     const handleClickOutside = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-
         setIsOpen(false);
       }
     };
@@ -71,8 +78,9 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         style={{ backgroundColor: displayColor }}
         title={title}
+        aria-label={title}
       >
-        <Palette size={12} className="color-picker-icon" style={{ mixBlendMode: 'difference', color: '#fff' }} />
+        <Palette size={12} className="color-picker-icon" style={{ mixBlendMode: 'difference', color: 'var(--text-primary)' }} />
       </button>
 
       {isOpen && (
@@ -89,6 +97,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 className={`color-swatch ${displayColor === c ? 'active' : ''}`}
                 style={{ backgroundColor: c, width: '44px', height: '44px', padding: 0, margin: 0 }}
                 onClick={() => onChange(c)}
+                aria-label={`Select color ${c}`}
               />
             ))}
           </div>

@@ -255,6 +255,8 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
   const nodesRef = useRef<SimNode[]>([]);
   const simulationRef = useRef<d3.Simulation<SimNode, undefined> | null>(null);
   const prevTopology = useRef({ nodes: "", links: "", linkDist: 0, charge: 0 });
+  const tooltipAbortRef = useRef<AbortController | null>(null);
+  const tooltipGenId = useRef(0);
 
   // Handle window resizing
   useEffect(() => {
@@ -271,11 +273,10 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     return () => resizeObserver.disconnect();
   }, []);
 
-  // Sync simulation nodes and links
+  // Create / update simulation forces (separate from topology to avoid recalculating nodes)
   useEffect(() => {
     if (dimensions.width === 0 || dimensions.height === 0) return;
 
-    // Create the simulation if it doesn't exist
     if (!simulationRef.current) {
       const sim = d3.forceSimulation<SimNode>()
         .force('link', d3.forceLink<SimNode, d3.SimulationLinkDatum<SimNode>>().id(d => d.id).distance(physicsConfig.linkDistance).strength(0.05))
@@ -285,7 +286,6 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         .force('collision', d3.forceCollide().radius(45));
       simulationRef.current = sim;
     } else {
-      // Update forces if config changed
       const sim = simulationRef.current;
       const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
       if (linkForce) linkForce.distance(physicsConfig.linkDistance);
@@ -293,10 +293,14 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       if (chargeForce) chargeForce.strength(physicsConfig.chargeStrength);
     }
 
-    const sim = simulationRef.current;
-    sim.force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
+    simulationRef.current.force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
+  }, [dimensions, physicsConfig.linkDistance, physicsConfig.chargeStrength]);
 
-    // Determine matching dim states based on search, tags, and date range
+  // Sync simulation nodes, links, and restart on topology change
+  useEffect(() => {
+    const sim = simulationRef.current;
+    if (!sim) return;
+
     const lowerQuery = searchQuery.toLowerCase().trim();
     
     const linkCounts: Record<number, number> = {};
@@ -319,17 +323,14 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     const processedNodes: SimNode[] = notes.map((note) => {
       const existing = nodesRef.current.find(n => n.id === note.id);
       
-      // Check search match
       const searchMatch = !lowerQuery || 
         note.title.toLowerCase().includes(lowerQuery) || 
         note.content.toLowerCase().includes(lowerQuery) ||
         note.tags.some(t => t.toLowerCase().includes(lowerQuery));
 
-      // Check tag matches
       const tagMatch = selectedTags.length === 0 || 
         selectedTags.every(t => note.tags.includes(t));
 
-      // Check date match
       const dateMatch = !dateRange || 
         (note.createdAt >= dateRange[0] && note.createdAt <= dateRange[1]);
 
@@ -351,7 +352,6 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         isDimmed,
         radius,
         visits: note.visits || 0,
-        // Retain existing coordinates or load DB coordinates
         x: existing?.x ?? note.fx ?? (dimensions.width / 2 + (Math.random() - 0.5) * 50),
         y: existing?.y ?? note.fy ?? (dimensions.height / 2 + (Math.random() - 0.5) * 50),
         vx: existing?.vx ?? 0,
@@ -364,24 +364,17 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
     nodesRef.current = processedNodes;
     sim.nodes(processedNodes);
 
-    // Sync links
-    // Map links sourceId and targetId into matching Node references
     const validLinks = links
       .map(l => {
         const sourceNode = processedNodes.find(n => n.id === l.sourceId);
         const targetNode = processedNodes.find(n => n.id === l.targetId);
         if (sourceNode && targetNode) {
-          return {
-            id: l.id,
-            source: sourceNode,
-            target: targetNode
-          };
+          return { id: l.id, source: sourceNode, target: targetNode };
         }
         return null;
       })
       .filter((l): l is { id: number | undefined; source: SimNode; target: SimNode } => l !== null);
 
-    // NLP Clustering: separate force links between semantically similar notes
     if (nlpClustering) {
       const notesWithEmbeddings = notes.filter(n => n.embedding);
       const nlpLinks: { source: SimNode; target: SimNode }[] = [];
@@ -401,20 +394,14 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         }
       }
       const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
-      if (nlpLinkForce) {
-        nlpLinkForce.links(nlpLinks);
-      }
+      if (nlpLinkForce) nlpLinkForce.links(nlpLinks);
     } else {
       const nlpLinkForce = sim.force('nlpLink') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
-      if (nlpLinkForce) {
-        nlpLinkForce.links([]);
-      }
+      if (nlpLinkForce) nlpLinkForce.links([]);
     }
 
     const linkForce = sim.force('link') as d3.ForceLink<SimNode, d3.SimulationLinkDatum<SimNode>>;
-    if (linkForce) {
-      linkForce.links(validLinks);
-    }
+    if (linkForce) linkForce.links(validLinks);
 
     const currentTopology = {
       nodes: notes.map(n => n.id).sort().join(','),
@@ -433,7 +420,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       sim.alpha(0.2).restart();
       prevTopology.current = currentTopology;
     }
-  }, [notes, links, dimensions, physicsConfig, searchQuery, selectedTags, dateRange, activeNote, categories, nlpClustering]);
+  }, [notes, links, dimensions, searchQuery, selectedTags, dateRange, activeNote, categories, nlpClustering, physicsConfig.linkDistance, physicsConfig.chargeStrength]);
 
   // Main Canvas Rendering Loop
   useEffect(() => {
@@ -818,10 +805,15 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
               return;
             }
 
+            tooltipGenId.current += 1;
+            const currentGen = tooltipGenId.current;
+            tooltipAbortRef.current?.abort();
+            tooltipAbortRef.current = new AbortController();
             try {
               const systemPrompt = "You are a helpful assistant. Provide a single sentence explanation.";
               const userPrompt = `Based on their titles, why are the notes "${sourceNode.title}" and "${targetNode.title}" linked?`;
-              const result = await callAI(systemPrompt, userPrompt);
+              const result = await callAI(systemPrompt, userPrompt, undefined, tooltipAbortRef.current.signal);
+              if (currentGen !== tooltipGenId.current) return;
               
               await db.links.update(linkId, { explanation: result });
               
@@ -1071,7 +1063,6 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
       />
 
       {/* Floating Canvas Controls */}
-      {/* Floating Canvas Controls */}
       <div className="canvas-controls" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
           {!isSidebarOpen && !isMobile && (
@@ -1161,21 +1152,21 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
           position: 'absolute',
           top: tooltip.y + 15,
           left: tooltip.x + 15,
-          background: 'rgba(20, 27, 50, 0.95)',
+          background: 'var(--bg-secondary)',
           border: '1px solid rgba(124, 58, 237, 0.4)',
           borderRadius: '8px',
           padding: '8px 12px',
-          color: 'white',
+          color: 'var(--text-primary)',
           pointerEvents: 'none',
-          zIndex: 'var(--z-controls, 20)',
+          zIndex: 1100,
           maxWidth: '300px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
           fontSize: '14px',
-          fontFamily: 'Inter, sans-serif'
+          fontFamily: 'var(--font-sans)'
         }}>
           {tooltip.loading ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '12px', height: '12px', border: '2px solid #818cf8', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <div style={{ width: '12px', height: '12px', border: '2px solid var(--node-indigo, #818cf8)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               Generating explanation...
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>

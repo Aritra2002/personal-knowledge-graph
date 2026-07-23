@@ -17,10 +17,10 @@ export const saveSnapshot = async (pageId: number): Promise<number> => {
 };
 
 export const getSnapshots = async (pageId: number): Promise<GraphSnapshot[]> => {
-  return db.snapshots
+  const snapshots = await db.snapshots
     .where({ pageId })
-    .reverse()
     .sortBy('timestamp');
+  return snapshots.reverse();
 };
 
 export const loadSnapshot = async (snapshotId: number): Promise<{ notes: Note[]; links: Link[]; timestamp: number } | null> => {
@@ -39,15 +39,28 @@ export const restoreSnapshot = async (snapshotId: number, pageId: number): Promi
   if (!data) throw new Error('Snapshot not found');
 
   await db.transaction('rw', [db.notes, db.links], async () => {
+    const remainingNoteIds = (await db.notes.where({ pageId }).toArray()).map(n => n.id!);
+    const allLinks = await db.links.toArray();
+    const linksToDelete = allLinks.filter(l => remainingNoteIds.includes(l.sourceId) || remainingNoteIds.includes(l.targetId));
     await db.notes.where({ pageId }).delete();
-    await db.links.clear();
+    await db.links.bulkDelete(linksToDelete.map(l => l.id!));
 
+    const idMap = new Map<number, number>();
     for (const note of data.notes) {
-      note.pageId = pageId;
-      await db.notes.add(note);
+      const oldId = note.id!;
+      const noteData = { ...note, pageId };
+      delete (noteData as Record<string, unknown>).id;
+      const newId = await db.notes.add(noteData);
+      idMap.set(oldId, newId as number);
     }
     for (const link of data.links) {
-      await db.links.add(link);
+      const newSourceId = idMap.get(link.sourceId);
+      const newTargetId = idMap.get(link.targetId);
+      if (!newSourceId || !newTargetId) continue;
+      await db.links.add({
+        sourceId: newSourceId,
+        targetId: newTargetId,
+      });
     }
   });
 };

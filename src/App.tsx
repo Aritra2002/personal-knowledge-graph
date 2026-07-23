@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Note, type Link } from './db';
@@ -27,15 +27,22 @@ import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Comp
 function useViewport() {
   const [viewport, setViewport] = useState<'sm' | 'md' | 'lg'>('lg');
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 768) setViewport('sm');
-      else if (width < 1024) setViewport('md');
-      else setViewport('lg');
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        const width = window.innerWidth;
+        if (width < 768) setViewport('sm');
+        else if (width < 1024) setViewport('md');
+        else setViewport('lg');
+      }, 150);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timer) clearTimeout(timer);
+    };
   }, []);
   return viewport;
 }
@@ -62,12 +69,16 @@ export default function App() {
   const viewport = useViewport();
   const isDesktop = viewport === 'lg';
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const handlePromptCancel = useCallback(() => setPromptConfig(null), []);
   const [docLoading, setDocLoading] = useState(false);
   const [docStatus, setDocStatus] = useState('');
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [currentPageId, setCurrentPageId] = useState<number>(1);
-  const [sidebarWidth, setSidebarWidth] = useState(420);
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = localStorage.getItem('aethermind-sidebar-width');
+    return saved ? parseInt(saved, 10) : 420;
+  });
   const [physicsConfig, setPhysicsConfig] = useState(() => {
     const saved = localStorage.getItem('aethermind-physics');
     return saved ? JSON.parse(saved) : { linkDistance: 120, chargeStrength: -150 };
@@ -75,6 +86,7 @@ export default function App() {
   const [nlpClustering, setNlpClustering] = useState(() => localStorage.getItem('aethermind-nlp-clustering') === 'true');
 
   // Graph Snapshot historical mode
+  // TODO: Add hash-based routing for deep-linking (e.g., #note-{id}, #page-{id})
   const [historicalSnapshot, setHistoricalSnapshot] = useState<{ notes: Note[]; links: Link[]; timestamp: number } | null>(null);
 
   // Multi-theme state
@@ -177,6 +189,10 @@ export default function App() {
     localStorage.setItem('aethermind-custom-themes', JSON.stringify(customThemeColors));
   }, [activeTheme, customThemeColors]);
 
+  useEffect(() => {
+    localStorage.setItem('aethermind-sidebar-width', String(sidebarWidth));
+  }, [sidebarWidth]);
+
   const handlePhysicsChange = (newConfig: { linkDistance: number; chargeStrength: number }) => {
     setPhysicsConfig(newConfig);
     localStorage.setItem('aethermind-physics', JSON.stringify(newConfig));
@@ -249,13 +265,25 @@ export default function App() {
     if (!historicalSnapshot) return;
     try {
       await db.transaction('rw', [db.notes, db.links], async () => {
+        const currentNoteIds = (await db.notes.where({ pageId: currentPageId }).toArray()).map(n => n.id!);
+        const allLinks = await db.links.toArray();
+        const linksToDelete = allLinks.filter(l => currentNoteIds.includes(l.sourceId) || currentNoteIds.includes(l.targetId));
         await db.notes.where({ pageId: currentPageId }).delete();
-        await db.links.clear();
+        await db.links.bulkDelete(linksToDelete.map(l => l.id!));
+
+        const idMap = new Map<number, number>();
         for (const note of historicalSnapshot.notes) {
-          await db.notes.add({ ...note, pageId: currentPageId });
+          const oldId = note.id!;
+          const noteData = { ...note, pageId: currentPageId };
+          delete (noteData as Record<string, unknown>).id;
+          const newId = await db.notes.add(noteData);
+          idMap.set(oldId, newId as number);
         }
         for (const link of historicalSnapshot.links) {
-          await db.links.add(link);
+          await db.links.add({
+            sourceId: idMap.get(link.sourceId) ?? link.sourceId,
+            targetId: idMap.get(link.targetId) ?? link.targetId,
+          });
         }
       });
       setHistoricalSnapshot(null);
@@ -356,10 +384,18 @@ export default function App() {
 
   const confirmDeletePage = async () => {
     try {
+      const pageNoteIds = (await db.notes.where({ pageId: currentPageId }).toArray()).map(n => n.id!);
+
       await db.transaction('rw', [db.pages, db.notes, db.links], async () => {
         await db.notes.where({ pageId: currentPageId }).delete();
         await db.pages.delete(currentPageId);
       });
+
+      await db.snapshots.where({ pageId: currentPageId }).delete();
+      for (const noteId of pageNoteIds) {
+        await db.documents.where('documentId').equals(`note_${noteId}`).delete();
+      }
+
       const remaining = pages.filter(p => p.id !== currentPageId);
       if (remaining.length > 0) {
         setCurrentPageId(remaining[0].id!);
@@ -499,7 +535,7 @@ export default function App() {
         const notesForRag = await db.notes.where({ pageId: currentPageId }).toArray();
         for (const note of notesForRag) {
           if (note.content) {
-            ingestDocument(`[Note] ${note.title}`, note.content, { source: 'zip-import', noteId: note.id }).catch(() => {});
+            ingestDocument(`[Note] ${note.title}`, note.content, { source: 'zip-import', noteId: note.id }).catch(err => console.warn('Document ingestion failed:', err));
           }
         }
       } catch (err: unknown) {
@@ -675,7 +711,15 @@ Format:
     document.addEventListener('mouseup', onMouseUp);
   };
 
-
+  const handleResizerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setSidebarWidth(Math.max(300, sidebarWidth - 20));
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setSidebarWidth(Math.min(1200, sidebarWidth + 20));
+    }
+  };
 
   return (
     <div className="app-container">
@@ -693,11 +737,11 @@ Format:
                 options={pages.map(p => ({ value: p.id!, label: p.title }))}
                 style={{ maxWidth: '120px' }}
               />
-              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} title="Rename Page">
+              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} aria-label="Rename Page" title="Rename Page">
                 <Edit2 size={14} />
               </button>
-              <button className="page-action-btn" onClick={handleDeletePage} title="Delete Page" disabled={pages.length <= 1}>
-                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : '#f43f5e' }} />
+              <button className="page-action-btn" onClick={handleDeletePage} aria-label="Delete Page" title="Delete Page" disabled={pages.length <= 1}>
+                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : 'var(--accent-danger, #f43f5e)' }} />
               </button>
             </div>
           </>
@@ -717,26 +761,26 @@ Format:
               />
             </div>
             <div className="header-controls" style={{ marginLeft: 'auto' }}>
-              <button className="header-btn" onClick={() => setShowReview(true)} title="Review">
+              <button className="header-btn" onClick={() => setShowReview(true)} aria-label="Review" title="Review">
                 <Brain size={16} />
               </button>
-              <button className="header-btn" onClick={() => setShowDiscoveryDigest(true)} title="Discovery Digest">
+              <button className="header-btn" onClick={() => setShowDiscoveryDigest(true)} aria-label="Discovery Digest" title="Discovery Digest">
                 <Compass size={16} />
               </button>
-              <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} title="Ask AI">
+              <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} aria-label="Ask AI" title="Ask AI">
                 <Sparkles size={16} />
               </button>
-              <button className="header-btn" onClick={handleCreateDailyNote} title="Daily Note">
+              <button className="header-btn" onClick={handleCreateDailyNote} aria-label="Create Daily Note" title="Daily Note">
                 <Calendar size={16} />
               </button>
-              <button className="header-btn" onClick={handleImportZip} title="Import ZIP">
+              <button className="header-btn" onClick={handleImportZip} aria-label="Import ZIP" title="Import ZIP">
                 <FileArchive size={16} />
               </button>
-              <button className="header-btn" onClick={handleUploadDocument} title="Upload Document">
+              <button className="header-btn" onClick={handleUploadDocument} aria-label="Upload Document" title="Upload Document">
                 <FileUp size={16} />
               </button>
 
-              <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)} title="New Page">
+              <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)} aria-label="New Page" title="New Page">
                 <Plus size={16} />
               </button>
               <button className="header-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
@@ -758,11 +802,11 @@ Format:
                 options={pages.map(p => ({ value: p.id!, label: p.title }))}
                 style={{ minWidth: '150px' }}
               />
-              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} title="Rename Page">
+              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} aria-label="Rename Page" title="Rename Page">
                 <Edit2 size={14} />
               </button>
-              <button className="page-action-btn" onClick={handleDeletePage} title="Delete Page" disabled={pages.length <= 1}>
-                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : '#f43f5e' }} />
+              <button className="page-action-btn" onClick={handleDeletePage} aria-label="Delete Page" title="Delete Page" disabled={pages.length <= 1}>
+                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : 'var(--accent-danger, #f43f5e)' }} />
               </button>
             </div>
             <div className="header-controls" style={{ marginLeft: 'auto' }}>
@@ -779,10 +823,10 @@ Format:
                 <Calendar size={16} /> Daily Note
               </button>
               <button className="header-btn" onClick={handleImportZip} title="Import ZIP">
-                <FileArchive size={16} /> <span className="hidden xl:inline">Import ZIP</span>
+                <FileArchive size={16} /> <span className="hide-below-lg">Import ZIP</span>
               </button>
               <button className="header-btn" onClick={handleUploadDocument} title="Upload Document">
-                <FileUp size={16} /> <span className="hidden xl:inline">Upload Document</span>
+                <FileUp size={16} /> <span className="hide-below-lg">Upload Document</span>
               </button>
 
               <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)}>
@@ -858,10 +902,11 @@ Format:
               className={`right-sidebar open`}
               style={{ 
                 display: 'flex',
-                flexDirection: 'row'
+                flexDirection: 'row',
+                overflow: 'hidden'
               } as React.CSSProperties}
             >
-              <div className="sidebar-resizer" onMouseDown={startResizing} style={{ left: 0, touchAction: 'none' }} />
+              <div className="sidebar-resizer" onMouseDown={startResizing} onKeyDown={handleResizerKeyDown} role="separator" aria-orientation="horizontal" aria-valuenow={sidebarWidth} aria-valuemin={300} aria-valuemax={1200} tabIndex={0} aria-label="Resize sidebar" style={{ left: 0, touchAction: 'none' }} />
 
           <div style={{ flex: 1, minWidth: 0, minHeight: 0, height: '100%' }}>
             <EditorPanel
@@ -911,7 +956,6 @@ Format:
             const target = notes.find(n => n.title.toLowerCase() === title.toLowerCase());
             if (target) handleSelectNote(target);
           }}
-          onAskAi={() => setShowAskAi(true)}
           onClose={() => handleSelectNote(null)}
         />
       )}
@@ -1095,11 +1139,11 @@ Format:
             promptConfig.onConfirm(val);
             setPromptConfig(null);
           }}
-          onCancel={() => setPromptConfig(null)}
+          onCancel={handlePromptCancel}
         />
       )}
       {docLoading && (
-        <div className="modal-overlay !flex !items-center !justify-center !p-4" style={{ zIndex: 99999, flexDirection: 'column', gap: '20px' }}>
+        <div className="modal-overlay" style={{ zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', flexDirection: 'column', gap: '20px' }}>
           <div className="premium-loader-card glass-panel" style={{
             width: '100%',
             maxWidth: '400px',
@@ -1117,17 +1161,17 @@ Format:
               <svg width="80" height="80" viewBox="0 0 80 80" style={{ overflow: 'visible' }}>
                 <defs>
                   <linearGradient id="synGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#7c3aed" />
-                    <stop offset="100%" stopColor="#06b6d4" />
+                    <stop offset="0%" stopColor="var(--accent-primary, #7c3aed)" />
+                    <stop offset="100%" stopColor="var(--accent-secondary, #06b6d4)" />
                   </linearGradient>
                 </defs>
-                <circle cx="40" cy="15" r="5" fill="#7c3aed">
+                <circle cx="40" cy="15" r="5" fill="var(--accent-primary, #7c3aed)">
                   <animate attributeName="r" values="5;7;5" dur="2s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="15" cy="55" r="5" fill="#06b6d4">
+                <circle cx="15" cy="55" r="5" fill="var(--accent-secondary, #06b6d4)">
                   <animate attributeName="r" values="5;7;5" dur="2s" begin="0.5s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="65" cy="55" r="5" fill="#f59e0b">
+                <circle cx="65" cy="55" r="5" fill="var(--accent-gold, #f59e0b)">
                   <animate attributeName="r" values="5;7;5" dur="2s" begin="1s" repeatCount="indefinite" />
                 </circle>
                 <line x1="40" y1="15" x2="15" y2="55" stroke="url(#synGrad)" strokeWidth="2" strokeDasharray="5,5">
@@ -1142,7 +1186,7 @@ Format:
               </svg>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: '#fff', margin: 0 }}>Processing Document</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Processing Document</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0, minHeight: '24px' }}>{docStatus}</p>
             </div>
           </div>

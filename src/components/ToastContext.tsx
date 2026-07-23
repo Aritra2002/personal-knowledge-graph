@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 export type ToastType = 'success' | 'error' | 'info';
@@ -15,8 +15,25 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+function getIsMobile() {
+  return window.innerWidth < 768;
+}
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [isMobile, setIsMobile] = useState(getIsMobile);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const handleResize = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => setIsMobile(getIsMobile()), 150);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
 
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Date.now();
@@ -31,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="toast-container" aria-live="polite" aria-atomic="true" style={{ bottom: 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)) + 16px)', zIndex: 'var(--z-toast, 9999)' }}>
+      <div className="toast-container" aria-live="polite" aria-atomic="true" style={{ bottom: isMobile ? 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)) + 16px)' : '16px', zIndex: 9999 }}>
         {toasts.map((toast) => (
           <div key={toast.id} className={`toast-message toast-${toast.type}`}>
             {toast.message}

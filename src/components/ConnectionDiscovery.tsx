@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { semanticSearch } from '../utils/vectorSearch';
 import { callAI } from '../utils/aiClient';
 import { db } from '../db';
 import { Sparkles, X, Link as LinkIcon } from 'lucide-react';
 import { updateNote } from '../db/helpers';
+import { useToast } from './ToastContext';
 
 interface ConnectionDiscoveryProps {
   noteId: number;
@@ -13,6 +14,9 @@ interface ConnectionDiscoveryProps {
 export const ConnectionDiscovery: React.FC<ConnectionDiscoveryProps> = ({ noteId, content }) => {
   const [suggestion, setSuggestion] = useState<{ targetId: number; targetTitle: string; reason: string } | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     // Reset state when noteId changes
@@ -28,6 +32,7 @@ export const ConnectionDiscovery: React.FC<ConnectionDiscoveryProps> = ({ noteId
     let isMounted = true;
     
     const discover = async () => {
+      setIsDiscovering(true);
       try {
         const currentNote = await db.notes.get(noteId);
         if (!currentNote) return;
@@ -57,7 +62,9 @@ If none connect, return {"connected": false}`;
 
         const userPrompt = `Current Note Content:\n${content.substring(0, 500)}`;
         
-        const aiResponse = await callAI(systemPrompt, userPrompt);
+        abortRef.current?.abort();
+        abortRef.current = new AbortController();
+        const aiResponse = await callAI(systemPrompt, userPrompt, undefined, abortRef.current.signal);
         if (!isMounted) return;
         
         try {
@@ -78,6 +85,9 @@ If none connect, return {"connected": false}`;
         }
       } catch (e) {
         console.error('Connection discovery error', e);
+        showToast('Connection discovery failed', 'error');
+      } finally {
+        if (isMounted) setIsDiscovering(false);
       }
     };
     
@@ -85,10 +95,37 @@ If none connect, return {"connected": false}`;
     return () => {
       isMounted = false;
       clearTimeout(timer);
+      abortRef.current?.abort();
     };
-  }, [noteId, content, dismissed, suggestion]);
+  }, [noteId, content, dismissed, suggestion, showToast]);
 
-  if (dismissed || !suggestion) return null;
+  if (!suggestion) {
+    if (!isDiscovering) return null;
+    return (
+      <div style={{
+        position: 'absolute',
+        bottom: '24px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--node-indigo)',
+        borderRadius: '8px',
+        padding: '16px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+        zIndex: 'var(--z-modal, 1000)',
+        width: '90%',
+        maxWidth: '400px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        alignItems: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--node-indigo)', fontWeight: 'bold' }}>
+          <Sparkles size={16} className="spinning" /> Discovering connections...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -111,6 +148,7 @@ If none connect, return {"connected": false}`;
       <button 
         onClick={() => setDismissed(true)}
         style={{ position: 'absolute', top: '8px', right: '8px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
+        aria-label="Dismiss suggestion"
       >
         <X size={16} />
       </button>

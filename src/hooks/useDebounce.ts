@@ -1,6 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 
-export function useDebounce<Args extends unknown[], Return>(callback: (...args: Args) => Return, delay: number) {
+export function useDebounce<Args extends unknown[], Return>(
+  callback: (...args: Args) => Return,
+  delay: number,
+  onError?: (err: unknown) => void
+) {
   const callbackRef = useRef(callback);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -25,13 +29,17 @@ export function useDebounce<Args extends unknown[], Return>(callback: (...args: 
       try {
         const result = callbackRef.current(...args);
         if (result instanceof Promise) {
-          result.catch(console.error);
+          result.catch(err => {
+            if (onError) onError(err);
+            else console.error('Debounced function failed:', err);
+          });
         }
       } catch (e) {
-        console.error(e);
+        if (onError) onError(e);
+        else console.error(e);
       }
     }, delay);
-  }, [delay]);
+  }, [delay, onError]);
 
   return debouncedFunction;
 }

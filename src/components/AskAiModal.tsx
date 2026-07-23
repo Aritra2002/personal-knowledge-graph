@@ -4,12 +4,12 @@ import { callAI } from '../utils/aiClient';
 import { semanticSearch } from '../utils/vectorSearch';
 import { searchDocuments, buildRagContext } from '../utils/rag';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { parseAiResponse, executeAiAction, validateActionPreflight, AiAction } from '../utils/aiActions';
 import { fetchUrlContent } from '../utils/urlFetcher';
 import { ConfirmActionToast } from './ConfirmActionToast';
 import { useToast } from './ToastContext';
-import { createNote } from '../db/helpers';
 
 interface AskAiModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface AskAiModalProps {
 }
 
 const AiActionCard = ({ result }: { result: { action: AiAction; success: boolean; message: string } }) => {
-  if (!result.success) return <div style={{ color: '#ef4444', marginTop: '12px' }}>Action failed: {result.message}</div>;
+  if (!result.success) return <div style={{ color: 'var(--accent-danger, #ef4444)', marginTop: '12px' }}>Action failed: {result.message}</div>;
   
   if (result.action.action === 'create_note') {
     return (
@@ -47,9 +47,14 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activeP
   const [stagedActions, setStagedActions] = useState<AiAction[]>([]);
   const [actionResults, setActionResults] = useState<{ action: AiAction; success: boolean; message: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const { showToast } = useToast();
 
   const pageId = activePageId;
+
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -167,10 +172,12 @@ Only perform actions the user explicitly requested.`;
         : `User request: ${finalQuery}`;
       
       let fullResponse = "";
+      abortRef.current?.abort();
+      abortRef.current = new AbortController();
       await callAI(systemPrompt, userPrompt, (text) => {
         fullResponse = text;
         setAiResponse(text);
-      });
+      }, abortRef.current.signal);
 
       // Phase 8: AI Co-Author action parsing
       const parsed = parseAiResponse(fullResponse);
@@ -180,17 +187,8 @@ Only perform actions the user explicitly requested.`;
         const results: { action: AiAction; success: boolean; message: string }[] = [];
         const staged: AiAction[] = [];
 
-        // Pre-pass: explicitly create shells for all create_note actions
-        // This ensures that links between nodes created in the same batch resolve
-        // correctly without triggering automatic blank-node creation.
         for (const action of parsed.actions) {
-          if (action.action === 'create_note') {
-            await createNote(pageId, action.title);
-          }
-        }
-
-        for (const action of parsed.actions) {
-          if (action.action === 'create_note' || action.action === 'create_link' || action.action === 'delete_link') {
+          if (action.action === 'create_link' || action.action === 'delete_link') {
             const result = await executeAiAction(action, pageId);
             results.push({ action, success: result.success, message: result.message });
           } else {
@@ -253,7 +251,7 @@ Only perform actions the user explicitly requested.`;
             {aiResponse !== null ? (
               <div className="ai-response-container" style={{ color: 'var(--text-primary)' }}>
                 {isAiLoading && !aiResponse && <div className="spin-pulse" style={{ color: 'var(--text-secondary)' }}>Analyzing your knowledge graph...</div>}
-                <div className="markdown-body" dangerouslySetInnerHTML={{ __html: marked.parse(aiResponse) as string }} />
+                <div className="markdown-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(aiResponse) as string) }} />
                 
                 {actionResults.map((res, i) => (
                   <AiActionCard key={i} result={res} />

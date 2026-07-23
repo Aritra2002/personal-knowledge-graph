@@ -14,15 +14,17 @@ export const ConfirmActionToast: React.FC<ConfirmActionToastProps> = ({ action, 
   const [existingContent, setExistingContent] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchExisting() {
       if (action.action === 'edit_note' || action.action === 'delete_note') {
         const note = await db.notes.where('title').equalsIgnoreCase(action.title).and(n => n.pageId === pageId).first();
-        if (note) {
+        if (note && isMounted) {
           setExistingContent(note.content);
         }
       }
     }
     fetchExisting();
+    return () => { isMounted = false; };
   }, [action, pageId]);
 
   return (
@@ -53,10 +55,10 @@ export const ConfirmActionToast: React.FC<ConfirmActionToastProps> = ({ action, 
         <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           <p style={{ margin: '0 0 8px 0' }}><strong>AI wants to edit '{action.title}'</strong></p>
           <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px', borderRadius: '4px', marginBottom: '4px' }}>
-            <span style={{ color: '#f87171' }}>- {existingContent.substring(0, 100)}{existingContent.length > 100 ? '...' : ''}</span>
+            <span style={{ color: 'var(--accent-danger, #ef4444)' }}>- {existingContent.substring(0, 100)}{existingContent.length > 100 ? '...' : ''}</span>
           </div>
           <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px', borderRadius: '4px' }}>
-            <span style={{ color: '#34d399' }}>+ {action.newContent?.substring(0, 100)}{action.newContent && action.newContent.length > 100 ? '...' : ''}</span>
+            <span style={{ color: 'var(--node-emerald, #34d399)' }}>+ {action.newContent?.substring(0, 100)}{action.newContent && action.newContent.length > 100 ? '...' : ''}</span>
           </div>
         </div>
       )}

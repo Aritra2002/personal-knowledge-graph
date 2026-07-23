@@ -38,7 +38,7 @@ export const AiSettingsTab: React.FC = () => {
     <div className="settings-section">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h3>AI Integration</h3>
-        {saveStatus === 'saved' && <span style={{ fontSize: '0.8rem', color: '#4ade80' }}>Saved</span>}
+        {saveStatus === 'saved' && <span style={{ fontSize: '0.8rem', color: 'var(--node-emerald, #34d399)' }}>Saved</span>}
       </div>
       <p className="section-desc">Configure your preferred AI provider for intelligent features.</p>
       

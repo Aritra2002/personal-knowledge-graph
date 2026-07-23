@@ -72,28 +72,30 @@ export const ingestDocument = async (
 export const ingestNote = async (noteId: number, title: string, content: string): Promise<void> => {
   if (!content.trim()) return;
 
-  // Remove existing chunks for this note
-  await db.documents.where('documentId').equals(`note_${noteId}`).delete();
-
   const text = `${title}\n\n${content}`;
   const chunks = chunkText(text, 800, 150);
 
-  const chunkDocs: Omit<DocumentChunk, 'id'>[] = chunks.map((chunk, i) => ({
-    documentId: `note_${noteId}`,
-    documentName: `[Note] ${title}`,
-    chunkIndex: i,
-    content: chunk,
-    embedding: [], // Will be filled below
-    metadata: { type: 'note', noteId },
-    createdAt: Date.now(),
-  }));
+  const chunkDocs: Omit<DocumentChunk, 'id'>[] = [];
 
-  // Embed all chunks
-  for (let i = 0; i < chunkDocs.length; i++) {
-    chunkDocs[i].embedding = await generateEmbedding(chunks[i]);
+  // Embed all chunks first before touching the DB
+  for (let i = 0; i < chunks.length; i++) {
+    const embedding = await generateEmbedding(chunks[i]);
+    chunkDocs.push({
+      documentId: `note_${noteId}`,
+      documentName: `[Note] ${title}`,
+      chunkIndex: i,
+      content: chunks[i],
+      embedding,
+      metadata: { type: 'note', noteId },
+      createdAt: Date.now(),
+    });
   }
 
-  await db.documents.bulkAdd(chunkDocs as DocumentChunk[]);
+  // Atomically replace old chunks with new ones
+  await db.transaction('rw', db.documents, async () => {
+    await db.documents.where('documentId').equals(`note_${noteId}`).delete();
+    await db.documents.bulkAdd(chunkDocs as DocumentChunk[]);
+  });
 };
 
 // Remove a note from RAG

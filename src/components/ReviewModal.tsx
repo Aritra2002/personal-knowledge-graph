@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import type { Note } from '../db';
+import DOMPurify from 'dompurify';
 import { X, BrainCircuit, Loader2 } from 'lucide-react';
 import { marked } from 'marked';
 
@@ -121,13 +122,13 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
               {showAnswer ? (
                 <>
                   <div className="flashcard-back" style={{ padding: '20px', backgroundColor: 'var(--bg-card-hover)', borderRadius: '8px', flex: 1, overflowY: 'auto' }}
-                       dangerouslySetInnerHTML={{ __html: marked.parse(currentNote.content) as string }} />
+                       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(currentNote.content) as string) }} />
                   
                   <div className="flashcard-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '20px', justifyContent: 'center' }}>
-                    <button className="btn" onClick={() => handleGrade(1)} style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#ef4444' }}>Again (1m)</button>
-                    <button className="btn" onClick={() => handleGrade(2)} style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)', borderColor: 'rgba(245, 158, 11, 0.4)', color: '#f59e0b' }}>Hard (1.2x)</button>
-                    <button className="btn" onClick={() => handleGrade(3)} style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#10b981' }}>Good</button>
-                    <button className="btn" onClick={() => handleGrade(4)} style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 0.4)', color: '#60a5fa' }}>Easy</button>
+                    <button className="btn" onClick={() => handleGrade(1)} style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.4)', color: 'var(--accent-danger, #ef4444)' }}>Again (1m)</button>
+                    <button className="btn" onClick={() => handleGrade(2)} style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)', borderColor: 'rgba(245, 158, 11, 0.4)', color: 'var(--accent-gold, #f59e0b)' }}>Hard (1.2x)</button>
+                    <button className="btn" onClick={() => handleGrade(3)} style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(16, 185, 129, 0.4)', color: 'var(--node-emerald, #10b981)' }}>Good</button>
+                    <button className="btn" onClick={() => handleGrade(4)} style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 0.4)', color: 'var(--node-indigo, #60a5fa)' }}>Easy</button>
                   </div>
                 </>
               ) : (
