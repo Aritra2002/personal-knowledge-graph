@@ -2,7 +2,8 @@ import { db, type Note } from '../db';
 
 type FeatureExtractionPipeline = (text: string, options?: { pooling?: string; normalize?: boolean }) => Promise<{ data: Float32Array | number[] }>;
 let embedder: FeatureExtractionPipeline | null = null;
-let transformersModule: { env: Record<string, boolean>; pipeline: (task: string, model: string) => Promise<unknown> } | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let transformersModule: any = null;
 let useFallback = false;
 const FALLBACK_DIM = 384;
 
@@ -42,9 +43,10 @@ const tfidfEmbed = (tokens: string[]): number[] => {
 const initTransformer = async (): Promise<FeatureExtractionPipeline | null> => {
   try {
     if (!transformersModule) {
-      transformersModule = await import('@xenova/transformers');
-      transformersModule.env.allowLocalModels = false;
-      transformersModule.env.useBrowserCache = false;
+      const tf = await import('@xenova/transformers');
+      tf.env.allowLocalModels = false;
+      tf.env.useBrowserCache = false;
+      transformersModule = tf;
     }
     const pipe = await transformersModule.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2') as unknown as FeatureExtractionPipeline;
     return pipe;
