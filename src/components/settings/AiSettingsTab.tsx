@@ -36,15 +36,15 @@ export const AiSettingsTab: React.FC = () => {
 
   return (
     <div className="settings-section">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="d-flex align-items-center justify-content-between">
         <h3>AI Integration</h3>
         {saveStatus === 'saved' && <span style={{ fontSize: '0.8rem', color: 'var(--node-emerald, #34d399)' }}>Saved</span>}
       </div>
       <p className="section-desc">Configure your preferred AI provider for intelligent features.</p>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Provider</label>
+      <div className="d-flex flex-column gap-3 mt-3">
+        <div className="mb-3">
+          <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Provider</label>
           <Dropdown
             value={aiConfig.provider || 'openai'}
             onChange={(val) => {
@@ -71,7 +71,7 @@ export const AiSettingsTab: React.FC = () => {
               { value: 'custom', label: 'Custom Provider' }
             ]}
           />
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+          <div className="form-text" style={{ fontSize: '0.8rem' }}>
             {aiConfig.provider === 'anthropic' && 'Direct access to Claude models, including Pro and Max'}
             {aiConfig.provider === 'deepseek' && 'DeepSeek models for reasoning and coding tasks'}
             {aiConfig.provider === 'openai' && 'GPT and Codex models with API key'}
@@ -79,13 +79,14 @@ export const AiSettingsTab: React.FC = () => {
             {aiConfig.provider === 'openrouter' && 'Access all supported models from one provider'}
             {aiConfig.provider === 'vercel' && 'Unified access to AI models with smart routing'}
             {aiConfig.provider === 'custom' && 'Add a custom OpenAI-compatible provider by base URL.'}
-          </span>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Base URL</label>
+        <div className="mb-3">
+          <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Base URL</label>
           <input
             type="text"
+            className="form-control"
             value={aiConfig.baseUrl}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('baseUrl', e.target.value)}
             placeholder={
@@ -93,43 +94,36 @@ export const AiSettingsTab: React.FC = () => {
               aiConfig.provider === 'vercel' ? "https://gateway.ai.vercel.com/v1/..." : ""
             }
             disabled={!['custom', 'vercel'].includes(aiConfig.provider)}
-            style={{ 
-              background: ['custom', 'vercel'].includes(aiConfig.provider) ? 'var(--input-bg)' : 'rgba(0, 0, 0, 0.15)', 
-              border: '1px solid var(--input-border)', 
-              padding: '8px', 
-              borderRadius: '4px', 
-              color: ['custom', 'vercel'].includes(aiConfig.provider) ? 'var(--text-primary)' : 'var(--text-secondary)'
-            }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>API Key</label>
+        <div className="mb-3">
+          <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>API Key</label>
           <input
             type="password"
+            className="form-control"
             value={aiConfig.apiKey || ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('apiKey', e.target.value)}
             placeholder="Enter your API key..."
-            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
           />
         </div>
 
         {aiConfig.provider === 'custom' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Backend Proxy URL (Optional)</label>
+          <div className="mb-3">
+            <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Backend Proxy URL (Optional)</label>
             <input
               type="text"
+              className="form-control"
               value={aiConfig.proxyUrl || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('proxyUrl', e.target.value)}
               placeholder="https://your-proxy.onrender.com (Direct connection if empty)"
-              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
             />
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Model</label>
+        <div className="mb-3">
+          <div className="d-flex justify-content-between align-items-center">
+            <label className="form-label" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Model</label>
             {['custom', 'openrouter', 'openai', 'deepseek'].includes(aiConfig.provider) && (
               <button 
                 className="btn btn-ghost btn-sm"
@@ -152,10 +146,10 @@ export const AiSettingsTab: React.FC = () => {
           ) : (
             <input
               type="text"
+              className="form-control"
               value={aiConfig.model || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleAiConfigChange('model', e.target.value)}
               placeholder={aiConfig.provider === 'vercel' ? 'e.g. openai:gpt-4o' : (aiConfig.provider === 'openrouter' ? 'e.g. google/gemini-2.5-flash' : 'e.g. custom-model-name')}
-              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '8px', borderRadius: '4px', color: 'var(--text-primary)' }}
             />
           )}
         </div>

@@ -44,7 +44,8 @@
   font-size: 0.95rem;
 }
 
-.dropdown-menu {
+/* Neutralize Bootstrap's .dropdown-menu interference */
+.dropdown-menu:not(.dropdown-menu-bs) {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;

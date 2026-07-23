@@ -5,7 +5,7 @@ import { semanticSearch } from '../utils/vectorSearch';
 import { searchDocuments, buildRagContext } from '../utils/rag';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import { Sparkles, X, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { parseAiResponse, executeAiAction, validateActionPreflight, AiAction } from '../utils/aiActions';
 import { fetchUrlContent } from '../utils/urlFetcher';
 import { ConfirmActionToast } from './ConfirmActionToast';
@@ -23,7 +23,7 @@ const AiActionCard = ({ result }: { result: { action: AiAction; success: boolean
   if (result.action.action === 'create_note') {
     return (
       <div style={{ background: 'rgba(124, 58, 237, 0.1)', border: '1px solid var(--accent-primary)', padding: '12px', borderRadius: '8px', marginTop: '12px' }}>
-        <div>📄 Created note: <strong>"{result.action.title}"</strong></div>
+        <div>Created note: <strong>"{result.action.title}"</strong></div>
         {result.action.tags && result.action.tags.length > 0 && (
           <div style={{ fontSize: '0.9em', color: 'var(--text-secondary)', marginTop: '4px' }}>Tags: {result.action.tags.join(', ')}</div>
         )}
@@ -35,7 +35,7 @@ const AiActionCard = ({ result }: { result: { action: AiAction; success: boolean
   }
   return (
     <div style={{ background: 'rgba(124, 58, 237, 0.1)', border: '1px solid var(--accent-primary)', padding: '12px', borderRadius: '8px', marginTop: '12px' }}>
-      ✅ {result.message}
+      {result.message}
     </div>
   );
 };
@@ -80,7 +80,6 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activeP
       let finalQuery = query;
       let contextPrefix = "";
 
-      // Phase 9: Research Mode URL detection
       const urlMatch = query.match(/https?:\/\/[^\s]+/);
       if (urlMatch) {
         const url = urlMatch[0];
@@ -102,7 +101,6 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activeP
 
       finalQuery = contextPrefix ? contextPrefix + query : query;
       
-      // Detect if user explicitly asks about their own data
       const asksAboutOwnData = /(?:my|the|from|in|across|among)\s+(?:notes?|documents?|files?|data|knowledge|graph|nodes?|content|uploaded)/i.test(query)
         || /what\s+(?:do\s+)?(?:I|we)\s+have\s+(?:on|about|regarding)/i.test(query)
         || /(?:according|based)\s+to\s+(?:my|the)/i.test(query)
@@ -112,7 +110,6 @@ export const AskAiModal: React.FC<AskAiModalProps> = ({ isOpen, onClose, activeP
       let notesContext = '';
 
       if (asksAboutOwnData) {
-        // Search both notes and RAG documents
         const [relevantNotes, ragResults] = await Promise.all([
           semanticSearch(query, 5),
           searchDocuments(query, 5),
@@ -179,7 +176,6 @@ Only perform actions the user explicitly requested.`;
         setAiResponse(text);
       }, abortRef.current.signal);
 
-      // Phase 8: AI Co-Author action parsing
       const parsed = parseAiResponse(fullResponse);
       if (parsed && parsed.actions.length > 0) {
         setAiResponse(parsed.explanation || "Action proposed:");
@@ -235,79 +231,69 @@ Only perform actions the user explicitly requested.`;
 
   return (
     <>
-      <div className="modal-overlay" onClick={onClose} style={{ zIndex: 'var(--z-modal, 1000)' }}>
-        <div className="settings-modal glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
-          <div className="modal-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-gold)' }}>
-              <Sparkles size={18} />
-              <h2>Ask AI</h2>
+      <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1060 }} onClick={onClose}>
+        <div className="modal-dialog modal-dialog-centered modal-lg" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+          <div className="modal-content glass-panel border-0">
+            <div className="modal-header border-0">
+              <div className="d-flex align-items-center gap-2" style={{ color: 'var(--accent-gold)' }}>
+                <Sparkles size={18} />
+                <h5 className="modal-title">Ask AI</h5>
+              </div>
+              <button type="button" className="btn-close" onClick={onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
             </div>
-            <button className="btn btn-icon close-btn" onClick={onClose} aria-label="Close">
-              <X size={18} />
-            </button>
-          </div>
 
-          <div className="modal-content" style={{ padding: '20px' }}>
-            {aiResponse !== null ? (
-              <div className="ai-response-container" style={{ color: 'var(--text-primary)' }}>
-                {isAiLoading && !aiResponse && <div className="spin-pulse" style={{ color: 'var(--text-secondary)' }}>Analyzing your knowledge graph...</div>}
-                <div className="markdown-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(aiResponse) as string) }} />
-                
-                {actionResults.map((res, i) => (
-                  <AiActionCard key={i} result={res} />
-                ))}
-                
-                {!isAiLoading && (
-                  <button 
-                    className="btn btn-secondary" 
-                    onClick={() => {
-                      setAiResponse(null);
-                      setQuery('');
-                      setActionResults([]);
-                      setTimeout(() => inputRef.current?.focus(), 50);
-                    }}
-                    style={{ marginTop: '20px' }}
-                  >
-                    Ask Another Question
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                  Ask a question, paste a link to research it, or ask me to create/edit notes.
-                </p>
-                
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    placeholder="What do you want to know?"
-                    value={query}
-                    onChange={e => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    style={{
-                      flex: 1,
-                      background: 'var(--input-bg)',
-                      border: '1px solid var(--input-border)',
-                      padding: '12px 16px',
-                      borderRadius: '8px',
-                      color: 'var(--text-primary)',
-                      fontSize: '1rem',
-                      outline: 'none'
-                    }}
-                  />
-                  <button 
-                    className="btn btn-primary btn-icon" 
-                    onClick={handleAskAi}
-                    disabled={!query.trim() || isAiLoading}
-                    style={{ width: '48px', height: '48px' }}
-                  >
-                    <ArrowRight size={20} />
-                  </button>
+            <div className="modal-body">
+              {aiResponse !== null ? (
+                <div className="ai-response-container" style={{ color: 'var(--text-primary)' }}>
+                  {isAiLoading && !aiResponse && <div className="spin-pulse" style={{ color: 'var(--text-secondary)' }}>Analyzing your knowledge graph...</div>}
+                  <div className="markdown-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(aiResponse) as string) }} />
+                  
+                  {actionResults.map((res, i) => (
+                    <AiActionCard key={i} result={res} />
+                  ))}
+                  
+                  {!isAiLoading && (
+                    <button 
+                      className="btn btn-secondary mt-3" 
+                      onClick={() => {
+                        setAiResponse(null);
+                        setQuery('');
+                        setActionResults([]);
+                        setTimeout(() => inputRef.current?.focus(), 50);
+                      }}
+                    >
+                      Ask Another Question
+                    </button>
+                  )}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="d-flex flex-column gap-3">
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                    Ask a question, paste a link to research it, or ask me to create/edit notes.
+                  </p>
+                  
+                  <div className="d-flex gap-2">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      className="form-control form-control-lg"
+                      placeholder="What do you want to know?"
+                      value={query}
+                      onChange={e => setQuery(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                    />
+                    <button 
+                      className="btn btn-primary d-flex align-items-center justify-content-center flex-shrink-0"
+                      onClick={handleAskAi}
+                      disabled={!query.trim() || isAiLoading}
+                      style={{ width: '48px', height: '48px' }}
+                    >
+                      <ArrowRight size={20} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

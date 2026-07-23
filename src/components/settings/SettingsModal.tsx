@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Database, Brain, Info, Calendar as CalendarIcon, Palette } from 'lucide-react';
+import React, { useState } from 'react';
+import { Database, Brain, Info, Calendar as CalendarIcon, Palette } from 'lucide-react';
 import packageJson from '../../../package.json';
 import { DataSettingsTab } from './DataSettingsTab';
 import { AiSettingsTab } from './AiSettingsTab';
@@ -33,114 +33,104 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
   const [activeTab, setActiveTab] = useState<TabType>('data');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
-    <div className="modal-overlay" id="settings-modal-overlay">
-      <div className="settings-modal full-settings-modal glass-panel" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', width: '1000px', maxWidth: '95vw', height: '80vh', padding: 0, overflow: 'hidden' }} onClick={(e) => e.stopPropagation()}>
-        
-        {/* Settings Sidebar */}
-        <div style={{ width: isMobile ? '100%' : '220px', borderRight: isMobile ? 'none' : '1px solid var(--border-color)', borderBottom: isMobile ? '1px solid var(--border-color)' : 'none', display: 'flex', flexDirection: isMobile ? 'row' : 'column', background: 'rgba(0,0,0,0.2)', flexShrink: 0, overflowX: isMobile ? 'auto' : 'hidden' }}>
-          {!isMobile && (
-            <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
-              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Settings</h2>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>v{packageJson.version}</div>
-            </div>
-          )}
-          
-          <div style={{ padding: '12px', display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '8px', flex: 1, overflowY: isMobile ? 'hidden' : 'auto' }}>
-            <button className={`tab-btn ${activeTab === 'data' ? 'active' : ''}`} onClick={() => setActiveTab('data')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
-              <Database size={16} /> Data & Graph
-            </button>
-            <button className={`tab-btn ${activeTab === 'journal' ? 'active' : ''}`} onClick={() => setActiveTab('journal')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
-              <CalendarIcon size={16} /> Journal
-            </button>
-            <button className={`tab-btn ${activeTab === 'ai' ? 'active' : ''}`} onClick={() => setActiveTab('ai')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
-              <Brain size={16} /> AI Integration
-            </button>
-            <button className={`tab-btn ${activeTab === 'appearance' ? 'active' : ''}`} onClick={() => setActiveTab('appearance')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
-              <Palette size={16} /> Appearance
-            </button>
-            { !isMobile && <div style={{ flex: 1 }}></div> }
-            <button className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`} onClick={() => setActiveTab('about')} style={{ width: isMobile ? 'auto' : '100%', justifyContent: 'flex-start', whiteSpace: 'nowrap' }}>
-              <Info size={16} /> About
-            </button>
-          </div>
-        </div>
-
-        {/* Settings Content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', minHeight: 0, minWidth: 0 }}>
-          <button className="btn btn-icon close-btn" onClick={props.onClose} aria-label="Close settings" style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 'var(--z-controls, 20)' }}>
-            <X size={18} />
-          </button>
-          
-          <div style={{ 
-            flex: 1, 
-            padding: activeTab === 'journal' 
-              ? (isMobile ? '56px 0 0 0' : '0') 
-              : (isMobile ? '56px 16px 16px 16px' : '24px 24px 24px 32px'), 
-            overflowY: 'auto',
-            scrollbarGutter: 'stable'
-          }}>
-            {activeTab === 'data' && (
-              <DataSettingsTab 
-                onClose={props.onClose} 
-                onRefreshData={props.onRefreshData} 
-                physicsConfig={props.physicsConfig}
-                onPhysicsChange={props.onPhysicsChange}
-                categories={props.categories}
-                nlpClustering={props.nlpClustering}
-                onNlpClusteringChange={props.onNlpClusteringChange}
-                activePageId={props.activePageId}
-                pageTitle={props.pageTitle}
-                onSaveSnapshot={props.onSaveSnapshot}
-                onViewSnapshots={props.onViewSnapshots}
-              />
-            )}
-            {activeTab === 'journal' && <JournalCalendar onSelectNote={props.onSelectNote} />}
-            {activeTab === 'ai' && <AiSettingsTab />}
-            {activeTab === 'appearance' && (
-              <AppearanceSettingsTab
-                activeTheme={props.activeTheme}
-                onThemeSelect={props.onThemeSelect}
-                customThemeColors={props.customThemeColors}
-                onCustomThemeColorChange={props.onCustomThemeColorChange}
-                onCustomThemeReset={props.onCustomThemeReset}
-              />
-            )}
-            {activeTab === 'about' && (
-              <div className="settings-section about-section" style={{ marginTop: '40px' }}>
-                <div className="about-header">
-                  <Info size={16} className="about-icon" />
-                  <h3>About AetherMind</h3>
-                </div>
-                <p>
-                  <strong>AetherMind v{packageJson.version} - Local-first personal knowledge graph</strong><br/>
-                  is a dynamic visual space for your notes. By combining a 
-                  D3 force-directed simulation and Markdown parsing, it transforms flat text notes into 
-                  an organic, navigable web.
-                </p>
-                <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', borderLeft: '3px solid var(--accent-danger, #ef4444)' }}>
-                  <strong>License: AGPL-3.0</strong><br />
-                  This application is distributed under the GNU Affero General Public License v3.0. 
-                  Any modifications or network use of this software must remain fully open-source.
-                </div>
-                <div className="credits">
-                  Version {packageJson.version} (Local-First)
-                </div>
+    <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1060 }} onClick={props.onClose}>
+      <div className="modal-dialog modal-xl modal-dialog-centered" style={{ maxWidth: '1000px', height: '80vh' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-content glass-panel border-0 h-100 d-flex flex-column" style={{ overflow: 'hidden' }}>
+          {/* Header */}
+          <div className="modal-header border-0 d-flex justify-content-between align-items-center flex-shrink-0 px-3 py-2">
+            {!isMobile && (
+              <div>
+                <h5 className="modal-title" style={{ fontSize: '1.2rem' }}>Settings</h5>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>v{packageJson.version}</div>
               </div>
             )}
+            <button type="button" className="btn-close ms-auto" onClick={props.onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+          </div>
+
+          {/* Body: tabs + content */}
+          <div className="modal-body d-flex flex-grow-1 overflow-hidden p-0" style={{ flexDirection: isMobile ? 'column' : 'row' }}>
+            {/* Tab sidebar */}
+            <div className={isMobile ? 'd-flex overflow-auto flex-shrink-0 gap-1 p-2' : 'd-flex flex-column flex-shrink-0 p-3 gap-1'} 
+                 style={{ width: isMobile ? '100%' : '220px', borderRight: isMobile ? 'none' : '1px solid var(--border-color)', borderBottom: isMobile ? '1px solid var(--border-color)' : 'none', background: 'rgba(0,0,0,0.2)' }}>
+              {[
+                { id: 'data' as TabType, label: 'Data & Graph', icon: <Database size={16} /> },
+                { id: 'journal' as TabType, label: 'Journal', icon: <CalendarIcon size={16} /> },
+                { id: 'ai' as TabType, label: 'AI Integration', icon: <Brain size={16} /> },
+                { id: 'appearance' as TabType, label: 'Appearance', icon: <Palette size={16} /> },
+                { id: 'about' as TabType, label: 'About', icon: <Info size={16} /> },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`nav-link d-flex align-items-center gap-2 text-start px-3 py-2 rounded ${activeTab === tab.id ? 'active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{ whiteSpace: 'nowrap', border: 'none', background: activeTab === tab.id ? 'rgba(124, 58, 237, 0.15)' : 'transparent', color: activeTab === tab.id ? 'var(--accent-primary)' : 'var(--text-secondary)', width: isMobile ? 'auto' : '100%' }}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            <div className="flex-grow-1 overflow-auto p-3" style={{ scrollbarGutter: 'stable' }}>
+              {activeTab === 'data' && (
+                <DataSettingsTab 
+                  onClose={props.onClose} 
+                  onRefreshData={props.onRefreshData} 
+                  physicsConfig={props.physicsConfig}
+                  onPhysicsChange={props.onPhysicsChange}
+                  categories={props.categories}
+                  nlpClustering={props.nlpClustering}
+                  onNlpClusteringChange={props.onNlpClusteringChange}
+                  activePageId={props.activePageId}
+                  pageTitle={props.pageTitle}
+                  onSaveSnapshot={props.onSaveSnapshot}
+                  onViewSnapshots={props.onViewSnapshots}
+                />
+              )}
+              {activeTab === 'journal' && <JournalCalendar onSelectNote={props.onSelectNote} />}
+              {activeTab === 'ai' && <AiSettingsTab />}
+              {activeTab === 'appearance' && (
+                <AppearanceSettingsTab
+                  activeTheme={props.activeTheme}
+                  onThemeSelect={props.onThemeSelect}
+                  customThemeColors={props.customThemeColors}
+                  onCustomThemeColorChange={props.onCustomThemeColorChange}
+                  onCustomThemeReset={props.onCustomThemeReset}
+                />
+              )}
+              {activeTab === 'about' && (
+                <div className="settings-section about-section" style={{ marginTop: '40px' }}>
+                  <div className="about-header">
+                    <Info size={16} className="about-icon" />
+                    <h3>About AetherMind</h3>
+                  </div>
+                  <p>
+                    <strong>AetherMind v{packageJson.version} - Local-first personal knowledge graph</strong><br/>
+                    is a dynamic visual space for your notes. By combining a 
+                    D3 force-directed simulation and Markdown parsing, it transforms flat text notes into 
+                    an organic, navigable web.
+                  </p>
+                  <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', borderLeft: '3px solid var(--accent-danger, #ef4444)' }}>
+                    <strong>License: AGPL-3.0</strong><br />
+                    This application is distributed under the GNU Affero General Public License v3.0. 
+                    Any modifications or network use of this software must remain fully open-source.
+                  </div>
+                  <div className="credits">
+                    Version {packageJson.version} (Local-First)
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        
       </div>
     </div>
   );

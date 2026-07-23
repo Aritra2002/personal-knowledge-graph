@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+
 
 interface PromptModalProps {
   title: string;
@@ -15,61 +15,48 @@ export function PromptModal({ title, message, placeholder = '', defaultValue = '
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Focus the input when the modal mounts
     if (inputRef.current) {
       inputRef.current.focus();
     }
-    
-    // Global keyboard listener for Escape
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onCancel();
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onCancel]);
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 'var(--z-popover, 1100)' }}>
-      <div className="settings-modal glass-panel" style={{ maxWidth: '400px' }}>
-        <div className="modal-header">
-          <h3>{title}</h3>
-          <button className="btn btn-icon" onClick={onCancel} aria-label="Close"><X size={16} /></button>
-        </div>
-        
-        <form onSubmit={(e) => { e.preventDefault(); onConfirm(value); }} className='modal-content' style={{ paddingBottom: '24px' }}>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '0.9rem' }}>
-            {message}
-          </p>
-
-          <input
-            ref={inputRef}
-            type="text"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={placeholder}
-            style={{
-              width: '100%',
-              marginBottom: '20px'
-            }}
-          />
-
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-            <button 
-              type="button"
-              className="btn btn-secondary" 
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit"
-              className="btn btn-primary"
-            >
-              Confirm
-            </button>
+    <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1100 }} onClick={onCancel}>
+      <div className="modal-dialog modal-dialog-centered modal-sm" onClick={e => e.stopPropagation()}>
+        <div className="modal-content glass-panel border-0">
+          <div className="modal-header border-0">
+            <h5 className="modal-title">{title}</h5>
+            <button type="button" className="btn-close" onClick={onCancel} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
           </div>
-        </form>
+          <form onSubmit={(e) => { e.preventDefault(); onConfirm(value); }}>
+            <div className="modal-body">
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', fontSize: '0.9rem' }}>
+                {message}
+              </p>
+              <input
+                ref={inputRef}
+                type="text"
+                className="form-control"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={placeholder}
+              />
+            </div>
+            <div className="modal-footer border-0 d-flex gap-2 justify-content-end">
+              <button type="button" className="btn btn-secondary" onClick={onCancel}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Confirm
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

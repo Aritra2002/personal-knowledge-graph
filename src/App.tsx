@@ -723,125 +723,91 @@ Format:
 
   return (
     <div className="app-container">
-      {/* Header Bar */}
-      <header className="app-header glass-panel">
-        {viewport === 'sm' && (
-          <>
-            <div className="app-logo">
-              <Brain size={24} className="logo-icon" />
-            </div>
-            <div className="page-selector" style={{ display: 'flex', alignItems: 'center', margin: '0 auto', gap: '4px' }}>
-              <Dropdown
-                value={currentPageId}
-                onChange={(val) => setCurrentPageId(Number(val))}
-                options={pages.map(p => ({ value: p.id!, label: p.title }))}
-                style={{ maxWidth: '120px' }}
-              />
-              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} aria-label="Rename Page" title="Rename Page">
-                <Edit2 size={14} />
-              </button>
-              <button className="page-action-btn" onClick={handleDeletePage} aria-label="Delete Page" title="Delete Page" disabled={pages.length <= 1}>
-                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : 'var(--accent-danger, #f43f5e)' }} />
-              </button>
-            </div>
-          </>
-        )}
-        {viewport === 'md' && (
-          <>
-            <div className="app-logo">
-              <Brain size={24} className="logo-icon" />
-              <h1>AetherMind</h1>
-            </div>
-            <div className="page-selector" style={{ display: 'flex', alignItems: 'center', marginLeft: '16px', gap: '8px', borderLeft: '1px solid var(--border-color)', paddingLeft: '16px' }}>
-              <Dropdown
-                value={currentPageId}
-                onChange={(val) => setCurrentPageId(Number(val))}
-                options={pages.map(p => ({ value: p.id!, label: p.title }))}
-                style={{ minWidth: '150px' }}
-              />
-            </div>
-            <div className="header-controls" style={{ marginLeft: 'auto' }}>
-              <button className="header-btn" onClick={() => setShowReview(true)} aria-label="Review" title="Review">
-                <Brain size={16} />
-              </button>
-              <button className="header-btn" onClick={() => setShowDiscoveryDigest(true)} aria-label="Discovery Digest" title="Discovery Digest">
-                <Compass size={16} />
-              </button>
-              <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} aria-label="Ask AI" title="Ask AI">
-                <Sparkles size={16} />
-              </button>
-              <button className="header-btn" onClick={handleCreateDailyNote} aria-label="Create Daily Note" title="Daily Note">
-                <Calendar size={16} />
-              </button>
-              <button className="header-btn" onClick={handleImportZip} aria-label="Import ZIP" title="Import ZIP">
-                <FileArchive size={16} />
-              </button>
-              <button className="header-btn" onClick={handleUploadDocument} aria-label="Upload Document" title="Upload Document">
-                <FileUp size={16} />
-              </button>
+      {/* Header Bar — Bootstrap responsive layout */}
+      <header className="app-header glass-panel d-flex align-items-center px-2 px-md-3 mx-2 mx-md-3 mt-2 mt-md-3" style={{ flexWrap: 'nowrap', height: '64px' }}>
+        {/* Logo — icon always, title md+ */}
+        <div className="app-logo d-flex align-items-center gap-2 flex-shrink-0">
+          <Brain size={24} className="logo-icon" />
+          <h1 className="d-none d-md-block" style={{ margin: 0 }}>AetherMind</h1>
+        </div>
 
-              <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)} aria-label="New Page" title="New Page">
-                <Plus size={16} />
-              </button>
-              <button className="header-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
-                <Settings size={16} />
-              </button>
-            </div>
-          </>
-        )}
-        {viewport === 'lg' && (
-          <>
-            <div className="app-logo">
-              <Brain size={24} className="logo-icon" />
-              <h1>AetherMind</h1>
-            </div>
-            <div className="page-selector" style={{ display: 'flex', alignItems: 'center', marginLeft: '16px', gap: '8px', borderLeft: '1px solid var(--border-color)', paddingLeft: '16px' }}>
-              <Dropdown
-                value={currentPageId}
-                onChange={(val) => setCurrentPageId(Number(val))}
-                options={pages.map(p => ({ value: p.id!, label: p.title }))}
-                style={{ minWidth: '150px' }}
-              />
-              <button className="page-action-btn" onClick={() => setShowRenamePage(true)} aria-label="Rename Page" title="Rename Page">
-                <Edit2 size={14} />
-              </button>
-              <button className="page-action-btn" onClick={handleDeletePage} aria-label="Delete Page" title="Delete Page" disabled={pages.length <= 1}>
-                <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : 'var(--accent-danger, #f43f5e)' }} />
-              </button>
-            </div>
-            <div className="header-controls" style={{ marginLeft: 'auto' }}>
-              <button className="header-btn" onClick={() => setShowReview(true)}>
-                <Brain size={16} /> Review
-              </button>
-              <button className="header-btn" onClick={() => setShowDiscoveryDigest(true)}>
-                <Compass size={16} /> Discovery Digest
-              </button>
-              <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }}>
-                <Sparkles size={16} /> Ask AI
-              </button>
-              <button className="header-btn" onClick={handleCreateDailyNote}>
-                <Calendar size={16} /> Daily Note
-              </button>
-              <button className="header-btn" onClick={handleImportZip} title="Import ZIP">
-                <FileArchive size={16} /> <span className="hide-below-lg">Import ZIP</span>
-              </button>
-              <button className="header-btn" onClick={handleUploadDocument} title="Upload Document">
-                <FileUp size={16} /> <span className="hide-below-lg">Upload Document</span>
-              </button>
+        {/* Page Selector — md+ shows full, sm shows compact centered */}
+        <div className="d-none d-md-flex align-items-center gap-2 ms-3 ps-3" style={{ borderLeft: '1px solid var(--border-color)' }}>
+          <Dropdown
+            value={currentPageId}
+            onChange={(val) => setCurrentPageId(Number(val))}
+            options={pages.map(p => ({ value: p.id!, label: p.title }))}
+            style={{ minWidth: '150px' }}
+          />
+          <button className="page-action-btn" onClick={() => setShowRenamePage(true)} aria-label="Rename Page" title="Rename Page">
+            <Edit2 size={14} />
+          </button>
+          <button className="page-action-btn" onClick={handleDeletePage} aria-label="Delete Page" title="Delete Page" disabled={pages.length <= 1}>
+            <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : 'var(--accent-danger, #f43f5e)' }} />
+          </button>
+        </div>
 
-              <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)}>
-                <Plus size={16} /> New Page
-              </button>
-              <button className="header-btn" onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">
-                <Settings size={16} />
-              </button>
-            </div>
-          </>
-        )}
+        {/* Page Selector — mobile (sm only, centered) */}
+        <div className="d-flex d-md-none align-items-center gap-1 mx-auto">
+          <Dropdown
+            value={currentPageId}
+            onChange={(val) => setCurrentPageId(Number(val))}
+            options={pages.map(p => ({ value: p.id!, label: p.title }))}
+            style={{ maxWidth: '120px' }}
+          />
+          <button className="page-action-btn" onClick={() => setShowRenamePage(true)} aria-label="Rename Page" title="Rename Page">
+            <Edit2 size={14} />
+          </button>
+          <button className="page-action-btn" onClick={handleDeletePage} aria-label="Delete Page" title="Delete Page" disabled={pages.length <= 1}>
+            <Trash2 size={14} style={{ color: pages.length <= 1 ? 'inherit' : 'var(--accent-danger, #f43f5e)' }} />
+          </button>
+        </div>
+
+        {/* Header Controls — responsive visibility */}
+        <div className="header-controls d-flex align-items-center gap-1 gap-md-2 ms-auto flex-shrink-0" style={{ overflow: 'visible' }}>
+          {/* Review + Discovery Digest — icon-only on md, label on lg+ */}
+          <button className="header-btn d-none d-lg-inline-flex" onClick={() => setShowReview(true)} title="Review">
+            <Brain size={16} /> Review
+          </button>
+          <button className="header-btn d-none d-lg-inline-flex" onClick={() => setShowDiscoveryDigest(true)} title="Discovery Digest">
+            <Compass size={16} /> Discovery Digest
+          </button>
+          <button className="header-btn d-lg-none" onClick={() => setShowReview(true)} title="Review">
+            <Brain size={16} />
+          </button>
+          <button className="header-btn d-lg-none" onClick={() => setShowDiscoveryDigest(true)} title="Discovery Digest">
+            <Compass size={16} />
+          </button>
+
+          {/* Ask AI */}
+          <button className="header-btn" onClick={() => setShowAskAi(true)} style={{ color: 'var(--node-amber)' }} title="Ask AI">
+            <Sparkles size={16} />
+          </button>
+          {/* Daily Note */}
+          <button className="header-btn" onClick={handleCreateDailyNote} title="Daily Note">
+            <Calendar size={16} />
+          </button>
+          {/* Import ZIP — md+ */}
+          <button className="header-btn d-none d-md-inline-flex" onClick={handleImportZip} title="Import ZIP">
+            <FileArchive size={16} />
+          </button>
+          {/* Upload Document — md+ */}
+          <button className="header-btn d-none d-md-inline-flex" onClick={handleUploadDocument} title="Upload Document">
+            <FileUp size={16} />
+          </button>
+          {/* New Page */}
+          <button className="header-btn primary-btn" onClick={() => setShowNewPage(true)} title="New Page">
+            <Plus size={16} />
+          </button>
+          {/* Settings */}
+          <button className="header-btn" onClick={() => setShowSettings(true)} title="Settings">
+            <Settings size={16} />
+          </button>
+        </div>
       </header>
 
       {/* Main Workspace Dashboard */}
-      <main className="app-workspace">
+      <main className="app-workspace overflow-hidden">
         {/* Left Side: Graph Canvas & Overlay Filters */}
         <div className="left-viewport">
 

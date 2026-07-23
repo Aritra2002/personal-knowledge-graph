@@ -1,7 +1,6 @@
 import React from 'react';
 import { Network, FileText, Plus, Menu, Search } from 'lucide-react';
 
-
 interface MobileNavProps {
   activeTab: 'graph' | 'editor' | 'search' | 'menu';
   onTabChange: (tab: 'graph' | 'editor' | 'search' | 'menu') => void;
@@ -10,50 +9,46 @@ interface MobileNavProps {
 
 export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange, onNewPage }) => {
   return (
-    <div className="mobile-nav" style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0, 
-      height: 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)))', 
-      background: 'rgba(15, 20, 50, 0.85)', 
-      backdropFilter: 'blur(10px)',
-      display: 'flex', justifyContent: 'space-around', alignItems: 'center',
-      borderTop: '1px solid rgba(124, 58, 237, 0.15)',
-      paddingBottom: 'var(--safe-bottom, env(safe-area-inset-bottom, 0px))',
-      zIndex: 100
-    }}>
-      <button 
-        style={{ background: 'none', border: 'none', color: activeTab === 'graph' ? 'var(--accent-primary)' : 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-        onClick={() => onTabChange('graph')}
-      >
-        <Network size={20} style={{ transform: activeTab === 'graph' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }} />
-        <span style={{ fontSize: '10px' }}>Graph</span>
-      </button>
-      <button 
-        style={{ background: 'none', border: 'none', color: activeTab === 'search' ? 'var(--accent-primary)' : 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-        onClick={() => onTabChange('search')}
-      >
-        <Search size={20} style={{ transform: activeTab === 'search' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }} />
-        <span style={{ fontSize: '10px' }}>Search</span>
-      </button>
-      <button 
-        style={{ background: 'none', border: 'none', color: activeTab === 'editor' ? 'var(--accent-primary)' : 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-        onClick={() => onTabChange('editor')}
-      >
-        <FileText size={20} style={{ transform: activeTab === 'editor' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }} />
-        <span style={{ fontSize: '10px' }}>Editor</span>
-      </button>      <button 
-        style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+    <nav className="navbar fixed-bottom d-flex d-md-none justify-content-around align-items-center px-2"
+      style={{
+        height: 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)))',
+        background: 'rgba(15, 20, 50, 0.85)',
+        backdropFilter: 'blur(10px)',
+        borderTop: '1px solid rgba(124, 58, 237, 0.15)',
+        paddingBottom: 'var(--safe-bottom, env(safe-area-inset-bottom, 0px))',
+        zIndex: 100
+      }}>
+      {[
+        { tab: 'graph' as const, icon: <Network size={20} />, label: 'Graph' },
+        { tab: 'search' as const, icon: <Search size={20} />, label: 'Search' },
+        { tab: 'editor' as const, icon: <FileText size={20} />, label: 'Editor' },
+      ].map(({ tab, icon, label }) => (
+        <button
+          key={tab}
+          className="nav-link d-flex flex-column align-items-center gap-1 border-0 bg-transparent"
+          style={{ color: activeTab === tab ? 'var(--accent-primary)' : 'var(--text-secondary)', padding: '4px', width: '60px', outline: 'none' }}
+          onClick={() => onTabChange(tab)}
+        >
+          <span style={{ transform: activeTab === tab ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }}>{icon}</span>
+          <span style={{ fontSize: '10px' }}>{label}</span>
+        </button>
+      ))}
+      <button
+        className="nav-link d-flex flex-column align-items-center gap-1 border-0 bg-transparent"
+        style={{ color: 'var(--text-secondary)', padding: '4px', width: '60px', outline: 'none' }}
         onClick={onNewPage}
       >
-        <Plus size={20} style={{ transform: 'scale(1)', transition: 'transform 0.2s' }} />
+        <Plus size={20} />
         <span style={{ fontSize: '10px' }}>New Page</span>
       </button>
-      <button 
-        style={{ background: 'none', border: 'none', color: activeTab === 'menu' ? 'var(--accent-primary)' : 'var(--text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+      <button
+        className="nav-link d-flex flex-column align-items-center gap-1 border-0 bg-transparent"
+        style={{ color: activeTab === 'menu' ? 'var(--accent-primary)' : 'var(--text-secondary)', padding: '4px', width: '60px', outline: 'none' }}
         onClick={() => onTabChange('menu')}
       >
-        <Menu size={20} style={{ transform: activeTab === 'menu' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }} />
+        <span style={{ transform: activeTab === 'menu' ? 'scale(1.1)' : 'scale(1)', transition: 'transform 0.2s' }}><Menu size={20} /></span>
         <span style={{ fontSize: '10px' }}>Menu</span>
       </button>
-    </div>
+    </nav>
   );
 };

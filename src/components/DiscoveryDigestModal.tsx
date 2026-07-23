@@ -3,7 +3,7 @@ import type { Note } from '../db';
 import { callAI } from '../utils/aiClient';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface DiscoveryDigestModalProps {
   isOpen: boolean;
@@ -75,27 +75,26 @@ export const DiscoveryDigestModal: React.FC<DiscoveryDigestModalProps> = ({ isOp
     return () => { cancelled = true; };
   }, [isOpen, digest, isLoading, notes]);
 
-
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 'var(--z-modal, 1000)' }}>
-      <div className="settings-modal glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
-        <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-gold)' }}>
-            <Sparkles size={18} />
-            <h2>Daily Discovery Digest</h2>
+    <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1060 }} onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered modal-lg" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-content glass-panel border-0">
+          <div className="modal-header border-0">
+            <div className="d-flex align-items-center gap-2" style={{ color: 'var(--accent-gold)' }}>
+              <Sparkles size={18} />
+              <h5 className="modal-title">Daily Discovery Digest</h5>
+            </div>
+            <button type="button" className="btn-close" onClick={onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
           </div>
-          <button className="icon-btn close-btn" onClick={onClose} aria-label="Close">
-            <X size={18} />
-          </button>
-        </div>
-        <div className="modal-content" style={{ padding: '20px' }}>
-          {error && <div style={{ color: '#ef4444' }}>{error}</div>}
-          {isLoading && !digest && <div className="spin-pulse" style={{ color: 'var(--text-secondary)' }}>Finding a surprising connection...</div>}
-          {digest && (
-            <div className="markdown-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(digest) as string) }} />
-          )}
+          <div className="modal-body">
+            {error && <div style={{ color: '#ef4444' }}>{error}</div>}
+            {isLoading && !digest && <div className="spin-pulse" style={{ color: 'var(--text-secondary)' }}>Finding a surprising connection...</div>}
+            {digest && (
+              <div className="markdown-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(digest) as string) }} />
+            )}
+          </div>
         </div>
       </div>
     </div>

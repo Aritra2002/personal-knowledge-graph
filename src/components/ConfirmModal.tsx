@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -25,32 +25,26 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 'var(--z-popover, 1100)' }}>
-      <div className="settings-modal glass-panel" style={{ maxWidth: '400px' }}>
-        <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isDestructive && <AlertTriangle size={20} color="var(--accent-danger, #ef4444)" />}
-            <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{title}</h2>
+    <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1100 }} onClick={onCancel}>
+      <div className="modal-dialog modal-dialog-centered modal-sm" onClick={e => e.stopPropagation()}>
+        <div className="modal-content glass-panel border-0">
+          <div className="modal-header border-0">
+            <div className="d-flex align-items-center gap-2">
+              {isDestructive && <AlertTriangle size={20} color="var(--accent-danger, #ef4444)" />}
+              <h5 className="modal-title" style={{ margin: 0, fontSize: '1.25rem' }}>{title}</h5>
+            </div>
+            <button type="button" className="btn-close" onClick={onCancel} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
           </div>
-          <button className="btn btn-icon" onClick={onCancel} aria-label="Close"><X size={20} /></button>
-        </div>
-        
-        <div className="modal-content" style={{ paddingBottom: '24px' }}>
-          <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.5', margin: 0 }}>
-            {message}
-          </p>
-          
-          <div style={{ display: 'flex', gap: '12px', marginTop: '32px', justifyContent: 'flex-end' }}>
-            <button 
-              className="btn btn-secondary" 
-              onClick={onCancel}
-            >
+          <div className="modal-body">
+            <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.5' }}>
+              {message}
+            </p>
+          </div>
+          <div className="modal-footer border-0 d-flex gap-2 justify-content-end">
+            <button className="btn btn-secondary" onClick={onCancel}>
               {cancelText}
             </button>
-            <button 
-              className={isDestructive ? 'btn btn-danger' : 'btn btn-primary'} 
-              onClick={onConfirm}
-            >
+            <button className={isDestructive ? 'btn btn-danger' : 'btn btn-primary'} onClick={onConfirm}>
               {confirmText}
             </button>
           </div>

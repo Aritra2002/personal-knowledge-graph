@@ -315,10 +315,10 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.3)', padding: '8px', borderRadius: '6px', marginTop: '4px' }}>
               <input 
                 type="text" 
+                className="form-control form-control-sm"
                 value={newCatLabel}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCatLabel(e.target.value)}
                 placeholder="New type name..."
-                style={{ flex: 1, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}
               />
               <input 
                 type="color" 
@@ -374,11 +374,11 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
             </div>
             <input
               type="range"
+              className="form-range"
               min="30"
               max="300"
               value={physicsConfig.linkDistance}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPhysicsChange({ ...physicsConfig, linkDistance: parseInt(e.target.value) })}
-              style={{ accentColor: 'var(--node-indigo)' }}
             />
           </div>
 
@@ -389,12 +389,12 @@ export const DataSettingsTab: React.FC<DataSettingsTabProps> = ({
             </div>
             <input
               type="range"
+              className="form-range"
               min="-500"
               max="-50"
               step="10"
               value={physicsConfig.chargeStrength}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onPhysicsChange({ ...physicsConfig, chargeStrength: parseInt(e.target.value) })}
-              style={{ accentColor: 'var(--node-emerald)' }}
             />
           </div>
         </div>

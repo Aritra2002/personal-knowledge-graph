@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import type { Note } from '../db';
 import DOMPurify from 'dompurify';
-import { X, BrainCircuit, Loader2 } from 'lucide-react';
+import { BrainCircuit, Loader2 } from 'lucide-react';
 import { marked } from 'marked';
 
 interface ReviewModalProps {
@@ -61,14 +61,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
     }
   }, [liveDueNotes, isQueueInitialized]);
 
-  // If we run out of notes to review, we're done
   const isDone = isQueueInitialized && currentIndex >= reviewQueue.length;
   const currentNote = reviewQueue[currentIndex];
 
   const handleGrade = async (grade: number) => {
     if (!currentNote || currentNote.id === undefined) return;
     
-    // Basic Spaced Repetition Algo (SuperMemo-2 inspired)
     let interval = currentNote.interval || 0;
     let ease = currentNote.ease || 2.5;
 
@@ -77,11 +75,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
       else if (interval === 1) interval = 6;
       else interval = Math.round(interval * ease);
       ease = ease + 0.1;
-    } else if (grade === 2) { // hard
+    } else if (grade === 2) {
       if (interval === 0) interval = 1;
       else interval = Math.round(interval * 1.2);
       ease = Math.max(1.3, ease - 0.15);
-    } else { // again
+    } else {
       interval = 0;
       ease = Math.max(1.3, ease - 0.2);
     }
@@ -95,51 +93,52 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 'var(--z-modal, 1000)' }}>
-      <div className="settings-modal review-modal glass-panel" style={{ maxWidth: '600px', width: '90%', maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div className="modal-header">
-          <h2><BrainCircuit size={20} /> Spaced Repetition Review</h2>
-          <button className="btn btn-icon close-btn" onClick={onClose} aria-label="Close"><X size={20} /></button>
-        </div>
-
-        <div className="modal-content" style={{ minHeight: '300px', display: 'flex', flexDirection: 'column', overflowY: 'auto', flex: 1, paddingBottom: '24px' }}>
-          {!isQueueInitialized ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-              <Loader2 className="spinning" size={32} />
-            </div>
-          ) : isDone ? (
-            <div style={{ textAlign: 'center', margin: 'auto' }}>
-              <h3>🎉 You're all caught up!</h3>
-              <p>No more flashcards to review right now.</p>
-              <button className="btn btn-primary" onClick={onClose} style={{ marginTop: '20px' }}>Close</button>
-            </div>
-          ) : (
-            <div className="flashcard-container" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div className="flashcard-front" style={{ padding: '20px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', marginBottom: '20px' }}>
-                <h3 style={{ marginBottom: '10px', color: 'var(--text-primary)' }}>{currentNote.title}</h3>
+    <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1060 }} onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered modal-lg" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-content glass-panel border-0" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div className="modal-header border-0">
+            <h5 className="modal-title d-flex align-items-center gap-2"><BrainCircuit size={20} /> Spaced Repetition Review</h5>
+            <button type="button" className="btn-close" onClick={onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+          </div>
+          <div className="modal-body" style={{ minHeight: '300px', display: 'flex', flexDirection: 'column', overflowY: 'auto', flex: 1 }}>
+            {!isQueueInitialized ? (
+              <div className="d-flex align-items-center justify-content-center flex-grow-1">
+                <Loader2 className="spinning" size={32} />
               </div>
-              
-              {showAnswer ? (
-                <>
-                  <div className="flashcard-back" style={{ padding: '20px', backgroundColor: 'var(--bg-card-hover)', borderRadius: '8px', flex: 1, overflowY: 'auto' }}
-                       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(currentNote.content) as string) }} />
-                  
-                  <div className="flashcard-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '20px', justifyContent: 'center' }}>
-                    <button className="btn" onClick={() => handleGrade(1)} style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.4)', color: 'var(--accent-danger, #ef4444)' }}>Again (1m)</button>
-                    <button className="btn" onClick={() => handleGrade(2)} style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)', borderColor: 'rgba(245, 158, 11, 0.4)', color: 'var(--accent-gold, #f59e0b)' }}>Hard (1.2x)</button>
-                    <button className="btn" onClick={() => handleGrade(3)} style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(16, 185, 129, 0.4)', color: 'var(--node-emerald, #10b981)' }}>Good</button>
-                    <button className="btn" onClick={() => handleGrade(4)} style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 0.4)', color: 'var(--node-indigo, #60a5fa)' }}>Easy</button>
-                  </div>
-                </>
-              ) : (
-                <button className="btn btn-primary" onClick={() => setShowAnswer(true)} style={{ margin: 'auto' }}>Show Answer</button>
-              )}
-              
-              <div style={{ textAlign: 'center', marginTop: '15px', color: 'var(--text-secondary)' }}>
-                {currentIndex + 1} of {reviewQueue.length} due
+            ) : isDone ? (
+              <div className="text-center my-auto">
+                <h3>You're all caught up!</h3>
+                <p>No more flashcards to review right now.</p>
+                <button className="btn btn-primary" onClick={onClose} style={{ marginTop: '20px' }}>Close</button>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="d-flex flex-column flex-grow-1">
+                <div className="p-3 mb-3 rounded" style={{ backgroundColor: 'var(--surface-card, rgba(20, 27, 50, 0.9))' }}>
+                  <h3 style={{ marginBottom: '10px' }}>{currentNote.title}</h3>
+                </div>
+                
+                {showAnswer ? (
+                  <>
+                    <div className="p-3 rounded flex-grow-1 overflow-auto" style={{ backgroundColor: 'var(--surface-glass, rgba(15, 20, 40, 0.75))' }}
+                         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(currentNote.content) as string) }} />
+                    
+                    <div className="d-flex flex-wrap gap-2 mt-3 justify-content-center">
+                      <button className="btn" onClick={() => handleGrade(1)} style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.4)', color: 'var(--accent-danger, #ef4444)' }}>Again (1m)</button>
+                      <button className="btn" onClick={() => handleGrade(2)} style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)', borderColor: 'rgba(245, 158, 11, 0.4)', color: 'var(--accent-gold, #f59e0b)' }}>Hard (1.2x)</button>
+                      <button className="btn" onClick={() => handleGrade(3)} style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(16, 185, 129, 0.4)', color: 'var(--node-emerald, #10b981)' }}>Good</button>
+                      <button className="btn" onClick={() => handleGrade(4)} style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 0.4)', color: 'var(--node-indigo, #60a5fa)' }}>Easy</button>
+                    </div>
+                  </>
+                ) : (
+                  <button className="btn btn-primary align-self-center mt-auto" onClick={() => setShowAnswer(true)}>Show Answer</button>
+                )}
+                
+                <div className="text-center mt-3" style={{ color: 'var(--text-secondary)' }}>
+                  {currentIndex + 1} of {reviewQueue.length} due
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

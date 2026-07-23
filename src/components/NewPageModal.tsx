@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 interface NewPageModalProps {
   isOpen: boolean;
@@ -43,52 +43,40 @@ export const NewPageModal: React.FC<NewPageModalProps> = ({ isOpen, onClose, onC
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleClose} style={{ zIndex: 'var(--z-modal, 1000)' }}>
-      <div className="settings-modal glass-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', width: '90%' }}>
-        <div className="modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={18} />
-            <h2>Create New Page</h2>
-          </div>
-          <button className="icon-btn close-btn" onClick={handleClose} aria-label="Close">
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="modal-content" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Page Name..."
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              onKeyDown={handleKeyDown}
-              style={{
-                width: '100%',
-                background: 'var(--input-bg)',
-                border: '1px solid var(--input-border)',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                color: 'var(--text-primary)',
-                fontSize: '1rem',
-                outline: 'none'
-              }}
-            />
-            
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button className="settings-action-btn" onClick={handleClose}>
-                Cancel
-              </button>
-              <button 
-                className="btn btn-primary"
-                onClick={handleCreate}
-                disabled={!title.trim()}
-                style={{ padding: '8px 16px', borderRadius: '6px' }}
-              >
-                Create
-              </button>
+    <div className="modal d-block" tabIndex={-1} style={{ zIndex: 1060 }} onClick={handleClose}>
+      <div className="modal-dialog modal-dialog-centered modal-sm" onClick={e => e.stopPropagation()}>
+        <div className="modal-content glass-panel border-0">
+          <div className="modal-header border-0">
+            <div className="d-flex align-items-center gap-2">
+              <FileText size={18} />
+              <h5 className="modal-title" style={{ margin: 0 }}>Create New Page</h5>
             </div>
+            <button type="button" className="btn-close" onClick={handleClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+          </div>
+          <div className="modal-body">
+            <div className="mb-3">
+              <input
+                ref={inputRef}
+                type="text"
+                className="form-control"
+                placeholder="Page Name..."
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+          </div>
+          <div className="modal-footer border-0 d-flex gap-2 justify-content-end">
+            <button className="btn btn-secondary" onClick={handleClose}>
+              Cancel
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={handleCreate}
+              disabled={!title.trim()}
+            >
+              Create
+            </button>
           </div>
         </div>
       </div>

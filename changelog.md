@@ -2,6 +2,21 @@
 
 ## [1.29.1] - 2026-07-23
 
+### 🏗️ Architecture
+- **Bootstrap 5 Integration**: Added Bootstrap CSS framework for improved responsive layout and feature-rich UI components. All modals (ConfirmModal, NewPageModal, RenamePageModal, PromptModal, ReviewModal, DiscoveryDigestModal, AskAiModal, SettingsModal) refactored to use Bootstrap modal structure with proper z-index stacking, backdrop handling, and responsive sizing.
+- **Bootstrap Theme Overrides**: Mapped 30+ Bootstrap CSS variables to the app's existing custom theme system (dark, light, sepia, midnight, ocean, custom), preserving the glassmorphism aesthetic while leveraging Bootstrap's component library.
+- **Responsive Layout Overhaul**: Consolidated the triple-branch viewport-based header (`sm`/`md`/`lg`) into a single responsive header using Bootstrap visibility utilities (`d-none d-*-flex`, `d-*-none`). All breakpoints now align with Bootstrap's standard (`576px`, `768px`, `992px`, `1200px`) with extra-tight screen (<400px) support.
+
+### 🎨 UI/UX
+- **Mobile Full-Screen Modals**: All dialogs now properly fill the viewport on mobile with platform-appropriate border-radius (flat for full-screen, rounded-top for bottom sheets).
+- **Editor Overflow Prevention**: Added `max-height` constraints to editor panels on mobile to prevent content from being hidden behind the bottom navigation bar.
+- **Sidebar Responsive Bounds**: Right sidebar now respects viewport width limits at every breakpoint (`max-width: 50vw` on tablet, `min(1200px, 40vw)` on widescreen).
+- **Root Overflow Safety**: Added `overflow-x: hidden` and `max-width: 100vw` to `body` and `#root` to prevent any horizontal scrolling.
+- **Mobile Navigation**: Refactored `MobileNav` to use Bootstrap `navbar fixed-bottom` with responsive visibility class.
+- **AI Settings Form Controls**: Replaced inline styled inputs with Bootstrap `form-control`, `form-label`, `form-text`, and `form-range` classes.
+- **Bootstrap Close Button**: Replaced all manual close button implementations with Bootstrap's `.btn-close` (with dark theme invert filter).
+- **Custom Dropdown CSS Isolation**: Scoped the custom dropdown component's `.dropdown-menu` styles with `:not(.dropdown-menu-bs)` to prevent conflicts with Bootstrap's dropdown component.
+
 ### 🐛 Bug Fixes
 - **Tailwind dead classes removed**: Replaced broken Tailwind utility classes in the doc-loading modal overlay with proper inline styles.
 - **responsive.css specificity conflict**: Removed conflicting `.canvas-controls` positioning from sub-breakpoints that was overridden by the generic `<767px` rule.
