@@ -239,7 +239,7 @@ Only perform actions the user explicitly requested.`;
                 <Sparkles size={18} />
                 <h5 className="modal-title">Ask AI</h5>
               </div>
-              <button type="button" className="btn-close" onClick={onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+              <button type="button" className="btn-close btn-close-overlay" onClick={onClose} aria-label="Close" />
             </div>
 
             <div className="modal-body">

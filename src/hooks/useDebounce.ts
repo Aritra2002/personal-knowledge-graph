@@ -25,18 +25,18 @@ export function useDebounce<Args extends unknown[], Return>(
       clearTimeout(timeoutRef.current);
     }
 
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(async () => {
       try {
         const result = callbackRef.current(...args);
         if (result instanceof Promise) {
-          result.catch(err => {
+          await result.catch(err => {
             if (onError) onError(err);
-            else console.error('Debounced function failed:', err);
+            else if (import.meta.env.DEV) console.error('Debounced function failed:', err);
           });
         }
       } catch (e) {
         if (onError) onError(e);
-        else console.error(e);
+        else if (import.meta.env.DEV) console.error(e);
       }
     }, delay);
   }, [delay, onError]);

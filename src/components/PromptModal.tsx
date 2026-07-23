@@ -31,7 +31,7 @@ export function PromptModal({ title, message, placeholder = '', defaultValue = '
         <div className="modal-content glass-panel border-0">
           <div className="modal-header border-0">
             <h5 className="modal-title">{title}</h5>
-            <button type="button" className="btn-close" onClick={onCancel} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay" onClick={onCancel} aria-label="Close" />
           </div>
           <form onSubmit={(e) => { e.preventDefault(); onConfirm(value); }}>
             <div className="modal-body">

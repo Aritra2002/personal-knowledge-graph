@@ -43,7 +43,7 @@ export const RenamePageModal: React.FC<RenamePageModalProps> = ({
         <div className="modal-content glass-panel border-0">
           <div className="modal-header border-0">
             <h5 className="modal-title">Rename Page</h5>
-            <button type="button" className="btn-close" onClick={handleClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay" onClick={handleClose} aria-label="Close" />
           </div>
           <form onSubmit={handleSubmit}>
             <div className="modal-body">

@@ -51,7 +51,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = (props) => {
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>v{packageJson.version}</div>
               </div>
             )}
-            <button type="button" className="btn-close ms-auto" onClick={props.onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay ms-auto" onClick={props.onClose} aria-label="Close" />
           </div>
 
           {/* Body: tabs + content */}

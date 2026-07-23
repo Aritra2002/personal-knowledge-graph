@@ -97,7 +97,7 @@ If none connect, return {"connected": false}`;
       clearTimeout(timer);
       abortRef.current?.abort();
     };
-  }, [noteId, content, dismissed, suggestion, showToast]);
+  }, [noteId, content]);
 
   if (!suggestion) {
     if (!isDiscovering) return null;

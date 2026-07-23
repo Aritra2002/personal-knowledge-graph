@@ -131,9 +131,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               setIsOpen(true);
               (e.target as HTMLInputElement).select();
             }}
-            style={dynamicWidth ? {
-              width: `calc(${Math.max(1, (isOpen ? searchTerm : (selectedOption?.label || '')).toString().length)}ch + 60px)`
-            } : undefined}
+            style={dynamicWidth ? { minWidth: '8ch', maxWidth: '40ch' } : undefined}
           />
         ) : (
           <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

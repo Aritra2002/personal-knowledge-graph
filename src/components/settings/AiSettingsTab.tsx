@@ -27,8 +27,7 @@ export const AiSettingsTab: React.FC = () => {
         handleAiConfigChange('model', models[0].id);
       }
     } catch (e: unknown) {
-      console.error(e);
-      alert((e as Error).message || "Failed to detect models. Please check your API key and Base URL.");
+      console.error('Model detection failed:', e);
     } finally {
       setIsDetecting(false);
     }

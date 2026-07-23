@@ -33,7 +33,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               {isDestructive && <AlertTriangle size={20} color="var(--accent-danger, #ef4444)" />}
               <h5 className="modal-title" style={{ margin: 0, fontSize: '1.25rem' }}>{title}</h5>
             </div>
-            <button type="button" className="btn-close" onClick={onCancel} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay" onClick={onCancel} aria-label="Close" />
           </div>
           <div className="modal-body">
             <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.5' }}>

@@ -266,9 +266,8 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
         const currentLine = lines.length;
         const currentLineLength = lines[lines.length - 1].length;
         
-        // Approximate caret position within the textarea
-        const lineHeight = 24; // typical line height
-        const charWidth = 8; // typical char width
+        const lineHeight = parseInt(getComputedStyle(textarea).lineHeight) || 24;
+        const charWidth = parseInt(getComputedStyle(textarea).fontSize) * 0.6 || 8;
         
         const top = (currentLine * lineHeight) - textarea.scrollTop + 10;
         const left = (currentLineLength * charWidth) + 16;
@@ -362,7 +361,7 @@ Return exactly and ONLY the summary text, with no markdown code blocks or conver
               width: '100%'
             }}
             onClick={() => {
-              const pageNotes = allNotes.filter(n => n.pageId === 1); // fallback to page 1 if no note, but normally onJumpToNote handles page scope
+              const pageNotes = allNotes.filter(n => n.pageId === 1);
               let newTitle = "New Node";
               let counter = 1;
               while (pageNotes.some(n => n.title.toLowerCase() === newTitle.toLowerCase())) {

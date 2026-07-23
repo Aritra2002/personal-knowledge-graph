@@ -83,17 +83,7 @@ export const NoteMiniCard: React.FC<NoteMiniCardProps> = ({ note, category, onOp
 
   return (
     <div 
-      className="note-mini-card" 
-      style={{
-        position: 'absolute', bottom: 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)) + 16px)', left: '16px', right: '16px',
-        background: 'rgba(20, 27, 50, 0.95)', borderRadius: '16px',
-        padding: '16px', zIndex: 'var(--z-mini-card, 50)',
-        border: '1px solid rgba(124, 58, 237, 0.2)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(10px)',
-        transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        display: 'flex', flexDirection: 'column'
-      }}
+      className="note-mini-card"
     >
       <div 
         onTouchStart={handleTouchStart}

@@ -98,7 +98,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ onClose }) => {
         <div className="modal-content glass-panel border-0" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
           <div className="modal-header border-0">
             <h5 className="modal-title d-flex align-items-center gap-2"><BrainCircuit size={20} /> Spaced Repetition Review</h5>
-            <button type="button" className="btn-close" onClick={onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay" onClick={onClose} aria-label="Close" />
           </div>
           <div className="modal-body" style={{ minHeight: '300px', display: 'flex', flexDirection: 'column', overflowY: 'auto', flex: 1 }}>
             {!isQueueInitialized ? (

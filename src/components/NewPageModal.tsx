@@ -51,7 +51,7 @@ export const NewPageModal: React.FC<NewPageModalProps> = ({ isOpen, onClose, onC
               <FileText size={18} />
               <h5 className="modal-title" style={{ margin: 0 }}>Create New Page</h5>
             </div>
-            <button type="button" className="btn-close" onClick={handleClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay" onClick={handleClose} aria-label="Close" />
           </div>
           <div className="modal-body">
             <div className="mb-3">

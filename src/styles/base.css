@@ -2,7 +2,7 @@
    base.css — CSS Variables, Reset, Body, Scrollbars, Glass
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fira+Code:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fira+Code:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap&font-display=swap');
 
 :root {
   color-scheme: light dark;
@@ -381,7 +381,7 @@ body {
   --bs-close-hover-color: var(--text-primary);
 }
 
-/* Remove default Bootstrap button styles that conflict with custom glass design */
+/* Neutralize default Bootstrap button padding so custom styling applies cleanly */
 .btn {
   --bs-btn-padding-x: 0;
   --bs-btn-padding-y: 0;
@@ -458,6 +458,69 @@ input[type="text"]:focus, input[type="number"]:focus, .note-textarea:focus, .cha
 /* Missing component classes */
 .icon-only-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
 .icon-only-btn:hover { background: rgba(255, 255, 255, 0.05); }
+
+.btn-close-overlay { filter: invert(0.7); }
+
+.mobile-menu-drawer {
+  position: fixed;
+  bottom: calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)));
+  left: 0; right: 0;
+  background: var(--surface-glass-heavy);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 16px;
+  padding-bottom: calc(16px + var(--safe-bottom, env(safe-area-inset-bottom, 0px)));
+  z-index: var(--z-drawer, 60);
+  border-top: 1px solid var(--border-glow);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+}
+.mobile-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mobile-menu-btn {
+  justify-content: flex-start !important;
+  padding: 12px !important;
+  width: 100% !important;
+}
+
+.doc-loading-overlay {
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  flex-direction: column;
+  gap: 20px;
+}
+.doc-loading-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+.doc-loading-animation {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.doc-loading-text h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+.doc-loading-status {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+  min-height: 24px;
+}
 
 .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 

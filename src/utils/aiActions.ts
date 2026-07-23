@@ -109,7 +109,7 @@ export async function executeAiAction(
         if (!note) return { success: false, message: `Note "${action.title}" not found.` };
         
         const updates: Record<string, unknown> = {};
-        const contentToSet = action.newContent !== undefined ? action.newContent : ('content' in action ? (action as { content?: string }).content : undefined);
+        const contentToSet = action.newContent;
         if (contentToSet !== undefined) updates.content = contentToSet;
         if (action.newTitle !== undefined) updates.title = action.newTitle;
         
@@ -175,7 +175,7 @@ export async function validateActionPreflight(action: AiAction, pageId: number) 
   }
   
   if (action.action === 'edit_note') {
-    const contentToCheck = action.newContent !== undefined ? action.newContent : ('content' in action ? (action as { content?: string }).content : undefined);
+    const contentToCheck = action.newContent;
     if (contentToCheck !== undefined) {
       if (contentToCheck.trim().length <= 10) {
         return { blocked: true, message: `Edit rejected: new content is too short or empty.` };

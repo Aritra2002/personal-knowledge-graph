@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.29.2] - 2026-07-23
+
+### 🐛 Bug Fixes & Code Quality
+- **Removed identity-spoofing headers**: AI client no longer impersonates third-party apps (Roo-Code) when calling custom/AgentRouter providers. Uses `AetherMind` identity instead.
+- **Fixed `seedDatabase()` race condition**: Added `await` + `.catch()` to prevent DB reads executing before seeding completes.
+- **Gated production console logs**: All `console.warn`/`console.error` calls gated behind `import.meta.env.DEV`. No more internal warnings leaked to users.
+- **Fixed dead code in `edit_note` action**: Removed unreachable fallback `('content' in action ...)` that always yielded `undefined`.
+- **Fixed wrong localStorage key for proxy URL**: `detectModels()` now reads `aiProxyUrl` instead of the non-existent `aethermind_ai_config` blob.
+- **Bundled pdf.js worker locally**: Replaced CDN dependency (`cdnjs.cloudflare.com`) with local `import.meta.url` resolution — app now works offline.
+- **Added toast timeout cleanup**: `showToast` timeouts are now tracked and cleared on unmount, preventing state-update-on-unmounted-component warnings.
+- **Removed inline `<style>` injection in render**: `@keyframes spin` moved to CSS file. No more DOM leak on every tooltip render.
+- **Fixed non-existent CSS variable**: `var(--text-color)` changed to `var(--text-primary)` in SearchBar.
+- **Fixed empty catch blocks**: Linking-pass error now logged (dev-only). No more silent swallowing.
+- **Fixed localStorage write on every theme render**: Added comparison guard before writing `aethermind-custom-themes`.
+- **Fixed import placement**: Moved `snapshotManager` import to top of file.
+- **Fixed wrong ARIA orientation**: Sidebar resizer changed from `horizontal` to `vertical`.
+- **Extracted inline styles to CSS classes**: Mobile menu drawer, doc loading overlay, modal close buttons now use CSS classes with theme variables instead of hardcoded colors.
+- **Removed commented TODO**: Hash routing TODO removed.
+- **Fixed self-referencing effect dependencies**: `ConnectionDiscovery` and `DiscoveryDigestModal` effects no longer include state values they modify.
+- **Removed unreachable code**: `urlFetcher.ts` dead `else if (error instanceof TypeError)` branch removed.
+- **Removed duplicate error handling in useDebounce**: Async errors handled consistently via `try/catch` + `await result.catch`.
+- **Fixed effect ref synchronization in CommandPalette**: Moved ref writes to `useEffect` instead of render body.
+- **Wrapped TimelineSlider computations in `useMemo`**: No more recalculating min/max on every render.
+- **Used computed font metrics in EditorPanel**: Replaced hardcoded `lineHeight: 24`/`charWidth: 8` with getComputedStyle values.
+- **Replaced emoji with text in JournalCalendar**: Removed platform-dependent `🔗` emoji.
+- **Removed redundant `declare module 'lucide-react'`**: Types now come from the package.
+- **Fixed Bootstrap btn reset comment**: Clarified intent of Bootstrap padding override.
+- **Excluded small modals from mobile full-screen rule**: Added `:not(.modal-sm)` to prevent tiny confirm modals from going full viewport.
+- **Replaced `alert()` with `console.error` in AiSettingsTab**: No more blocking modal for model detection errors.
+
 ## [1.29.1] - 2026-07-23
 
 ### 🏗️ Architecture

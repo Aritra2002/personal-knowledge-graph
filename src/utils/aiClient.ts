@@ -120,10 +120,11 @@ export const callAI = async (
     
     if (isCustom) {
       if (config.proxyUrl || config.baseUrl.includes('agentrouter')) {
-        headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
-        headers['X-Title'] = 'Roo Code';
-        headers['User-Agent'] = 'Roo-Code';
-        headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+        // Spoof headers for custom provider (e.g. AgentRouter)
+		  headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
+		  headers['X-Title'] = 'Roo Code';
+		  headers['User-Agent'] = 'Roo-Code';
+		  headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
       } else if (config.baseUrl.includes('openrouter')) {
         headers['HTTP-Referer'] = window.location.origin;
         headers['X-Title'] = 'AetherMind';
@@ -240,7 +241,7 @@ export const callAI = async (
       return data.choices?.[0]?.message?.content || '';
     }
   } catch (error: unknown) {
-    console.error('AI call failed:', error);
+    if (import.meta.env.DEV) console.error('AI call failed:', error);
     if (error instanceof TypeError && error.message === 'Failed to fetch' && endpoint.includes('11434')) {
       throw new Error('Failed to connect to Ollama. This is likely a CORS issue. Please restart Ollama with the environment variable OLLAMA_ORIGINS="*" or "https://aritra2002.github.io". Original error: ' + String(error));
     }
@@ -262,23 +263,14 @@ export async function detectModels(baseUrl: string, apiKey?: string): Promise<{ 
     const headers: Record<string, string> = {};
     if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
     
-    // To support detectModels from the UI, retrieve proxyUrl from LocalStorage
-    let proxyUrl = '';
-    try {
-      const stored = localStorage.getItem('aethermind_ai_config');
-      if (stored) {
-        proxyUrl = JSON.parse(stored).proxyUrl || '';
-      }
-    } catch (e) {
-      console.debug(e);
-    }
+    let proxyUrl = localStorage.getItem('aiProxyUrl') || '';
 
     if (proxyUrl || base.includes('agentrouter')) {
       // Spoof headers for custom provider (e.g. AgentRouter)
-      headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
-      headers['X-Title'] = 'Roo Code';
-      headers['User-Agent'] = 'Roo-Code';
-      headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
+	  headers['HTTP-Referer'] = 'https://github.com/RooVetGit/Roo-Code'; 
+	  headers['X-Title'] = 'Roo Code';
+	  headers['User-Agent'] = 'Roo-Code';
+	  headers['Originator'] = 'codex_cli_rs'; // Required by AgentRouter
     } else if (base.includes('openrouter')) {
       headers['HTTP-Referer'] = window.location.origin;
       headers['X-Title'] = 'AetherMind';

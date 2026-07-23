@@ -52,8 +52,6 @@ export async function fetchUrlContent(url: string): Promise<{ text: string; titl
       ) {
         return null;
       }
-    } else if (error instanceof TypeError) {
-      return null;
     }
     throw error;
   }

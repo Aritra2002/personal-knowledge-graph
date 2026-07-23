@@ -417,7 +417,7 @@ export const JournalCalendar: React.FC<JournalCalendarProps> = ({ onSelectNote }
                               )}
                               {related.length > 0 && (
                                 <span style={{ backgroundColor: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.25)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', color: '#22d3ee', fontWeight: 500 }}>
-                                  🔗 Connected to: {related.map(r => r.title).join(', ')}
+                                  Connected to: {related.map(r => r.title).join(', ')}
                                 </span>
                               )}
                             </div>

@@ -556,7 +556,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
         // 3. Draw Labels
         ctx.shadowBlur = 0; // Clear shadow properties for text
         ctx.shadowColor = 'transparent';
-        ctx.font = '500 12px Inter';
+        ctx.font = '500 12px ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans').trim() || 'Inter';
         ctx.fillStyle = isActive ? themeColorsRef.current.textPrimary : themeColorsRef.current.textSecondary;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
@@ -1168,7 +1168,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '12px', height: '12px', border: '2px solid var(--node-indigo, #818cf8)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               Generating explanation...
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              
             </div>
           ) : (
             <div>{tooltip.text}</div>

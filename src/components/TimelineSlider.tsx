@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Calendar, RotateCcw, Clock } from 'lucide-react';
 import type { Note, Link } from '../db';
 
@@ -19,10 +19,9 @@ export const TimelineSlider: React.FC<TimelineSliderProps> = ({
   onRestoreFromHistory,
   onExitHistory
 }) => {
-  // eslint-disable-next-line react-hooks/purity
-  const timestamps = notes.length > 0 ? notes.map(n => n.createdAt) : [Date.now()];
-  const minDate = Math.min(...timestamps) - 1000 * 60;
-  const maxDate = Math.max(...timestamps) + 1000 * 60;
+  const timestamps = useMemo(() => notes.length > 0 ? notes.map(n => n.createdAt) : [Date.now()], [notes]);
+  const minDate = useMemo(() => Math.min(...timestamps) - 1000 * 60, [timestamps]);
+  const maxDate = useMemo(() => Math.max(...timestamps) + 1000 * 60, [timestamps]);
   
   const value = dateRange ? dateRange[1] : maxDate;
 

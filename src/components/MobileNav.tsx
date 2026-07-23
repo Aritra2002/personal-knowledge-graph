@@ -12,7 +12,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ activeTab, onTabChange, on
     <nav className="navbar fixed-bottom d-flex d-md-none justify-content-around align-items-center px-2"
       style={{
         height: 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)))',
-        background: 'rgba(15, 20, 50, 0.85)',
+        background: 'var(--surface-glass-heavy)',
         backdropFilter: 'blur(10px)',
         borderTop: '1px solid rgba(124, 58, 237, 0.15)',
         paddingBottom: 'var(--safe-bottom, env(safe-area-inset-bottom, 0px))',

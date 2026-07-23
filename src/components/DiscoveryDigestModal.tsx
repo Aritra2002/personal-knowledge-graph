@@ -73,7 +73,7 @@ export const DiscoveryDigestModal: React.FC<DiscoveryDigestModalProps> = ({ isOp
     })();
 
     return () => { cancelled = true; };
-  }, [isOpen, digest, isLoading, notes]);
+  }, [isOpen, notes]);
 
   if (!isOpen) return null;
 
@@ -86,7 +86,7 @@ export const DiscoveryDigestModal: React.FC<DiscoveryDigestModalProps> = ({ isOp
               <Sparkles size={18} />
               <h5 className="modal-title">Daily Discovery Digest</h5>
             </div>
-            <button type="button" className="btn-close" onClick={onClose} aria-label="Close" style={{ filter: 'invert(0.7)' }} />
+            <button type="button" className="btn-close btn-close-overlay" onClick={onClose} aria-label="Close" />
           </div>
           <div className="modal-body">
             {error && <div style={{ color: '#ef4444' }}>{error}</div>}

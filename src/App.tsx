@@ -21,6 +21,7 @@ import { NoteMiniCard } from './components/NoteMiniCard';
 import { DiscoveryDigestModal } from './components/DiscoveryDigestModal';
 import { Dropdown } from './components/ui/Dropdown';
 import { ingestDocument } from './utils/rag';
+import { saveSnapshot, loadSnapshot, getSnapshots, restoreSnapshot } from './utils/snapshotManager';
 
 import { Brain, Plus, Settings, Calendar, Sparkles, Edit2, Trash2, Loader2, Compass, FileArchive, FileUp } from 'lucide-react';
 
@@ -46,8 +47,6 @@ function useViewport() {
   }, []);
   return viewport;
 }
-
-import { saveSnapshot, loadSnapshot, getSnapshots, restoreSnapshot } from './utils/snapshotManager';
 
 export default function App() {
   const { showToast } = useToast();
@@ -86,7 +85,6 @@ export default function App() {
   const [nlpClustering, setNlpClustering] = useState(() => localStorage.getItem('aethermind-nlp-clustering') === 'true');
 
   // Graph Snapshot historical mode
-  // TODO: Add hash-based routing for deep-linking (e.g., #note-{id}, #page-{id})
   const [historicalSnapshot, setHistoricalSnapshot] = useState<{ notes: Note[]; links: Link[]; timestamp: number } | null>(null);
 
   // Multi-theme state
@@ -186,7 +184,9 @@ export default function App() {
       });
       root.style.removeProperty('--font-sans');
     }
-    localStorage.setItem('aethermind-custom-themes', JSON.stringify(customThemeColors));
+    const prev = localStorage.getItem('aethermind-custom-themes');
+    const next = JSON.stringify(customThemeColors);
+    if (prev !== next) localStorage.setItem('aethermind-custom-themes', next);
   }, [activeTheme, customThemeColors]);
 
   useEffect(() => {
@@ -296,8 +296,7 @@ export default function App() {
 
   // Seed database on app mount
   useEffect(() => {
-    seedDatabase();
-    
+    seedDatabase().catch(e => console.error('Seed failed', e));
   }, []);
 
   // Command Palette Listener
@@ -535,7 +534,7 @@ export default function App() {
         const notesForRag = await db.notes.where({ pageId: currentPageId }).toArray();
         for (const note of notesForRag) {
           if (note.content) {
-            ingestDocument(`[Note] ${note.title}`, note.content, { source: 'zip-import', noteId: note.id }).catch(err => console.warn('Document ingestion failed:', err));
+            ingestDocument(`[Note] ${note.title}`, note.content, { source: 'zip-import', noteId: note.id }).catch(err => { if (import.meta.env.DEV) console.warn('Document ingestion failed:', err); });
           }
         }
       } catch (err: unknown) {
@@ -649,10 +648,10 @@ Format:
               }
             } else {
               aiErrors++;
-              console.warn(`Chunk ${i + 1}: AI response contained no actionable JSON`, aiResponse.substring(0, 200));
+              if (import.meta.env.DEV) console.warn(`Chunk ${i + 1}: AI response contained no actionable JSON`, aiResponse.substring(0, 200));
             }
           } catch (chunkErr) {
-            console.error(`AI failed on chunk ${i + 1}:`, chunkErr);
+            if (import.meta.env.DEV) console.error(`AI failed on chunk ${i + 1}:`, chunkErr);
             aiErrors++;
           }
         }
@@ -670,8 +669,8 @@ Format:
             if (linkParsed?.actions.length) {
               for (const action of linkParsed.actions) await executeAiAction(action, currentPageId);
             }
-          } catch {
-            // Linking is best-effort
+          } catch (e) {
+            if (import.meta.env.DEV) console.warn('Linking pass failed', e);
           }
         }
 
@@ -811,7 +810,6 @@ Format:
         {/* Left Side: Graph Canvas & Overlay Filters */}
         <div className="left-viewport">
 
-
           {/* Floating Search Filter overlay */}
           <SearchBar
             searchQuery={searchQuery}
@@ -872,7 +870,7 @@ Format:
                 overflow: 'hidden'
               } as React.CSSProperties}
             >
-              <div className="sidebar-resizer" onMouseDown={startResizing} onKeyDown={handleResizerKeyDown} role="separator" aria-orientation="horizontal" aria-valuenow={sidebarWidth} aria-valuemin={300} aria-valuemax={1200} tabIndex={0} aria-label="Resize sidebar" style={{ left: 0, touchAction: 'none' }} />
+              <div className="sidebar-resizer" onMouseDown={startResizing} onKeyDown={handleResizerKeyDown} role="separator" aria-orientation="vertical" aria-valuenow={sidebarWidth} aria-valuemin={300} aria-valuemax={1200} tabIndex={0} aria-label="Resize sidebar" style={{ left: 0, touchAction: 'none' }} />
 
           <div style={{ flex: 1, minWidth: 0, minHeight: 0, height: '100%' }}>
             <EditorPanel
@@ -928,34 +926,27 @@ Format:
 
 
       {showMobileMenu && viewport === 'sm' && (
-        <div className="mobile-menu-drawer" style={{
-          position: 'fixed', bottom: 'calc(var(--mobile-nav-height, 60px) + var(--safe-bottom, env(safe-area-inset-bottom, 0px)))', left: 0, right: 0,
-          background: 'rgba(20, 27, 50, 0.95)', borderTopLeftRadius: '16px', borderTopRightRadius: '16px',
-          padding: '16px', paddingBottom: 'calc(16px + var(--safe-bottom, env(safe-area-inset-bottom, 0px)))', zIndex: 'var(--z-drawer, 60)',
-          borderTop: '1px solid rgba(124, 58, 237, 0.2)',
-          boxShadow: '0 -4px 24px rgba(0,0,0,0.5)'
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <button className="header-btn" onClick={() => { setShowReview(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+        <div className="mobile-menu-drawer">
+          <div className="mobile-menu-items">
+            <button className="header-btn mobile-menu-btn" onClick={() => { setShowReview(true); setShowMobileMenu(false); }}>
               <Brain size={18} /> Review
             </button>
-            <button className="header-btn" onClick={() => { setShowDiscoveryDigest(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+            <button className="header-btn mobile-menu-btn" onClick={() => { setShowDiscoveryDigest(true); setShowMobileMenu(false); }}>
               <Compass size={18} /> Discovery Digest
             </button>
-            <button className="header-btn" onClick={() => { setShowAskAi(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', color: 'var(--node-amber, #f59e0b)', width: '100%' }}>
+            <button className="header-btn mobile-menu-btn" onClick={() => { setShowAskAi(true); setShowMobileMenu(false); }}>
               <Sparkles size={18} /> Ask AI
             </button>
-            <button className="header-btn" onClick={() => { handleCreateDailyNote(); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+            <button className="header-btn mobile-menu-btn" onClick={() => { handleCreateDailyNote(); setShowMobileMenu(false); }}>
               <Calendar size={18} /> Daily Note
             </button>
-            <button className="header-btn" onClick={() => { handleImportZip(); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+            <button className="header-btn mobile-menu-btn" onClick={() => { handleImportZip(); setShowMobileMenu(false); }}>
               <FileArchive size={18} /> Import ZIP
             </button>
-            <button className="header-btn" onClick={() => { handleUploadDocument(); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+            <button className="header-btn mobile-menu-btn" onClick={() => { handleUploadDocument(); setShowMobileMenu(false); }}>
               <FileUp size={18} /> Upload Document
             </button>
-
-            <button className="header-btn" onClick={() => { setShowSettings(true); setShowMobileMenu(false); }} style={{ justifyContent: 'flex-start', padding: '12px', width: '100%' }}>
+            <button className="header-btn mobile-menu-btn" onClick={() => { setShowSettings(true); setShowMobileMenu(false); }}>
               <Settings size={18} /> Settings
             </button>
           </div>
@@ -1109,35 +1100,23 @@ Format:
         />
       )}
       {docLoading && (
-        <div className="modal-overlay" style={{ zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', flexDirection: 'column', gap: '20px' }}>
-          <div className="premium-loader-card glass-panel" style={{
-            width: '100%',
-            maxWidth: '400px',
-            padding: '40px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '24px',
-            textAlign: 'center',
-            border: '1px solid rgba(124, 58, 237, 0.3)',
-            background: 'linear-gradient(135deg, rgba(15, 20, 50, 0.9) 0%, rgba(8, 12, 35, 0.95) 100%)',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(124, 58, 237, 0.15)'
-          }}>
-            <div style={{ position: 'relative', width: '80px', height: '80px' }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" style={{ overflow: 'visible' }}>
+        <div className="doc-loading-overlay">
+          <div className="doc-loading-card glass-panel">
+            <div className="doc-loading-animation">
+              <svg width="80" height="80" viewBox="0 0 80 80">
                 <defs>
                   <linearGradient id="synGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="var(--accent-primary, #7c3aed)" />
-                    <stop offset="100%" stopColor="var(--accent-secondary, #06b6d4)" />
+                    <stop offset="0%" stopColor="var(--accent-primary)" />
+                    <stop offset="100%" stopColor="var(--accent-secondary)" />
                   </linearGradient>
                 </defs>
-                <circle cx="40" cy="15" r="5" fill="var(--accent-primary, #7c3aed)">
+                <circle cx="40" cy="15" r="5" fill="var(--accent-primary)">
                   <animate attributeName="r" values="5;7;5" dur="2s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="15" cy="55" r="5" fill="var(--accent-secondary, #06b6d4)">
+                <circle cx="15" cy="55" r="5" fill="var(--accent-secondary)">
                   <animate attributeName="r" values="5;7;5" dur="2s" begin="0.5s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="65" cy="55" r="5" fill="var(--accent-gold, #f59e0b)">
+                <circle cx="65" cy="55" r="5" fill="var(--accent-gold)">
                   <animate attributeName="r" values="5;7;5" dur="2s" begin="1s" repeatCount="indefinite" />
                 </circle>
                 <line x1="40" y1="15" x2="15" y2="55" stroke="url(#synGrad)" strokeWidth="2" strokeDasharray="5,5">
@@ -1151,9 +1130,9 @@ Format:
                 </line>
               </svg>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Processing Document</h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0, minHeight: '24px' }}>{docStatus}</p>
+            <div className="doc-loading-text">
+              <h3>Processing Document</h3>
+              <p className="doc-loading-status">{docStatus}</p>
             </div>
           </div>
         </div>

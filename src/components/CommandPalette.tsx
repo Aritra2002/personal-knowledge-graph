@@ -24,9 +24,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const selectedIndexRef = useRef(selectedIndex);
   const onSelectNoteRef = useRef(onSelectNote);
   const onCloseRef = useRef(onClose);
-  selectedIndexRef.current = selectedIndex;
-  onSelectNoteRef.current = onSelectNote;
-  onCloseRef.current = onClose;
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+  useEffect(() => {
+    onSelectNoteRef.current = onSelectNote;
+  }, [onSelectNote]);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,7 +50,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     n.content.toLowerCase().includes(query.toLowerCase())
   ).slice(0, 8); // Show top 8 results
 
-  filteredRef.current = filteredNotes;
+  useEffect(() => {
+    filteredRef.current = filteredNotes;
+  }, [filteredNotes]);
 
   useEffect(() => {
       // eslint-disable-next-line

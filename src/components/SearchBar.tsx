@@ -53,7 +53,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     <div className={`search-filter-panel glass-panel ${isOpen ? 'open' : 'closed'}`} id="search-filter-panel-root">
       {/* Header and Close button */}
       <div className="search-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <span style={{ fontWeight: 600, color: 'var(--text-color)', fontSize: '0.9rem' }}>Search & Filter</span>
+        <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>Search & Filter</span>
         {onClose && (
           <button className="icon-only-btn" onClick={onClose} aria-label="Close search panel" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
             <X size={16} />
