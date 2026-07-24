@@ -1,8 +1,63 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+[1.29.2]: https://github.com/Aritra2002/Aethermind/compare/v1.29.1...v1.29.2
+[1.29.1]: https://github.com/Aritra2002/Aethermind/compare/v1.28.3...v1.29.1
+[1.28.3]: https://github.com/Aritra2002/Aethermind/compare/v1.28.2...v1.28.3
+[1.28.2]: https://github.com/Aritra2002/Aethermind/compare/v1.28.1...v1.28.2
+[1.28.1]: https://github.com/Aritra2002/Aethermind/compare/v1.28.0...v1.28.1
+[1.28.0]: https://github.com/Aritra2002/Aethermind/compare/v1.27.1...v1.28.0
+[1.27.1]: https://github.com/Aritra2002/Aethermind/compare/v1.27.0...v1.27.1
+[1.27.0]: https://github.com/Aritra2002/Aethermind/compare/v1.26.2...v1.27.0
+[1.26.2]: https://github.com/Aritra2002/Aethermind/compare/v1.26.1...v1.26.2
+[1.26.1]: https://github.com/Aritra2002/Aethermind/compare/v1.26.0...v1.26.1
+[1.26.0]: https://github.com/Aritra2002/Aethermind/compare/v1.25.5...v1.26.0
+[1.25.5]: https://github.com/Aritra2002/Aethermind/compare/v1.25.4...v1.25.5
+[1.25.4]: https://github.com/Aritra2002/Aethermind/compare/v1.25.3...v1.25.4
+[1.25.3]: https://github.com/Aritra2002/Aethermind/compare/v1.25.2...v1.25.3
+[1.25.2]: https://github.com/Aritra2002/Aethermind/compare/v1.25.1...v1.25.2
+[1.25.1]: https://github.com/Aritra2002/Aethermind/compare/v1.25.0...v1.25.1
+[1.25.0]: https://github.com/Aritra2002/Aethermind/compare/v1.24.0...v1.25.0
+[1.24.0]: https://github.com/Aritra2002/Aethermind/compare/v1.23.0...v1.24.0
+[1.23.0]: https://github.com/Aritra2002/Aethermind/compare/v1.22.1...v1.23.0
+[1.22.1]: https://github.com/Aritra2002/Aethermind/compare/v1.22.0...v1.22.1
+[1.22.0]: https://github.com/Aritra2002/Aethermind/compare/v1.21.0...v1.22.0
+[1.21.0]: https://github.com/Aritra2002/Aethermind/compare/v1.20.0...v1.21.0
+[1.20.0]: https://github.com/Aritra2002/Aethermind/compare/v1.19.4...v1.20.0
+[1.19.4]: https://github.com/Aritra2002/Aethermind/compare/v1.19.3...v1.19.4
+[1.19.3]: https://github.com/Aritra2002/Aethermind/compare/v1.19.2...v1.19.3
+[1.19.2]: https://github.com/Aritra2002/Aethermind/compare/v1.19.1...v1.19.2
+[1.19.1]: https://github.com/Aritra2002/Aethermind/compare/v1.19.0...v1.19.1
+[1.19.0]: https://github.com/Aritra2002/Aethermind/compare/v1.18.0...v1.19.0
+[1.18.0]: https://github.com/Aritra2002/Aethermind/compare/v1.17.0...v1.18.0
+[1.17.0]: https://github.com/Aritra2002/Aethermind/compare/v1.16.0...v1.17.0
+[1.16.0]: https://github.com/Aritra2002/Aethermind/compare/v1.15.1...v1.16.0
+[1.15.1]: https://github.com/Aritra2002/Aethermind/compare/v1.15.0...v1.15.1
+[1.15.0]: https://github.com/Aritra2002/Aethermind/compare/v1.14.0...v1.15.0
+[1.14.0]: https://github.com/Aritra2002/Aethermind/compare/v1.13.0...v1.14.0
+[1.13.0]: https://github.com/Aritra2002/Aethermind/compare/v1.12.0...v1.13.0
+[1.12.0]: https://github.com/Aritra2002/Aethermind/compare/v1.11.0...v1.12.0
+[1.11.0]: https://github.com/Aritra2002/Aethermind/compare/v1.10.5...v1.11.0
+[1.10.5]: https://github.com/Aritra2002/Aethermind/compare/v1.10.4...v1.10.5
+[1.10.4]: https://github.com/Aritra2002/Aethermind/compare/v1.10.3...v1.10.4
+[1.10.3]: https://github.com/Aritra2002/Aethermind/compare/v1.10.0...v1.10.3
+[1.10.0]: https://github.com/Aritra2002/Aethermind/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/Aritra2002/Aethermind/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/Aritra2002/Aethermind/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/Aritra2002/Aethermind/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/Aritra2002/Aethermind/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/Aritra2002/Aethermind/compare/v1.0.0...v1.5.0
+[1.0.0]: https://github.com/Aritra2002/Aethermind/releases/tag/v1.0.0
+
+
 ## [1.29.2] - 2026-07-23
 
-### 🐛 Bug Fixes & Code Quality
+### Fixed
+
 - **Removed identity-spoofing headers**: AI client no longer impersonates third-party apps (Roo-Code) when calling custom/AgentRouter providers. Uses `AetherMind` identity instead.
 - **Fixed `seedDatabase()` race condition**: Added `await` + `.catch()` to prevent DB reads executing before seeding completes.
 - **Gated production console logs**: All `console.warn`/`console.error` calls gated behind `import.meta.env.DEV`. No more internal warnings leaked to users.
@@ -32,50 +87,8 @@
 
 ## [1.29.1] - 2026-07-23
 
-### 🏗️ Architecture
-- **Bootstrap 5 Integration**: Added Bootstrap CSS framework for improved responsive layout and feature-rich UI components. All modals (ConfirmModal, NewPageModal, RenamePageModal, PromptModal, ReviewModal, DiscoveryDigestModal, AskAiModal, SettingsModal) refactored to use Bootstrap modal structure with proper z-index stacking, backdrop handling, and responsive sizing.
-- **Bootstrap Theme Overrides**: Mapped 30+ Bootstrap CSS variables to the app's existing custom theme system (dark, light, sepia, midnight, ocean, custom), preserving the glassmorphism aesthetic while leveraging Bootstrap's component library.
-- **Responsive Layout Overhaul**: Consolidated the triple-branch viewport-based header (`sm`/`md`/`lg`) into a single responsive header using Bootstrap visibility utilities (`d-none d-*-flex`, `d-*-none`). All breakpoints now align with Bootstrap's standard (`576px`, `768px`, `992px`, `1200px`) with extra-tight screen (<400px) support.
+### Added
 
-### 🎨 UI/UX
-- **Mobile Full-Screen Modals**: All dialogs now properly fill the viewport on mobile with platform-appropriate border-radius (flat for full-screen, rounded-top for bottom sheets).
-- **Editor Overflow Prevention**: Added `max-height` constraints to editor panels on mobile to prevent content from being hidden behind the bottom navigation bar.
-- **Sidebar Responsive Bounds**: Right sidebar now respects viewport width limits at every breakpoint (`max-width: 50vw` on tablet, `min(1200px, 40vw)` on widescreen).
-- **Root Overflow Safety**: Added `overflow-x: hidden` and `max-width: 100vw` to `body` and `#root` to prevent any horizontal scrolling.
-- **Mobile Navigation**: Refactored `MobileNav` to use Bootstrap `navbar fixed-bottom` with responsive visibility class.
-- **AI Settings Form Controls**: Replaced inline styled inputs with Bootstrap `form-control`, `form-label`, `form-text`, and `form-range` classes.
-- **Bootstrap Close Button**: Replaced all manual close button implementations with Bootstrap's `.btn-close` (with dark theme invert filter).
-- **Custom Dropdown CSS Isolation**: Scoped the custom dropdown component's `.dropdown-menu` styles with `:not(.dropdown-menu-bs)` to prevent conflicts with Bootstrap's dropdown component.
-
-### 🐛 Bug Fixes
-- **Tailwind dead classes removed**: Replaced broken Tailwind utility classes in the doc-loading modal overlay with proper inline styles.
-- **responsive.css specificity conflict**: Removed conflicting `.canvas-controls` positioning from sub-breakpoints that was overridden by the generic `<767px` rule.
-- **Theme node color overrides**: Added `--node-*` color variable overrides to all theme blocks (light, sepia, midnight, ocean) so graph nodes respect the active theme.
-- **Personal category color**: Changed seed data `#ff0000` to `#f43f5e` for the personal category.
-- **syncLinksForNote bidirectional dedup**: Now checks both sourceId and targetId when detecting existing links, preventing duplicate bidirectional link records.
-- **Page delete cascade**: Deleting a page now also cleans up snapshots and document chunks.
-- **Debounced useViewport**: Added 150ms debounce to resize handler to reduce re-render storms.
-- **Snapshot sort order**: Fixed `.reverse().sortBy()` no-op — now properly sorts by timestamp descending.
-- **Snapshot restore phantom links**: Skip links whose note IDs weren't successfully remapped instead of falling back to stale IDs.
-- **RAG ingestNote delete-before-embed**: Embed chunks first, then atomically delete old + insert new in a single transaction.
-- **AI action pre-pass removed**: Removed pre-pass that created notes before user approval — all `create_note` actions are now staged for user confirmation alongside `edit_note` and `delete_note`.
-- **CommandPalette key handler re-binding**: Stabilized filteredNotes dependency using refs to prevent re-binding the keydown listener on every keystroke.
-- **CommandPalette placeholder**: Changed "Search existing pages..." to "Search notes..." to match actual search behavior.
-- **JournalCalendar hardcoded startYear**: Dynamically derives start year from the earliest note's creation date instead of hardcoding `2026`.
-- **DiscoveryDigestModal digest reset**: Added `setDigest(null)` on modal open so digest regenerates each time.
-- **MobileNav missing search button**: Added the Search tab button between Graph and Editor.
-- **ToastContext mobile-only bottom offset**: Toast container bottom calc now only includes mobile-nav-height on viewports < 768px; uses a simple `16px` on desktop.
-- **ErrorBoundary hardcoded background**: Uses `var(--bg-primary)` instead of hardcoded `#06071a`.
-- **GraphCanvas duplicate comment removed**: Removed duplicate `{/* Floating Canvas Controls */}` comment.
-- **GraphCanvas tooltip zIndex type**: Changed tooltip zIndex from CSS-var string `'var(--z-tooltip, 1100)'` to number `1100`.
-- **AI summary overlay zIndex**: Changed from string `'var(--z-modal, 1000)'` to number `1000` for type safety.
-- **Web-clipper manifest**: Removed unused `content_scripts` entry (popup uses `chrome.scripting.executeScript` instead).
-- **aiActions.ts content dedup**: Improved duplicate content detection to check both directions (existing contains new, new contains existing).
-
-### 🔧 Improvements
-- **ToastProvider**: Added debounced window resize listener to track mobile state for conditional styling.
-
-### ✨ Features & Improvements
 - **Unified RAG (Retrieval-Augmented Generation) System**: Integrated a full RAG pipeline into AetherMind. All data — uploaded documents, manually created notes, AI-generated notes, and ZIP imports — is now automatically indexed, chunked, and embedded for semantic search.
 - **Document Upload → RAG + Notes**: Uploading a document (`.txt`, `.md`, `.pdf`, `.docx`, `.pptx`, `.csv`) now does two things: (1) indexes the document into RAG for search, and (2) uses AI to decompose it into linked knowledge graph nodes.
 - **Ask AI with RAG Context**: The Ask AI modal now searches both your notes and uploaded documents when you explicitly ask about your data ("my notes", "from my documents", "what do I have on X"). By default, AI answers freely from its general knowledge.
@@ -84,19 +97,58 @@
 - **TF-IDF Fallback Embeddings**: When the browser can't load the WASM backend for `@xenova/transformers`, the system automatically falls back to a pure-JS TF-IDF embedding method — RAG works everywhere.
 - **Unified File Upload**: Document upload now supports `.txt`, `.md`, `.pdf`, `.docx`, `.pptx`, and `.csv` files.
 - **AI Provider-Agnostic RAG**: The RAG search results are sent to whatever AI provider you have configured (OpenAI, Anthropic, Ollama, Groq, etc.) — no hardcoded local models.
+- **Bootstrap 5 Integration**: Added Bootstrap CSS framework for improved responsive layout and feature-rich UI components. All modals refactored to use Bootstrap modal structure with proper z-index stacking, backdrop handling, and responsive sizing.
+- **Bootstrap Theme Overrides**: Mapped 30+ Bootstrap CSS variables to the app's existing custom theme system.
 
-### 🎨 UI/UX
-- **Unified Header Buttons**: All navbar buttons now use the same consistent sizing (`min-height: 36px`, `min-width: 36px`, `padding: 8px 14px`). Removed the `icon-only-btn` class for uniform button appearance.
+### Changed
+
+- **Responsive Layout Overhaul**: Consolidated the triple-branch viewport-based header into a single responsive header using Bootstrap visibility utilities. All breakpoints now align with Bootstrap's standard with extra-tight screen (<400px) support.
+- **Mobile Full-Screen Modals**: All dialogs now properly fill the viewport on mobile with platform-appropriate border-radius.
+- **Editor Overflow Prevention**: Added `max-height` constraints to editor panels on mobile.
+- **Sidebar Responsive Bounds**: Right sidebar now respects viewport width limits at every breakpoint.
+- **Mobile Navigation**: Refactored `MobileNav` to use Bootstrap `navbar fixed-bottom`.
+- **AI Settings Form Controls**: Replaced inline styled inputs with Bootstrap form control classes.
+- **Bootstrap Close Button**: Replaced all manual close button implementations with Bootstrap's `.btn-close`.
+- **Custom Dropdown CSS Isolation**: Scoped the custom dropdown component's `.dropdown-menu` styles with `:not(.dropdown-menu-bs)` to prevent conflicts with Bootstrap's dropdown component.
+- **Unified Header Buttons**: All navbar buttons now use the same consistent sizing. Removed the `icon-only-btn` class for uniform button appearance.
 - **Settings Icon Size Standardized**: All icon buttons use `size={16}` consistently.
 
-### 🔧 Bug Fixes
-- **Dexie Transaction Lock Conflicts**: Moved RAG ingestion (`ingestNote`, `removeNoteFromRag`) outside of Dexie database transactions to prevent table lock conflicts that silently blocked note creation.
-- **Document Upload AI Streaming**: Changed document upload AI calls from non-streaming to streaming mode, matching the working pattern used in Ask AI modal.
-- **Misleading Success Toast**: Document upload now shows accurate messages — "X notes created" only when notes are actually created, and "AI couldn't create notes" when the AI fails.
-- **AI Config Check**: Document upload now checks if AI is configured before attempting decomposition, showing a helpful message if missing.
+### Fixed
+
+- **Tailwind dead classes removed**: Replaced broken Tailwind utility classes in the doc-loading modal overlay with proper inline styles.
+- **responsive.css specificity conflict**: Removed conflicting `.canvas-controls` positioning from sub-breakpoints.
+- **Theme node color overrides**: Added `--node-*` color variable overrides to all theme blocks so graph nodes respect the active theme.
+- **Personal category color**: Changed seed data `#ff0000` to `#f43f5e` for the personal category.
+- **syncLinksForNote bidirectional dedup**: Now checks both sourceId and targetId when detecting existing links.
+- **Page delete cascade**: Deleting a page now also cleans up snapshots and document chunks.
+- **Debounced useViewport**: Added 150ms debounce to resize handler to reduce re-render storms.
+- **Snapshot sort order**: Fixed `.reverse().sortBy()` no-op — now properly sorts by timestamp descending.
+- **Snapshot restore phantom links**: Skip links whose note IDs weren't successfully remapped.
+- **RAG ingestNote delete-before-embed**: Embed chunks first, then atomically delete old + insert new in a single transaction.
+- **AI action pre-pass removed**: Removed pre-pass that created notes before user approval.
+- **CommandPalette key handler re-binding**: Stabilized filteredNotes dependency using refs.
+- **CommandPalette placeholder**: Changed "Search existing pages..." to "Search notes...".
+- **JournalCalendar hardcoded startYear**: Dynamically derives start year from the earliest note's creation date.
+- **DiscoveryDigestModal digest reset**: Added `setDigest(null)` on modal open so digest regenerates each time.
+- **MobileNav missing search button**: Added the Search tab button between Graph and Editor.
+- **ToastContext mobile-only bottom offset**: Toast container bottom calc now only includes mobile-nav-height on viewports < 768px.
+- **ErrorBoundary hardcoded background**: Uses `var(--bg-primary)` instead of hardcoded `#06071a`.
+- **GraphCanvas tooltip zIndex type**: Changed tooltip zIndex from CSS-var string to number.
+- **AI summary overlay zIndex**: Changed from string to number for type safety.
+- **Web-clipper manifest**: Removed unused `content_scripts` entry.
+- **aiActions.ts content dedup**: Improved duplicate content detection to check both directions.
+- **Dexie Transaction Lock Conflicts**: Moved RAG ingestion outside of Dexie database transactions.
+- **Document Upload AI Streaming**: Changed document upload AI calls from non-streaming to streaming mode.
+- **Misleading Success Toast**: Document upload now shows accurate messages.
+- **AI Config Check**: Document upload now checks if AI is configured before attempting decomposition.
 - **Duplicate Variable Fix**: Fixed `importedNotes` variable collision in ZIP import RAG ingestion code.
 
-### 🏗️ Architecture
+### Changed
+
+- **ToastProvider**: Added debounced window resize listener to track mobile state for conditional styling.
+
+### Architecture
+
 - **New Database Table**: Added `documents` table (Dexie v7) for RAG chunk storage with embeddings.
 - **New File**: `src/utils/rag.ts` — RAG engine with document chunking, embedding, ingestion, search, and note indexing.
 - **Deleted**: `src/components/RagChatModal.tsx` — removed in favor of unified Ask AI with RAG.
@@ -104,431 +156,479 @@
 
 ## [1.28.3] - 2026-07-20
 
-### ✨ Features & Improvements
-- **Time Travel Prop Forwarding**: Fixed a prop-forwarding issue where the "Save Snapshot Now" and "Browse Snapshots" buttons were completely missing in Settings due to handlers not being passed down to the `DataSettingsTab` component.
-- **Provider Settings Initialization**: Fixed OpenAI configuration defaults (Base URL, default Model) not loading on first load of the AI Settings tab until the provider dropdown was actively toggled.
-- **Mobile First-Load Usability**: Configured the sidebar/editor to start closed by default on mobile viewports (< 768px) to prevent confusing new users with a full-screen empty markdown editor instead of the visual force graph.
+### Fixed
 
-### 🎨 UI/UX Layout Polish
+- **Time Travel Prop Forwarding**: Fixed a prop-forwarding issue where the "Save Snapshot Now" and "Browse Snapshots" buttons were completely missing in Settings due to handlers not being passed down to the `DataSettingsTab` component.
+- **Provider Settings Initialization**: Fixed OpenAI configuration defaults not loading on first load of the AI Settings tab until the provider dropdown was actively toggled.
+- **Mobile First-Load Usability**: Configured the sidebar/editor to start closed by default on mobile viewports (< 768px).
+
+### Changed
+
 - **Grid-Aligned Data Management**: Swapped the vertical action button list in the settings data tab for a clean 2x2 grid layout.
-- **Slimmer Graph Automation Row**: Reduced the padding and height of the local ML clustering action button and NLP clustering toggle row for a tighter, less bulky aesthetic.
-- **Textarea Responsive Resizing**: Replaced static heights on the markdown editor section with responsive flex styles, ensuring the textarea shrinks and expands perfectly to fit the sidebar area across different mobile device widths without scroll overlapping.
+- **Slimmer Graph Automation Row**: Reduced the padding and height of the local ML clustering action button and NLP clustering toggle row.
+- **Textarea Responsive Resizing**: Replaced static heights on the markdown editor section with responsive flex styles.
 
 ## [1.28.2] - 2026-07-19
 
-### ✨ Features
-- **Interactive Activity Journal**: Clicking on a note in the Activity Journal list now closes the settings modal and opens the full editor drawer.
-- **Activity Journal Navigation Polish**: Added dedicated previous and next chevron buttons around both the **Month** and **Year** dropdowns to allow swift chronological navigation. Restricted controls to system boundaries (January 2026 to December of the end year), disabling the previous/next buttons accordingly to prevent invalid navigation.
-- **Year Dropdown Restrictions**: Prevented typing custom years not present in the options list (`allowCustomValue={false}`) and enforced boundary validation checks inside the submit handler to prevent out-of-bound dates.
-- **Node Connection Context**: Displays styled badges showing which page each note belongs to. Displays a detailed links list (`🔗 Connected to: [Note Name]`) showing links/connections between the notes created on the selected date.
-- **History Timeline & Scrubber**: Added exact datetime input capability to the scrubber, fixed default node inception date, and visually forced custom datetime formats on the native date picker.
+### Added
 
-### 🎨 UI/UX
-- **Responsive Activity Journal Header**: Restructured the calendar header layout and added CSS overrides to stack the title and dropdown controls vertically on mobile viewports (< 768px), preventing horizontal clipping. Used custom inline styled chevron buttons to bypass any CSS class collisions and ensure buttons are always displayed.
-- **Mobile UI Element Scaling**: Scaled down the base font size of the application to `14px` on mobile viewports (< 768px) to reduce the overall bulkiness. Tightened the layout grid padding, gaps, day block border radius, and list card heights inside the Activity Journal.
-- **Mobile Sidebar Layout & z-index**: Elevated mobile right-sidebar `z-index` to 105 to float on top of the app header, making the close button and editor action header fully visible and clickable.
-- **Natural Sheet Animations**: Removed conflicting CSS transform transitions on mobile, and configured Framer Motion spring parameters to animate the sidebar sliding up/down on mobile and resizing width-wise on desktop.
-- **Editor Body Heights**: Resolved scrolling clipping by changing the editor body height to `flex: 1` and `min-height: 0`. Removed double scrollbars in preview mode so the preview content, related notes, and connections scroll together as a single container.
+- **Interactive Activity Journal**: Clicking on a note in the Activity Journal list now closes the settings modal and opens the full editor drawer.
+- **Activity Journal Navigation Polish**: Added dedicated previous and next chevron buttons around both the Month and Year dropdowns.
+- **Year Dropdown Restrictions**: Prevented typing custom years not present in the options list and enforced boundary validation checks.
+- **Node Connection Context**: Displays styled badges showing which page each note belongs to and detailed links list.
+- **History Timeline & Scrubber**: Added exact datetime input capability to the scrubber.
+
+### Changed
+
+- **Responsive Activity Journal Header**: Restructured the calendar header layout to stack title and dropdown controls vertically on mobile viewports.
+- **Mobile UI Element Scaling**: Scaled down the base font size to `14px` on mobile viewports (< 768px).
+- **Mobile Sidebar Layout & z-index**: Elevated mobile right-sidebar `z-index` to 105.
+- **Natural Sheet Animations**: Removed conflicting CSS transform transitions on mobile, configured Framer Motion spring parameters.
+- **Editor Body Heights**: Resolved scrolling clipping by changing the editor body height to `flex: 1` and `min-height: 0`.
 - **Dropdown & Page Selector Bounds**: Prevented the app header from clipping page selector dropdown menus.
 
-### 🔧 Developer Experience & Bug Fixes
+### Fixed
+
 - **Vitest Compilation Isolation**: Dynamically lazy-loaded `@xenova/transformers` inside `initEmbedder` to bypass `sharp` binary loading errors on Windows.
-- **Syntax & Reference Fixes**: Fixed a `ReferenceError: capturedHtml is not defined` syntax bug in the theme system stress test and updated legacy `JournalCalendar` test expectations to match the current monthly calendar grid structure.
+- **Syntax & Reference Fixes**: Fixed a `ReferenceError: capturedHtml is not defined` syntax bug and updated legacy `JournalCalendar` test expectations.
 
 ## [1.28.1] - 2026-07-18
 
-### 🎨 UI/UX
-- **Dropdown Refinements**: Redesigned all dropdown menus using a flexbox container layout. Dropdowns with search input functionality now correctly prevent text overlapping by dynamically sharing space with the chevron arrow.
-- **Smart Combobox Behavior**: Selecting an item from a searchable dropdown no longer aggressively clears the input text. Clicking the input now auto-highlights the text for easy overwriting, matching native OS combobox behavior.
-- **Dynamic Width Precision**: Adjusted the year dropdown to scale its width perfectly with the typed text, ensuring no characters are cut off.
-- **Connection Menu Scalability**: Widened the "Add Connection" dropdown to 220px to comfortably accommodate longer note titles without clipping.
+### Changed
+
+- **Dropdown Refinements**: Redesigned all dropdown menus using a flexbox container layout. Dropdowns with search input functionality now correctly prevent text overlapping.
+- **Smart Combobox Behavior**: Selecting an item from a searchable dropdown no longer aggressively clears the input text.
+- **Dynamic Width Precision**: Adjusted the year dropdown to scale its width perfectly with the typed text.
+- **Connection Menu Scalability**: Widened the "Add Connection" dropdown to 220px.
 
 ## [1.28.0] - 2026-07-18
 
-### ✨ Features
-- **Appearance & Multi-Theme System**: Implemented multiple preset themes (Light Clean, Sepia Warm, Dark Space, Midnight Luxury, Ocean Tide) and a Custom Theme Builder. Users can select and apply themes instantly without page reload.
-- **Custom Theme Colors**: Provided full custom theme color options including Background Color, Text Color, Accent Color, and Connection Line Color, persisted in local storage.
-- **Offline HTML Export Themes**: Updated the HTML export utility so exported files embed all CSS variables for preset and custom themes and contain an offline-capable dropdown theme switcher that persists choices in browser local storage.
+### Added
 
-### 🎨 UI/UX
-- **Alignment Fixes**: Aligned the custom theme color picker popovers to grow leftwards (aligning to the right edge of their triggers), keeping them fully contained within the Settings modal boundaries.
-- **Graph Canvas Integration**: Connected the graph viewport background to the theme gradient CSS variables. Added a robust luminance check to automatically adjust contrast for node rings and text labels against custom light/dark backgrounds.
-- **Input Field Readability**: Updated hardcoded white text settings and query inputs to use responsive CSS variables, preventing invisible white-on-white text in light themes.
+- **Appearance & Multi-Theme System**: Implemented multiple preset themes (Light Clean, Sepia Warm, Dark Space, Midnight Luxury, Ocean Tide) and a Custom Theme Builder.
+- **Custom Theme Colors**: Provided full custom theme color options including Background Color, Text Color, Accent Color, and Connection Line Color, persisted in local storage.
+- **Offline HTML Export Themes**: Updated the HTML export utility so exported files embed all CSS variables for preset and custom themes.
+
+### Changed
+
+- **Alignment Fixes**: Aligned the custom theme color picker popovers to grow leftwards.
+- **Graph Canvas Integration**: Connected the graph viewport background to the theme gradient CSS variables. Added a robust luminance check.
+- **Input Field Readability**: Updated hardcoded white text settings and query inputs to use responsive CSS variables.
 
 ## [1.27.1] - 2026-07-07
 
-### ✨ Features
-- **AI Array Processing & Robust Parsing**: Enhanced AI response processing to correctly handle and execute multiple actions (`create_note`, `create_link`, `edit_note`) in a single turn. Completely rewrote `parseAiResponse` with a global regex scanner to extract and merge actions across any number of code blocks and JSON structures. The Ask AI modal now displays a stacked list of all nodes and links successfully generated.
-- **Detailed AI Formatting**: Removed brevity constraints from the AI's system prompt, strictly enforcing highly detailed and comprehensive responses. The AI is now explicitly instructed to aggressively utilize AetherMind's custom Markdown syntax, including graph links `[[Node Title]]`, headings, text emphasis, blockquotes, code blocks, and task lists.
+### Added
 
-### 🎨 UI/UX
-- **Styling Refinements**: Applied premium stylish designs to all textbars across the project and improved the styling of the graph page selection dropdown.
-- **New Page Modal**: Updated the Create button in the New Page modal to match the project's primary button styles.
-- **Animations & Node UI**: Added a smooth closing transition to the search filter panel and updated the graph node UI for a more polished aesthetic.
+- **AI Array Processing & Robust Parsing**: Enhanced AI response processing to correctly handle and execute multiple actions in a single turn. Completely rewrote `parseAiResponse` with a global regex scanner.
+- **Detailed AI Formatting**: Removed brevity constraints from the AI's system prompt, strictly enforcing highly detailed and comprehensive responses.
 
-### 🐛 Bug Fixes
-- **Edit Note Hallucination**: Fixed a silent failure where the AI attempted to edit notes using the incorrect `content` parameter instead of `newContent`. The action processor now safely falls back to accept either parameter, ensuring edits apply correctly.
-- **AI Discovery Connection Logic**: Prevented the AI discovery popup from suggesting notes that are already explicitly linked in either direction, and resolved button UI inconsistencies.
-- **Editor Modes Consolidation**: Removed redundant tabs for editing and preview modes. The interface is now consolidated with an improved edit toggle, defaulting to View mode for an unobstructed reading experience.
+### Changed
+
+- **Styling Refinements**: Applied premium stylish designs to all textbars across the project.
+- **New Page Modal**: Updated the Create button to match the project's primary button styles.
+- **Animations & Node UI**: Added a smooth closing transition to the search filter panel and updated the graph node UI.
+
+### Fixed
+
+- **Edit Note Hallucination**: Fixed a silent failure where the AI attempted to edit notes using the incorrect `content` parameter instead of `newContent`.
+- **AI Discovery Connection Logic**: Prevented the AI discovery popup from suggesting notes that are already explicitly linked.
+- **Editor Modes Consolidation**: Removed redundant tabs for editing and preview modes.
 
 ## [1.27.0] - 2026-07-07
 
-### ✨ Features
-- **Large Document Upload Processing**: Implemented advanced text chunking and cross-chunk linking to seamlessly process and analyze user documents larger than 5 pages. AI now correctly maintains structural knowledge across extensive files by creating and merging nodes systematically.
+### Added
 
-### 🐛 Bug Fixes
-- **PDF Upload parsing**: Fixed an issue causing PDF extraction to fail ("getDocument expected data") by correctly casting ArrayBuffer to Uint8Array for pdfjsLib.
+- **Large Document Upload Processing**: Implemented advanced text chunking and cross-chunk linking to process user documents larger than 5 pages.
+
+### Fixed
+
+- **PDF Upload parsing**: Fixed an issue causing PDF extraction to fail by correctly casting ArrayBuffer to Uint8Array for pdfjsLib.
 
 ## [1.26.2] - 2026-07-06
 
-### 🔧 Feature Adjustments
+### Changed
 
-- **Mobile UI**: Removed the redundant "New" node button from the mobile bottom navigation bar (it remains accessible via the editor).
-- **Settings UI Layout**: Increased vertical and horizontal gaps between tabs, input labels, and category lists to make the Settings interface more symmetrically spaced and breathable on all devices.
+- **Mobile UI**: Removed the redundant "New" node button from the mobile bottom navigation bar.
+- **Settings UI Layout**: Increased vertical and horizontal gaps between tabs, input labels, and category lists.
 
 ## [1.26.1] - 2026-07-06
 
-### ✨ Improvements
-- **Direct ZIP Export**: The Export button now instantly downloads the comprehensive ZIP archive (containing graph data, Markdown notes, and a PNG snapshot) directly upon click, streamlining the workflow.
-- **Codebase Optimization**: Removed various unused variables and stale code artifacts across the application to improve maintainability.
-- **Configuration**: Updated `.gitignore` to prevent tracking of local temporary assets.
+### Added
 
-### 🐛 Bug Fixes
+- **Direct ZIP Export**: The Export button now instantly downloads the comprehensive ZIP archive directly upon click.
+
+### Changed
+
+- **Codebase Optimization**: Removed various unused variables and stale code artifacts.
+
+### Fixed
+
 - **Mobile Settings Modal Bounds**: Fixed an issue where the close button inside the Settings Modal would overlap with content headings on small mobile viewports.
-
-
 
 ## [1.26.0] - 2026-07-06
 
-### ✨ New Features
-- **Document to Graph AI Generation**: Users can now upload `.txt`, `.md`, and `.pdf` files. The system utilizes `pdfjs-dist` to extract full document text, displays a premium glassmorphism loading state with micro-animations, and uses AI to automatically structure the document into connected notes and links on the current page.
-- **Graph Import from ZIP**: Users can now seamlessly import previously exported graph ZIP archives into the active page without losing existing graph context.
+### Added
 
-### 💄 UI & Aesthetics
-- **Premium Header Redesign**: Introduced responsive `page-action-btn` class with glassmorphism for top-nav action buttons ("New Page", "Daily Note", "Import ZIP", "Upload Document").
-- **Perfect Desktop & Mobile Parity**: Mobile menus now include the new file action buttons without causing layout shifts or overlapping bounding boxes.
-- **History Scrubber Polish**: Hid the "Reset Timeline" button on mobile view and resolved mobile out-of-bounds text wrapping for timestamp displays.
+- **Document to Graph AI Generation**: Users can now upload `.txt`, `.md`, and `.pdf` files. The system uses AI to automatically structure the document into connected notes and links.
+- **Graph Import from ZIP**: Users can now seamlessly import previously exported graph ZIP archives.
 
+### Changed
+
+- **Premium Header Redesign**: Introduced responsive `page-action-btn` class with glassmorphism for top-nav action buttons.
+- **Perfect Desktop & Mobile Parity**: Mobile menus now include the new file action buttons.
+- **History Scrubber Polish**: Hid the "Reset Timeline" button on mobile view.
 
 ## [1.25.5] - 2026-07-06
 
-### 🐛 Bug Fixes
-- **Mobile Node Drag (Actual Root Fix)**: Fixed the underlying collision between custom pointer touch handlers and D3's native zoom behavior on mobile devices by suppressing D3 zoom events via `stopImmediatePropagation()`. Nodes can now be dragged smoothly on mobile without panning the canvas.
-- **Mobile UI Controls**: Refactored the floating canvas controls for narrow viewports. The Sidebar toggle is now hidden on mobile, and the Search, Export, and Help buttons are consolidated into a horizontal flex-row with unified premium design.
-- **UI Mutual Exclusivity**: Search, Export, and Help panels now automatically close each other to prevent overlapping UI states.
-- **Search Panel Performance**: Removed the slide-in animation to eliminate perceived lag; panel now opens instantly. Disabled auto-open on desktop launch.
-- **Mobile Layout Bounds Fixes**: Export menu now dynamically adjusts positioning to stay within viewport bounds on mobile screens. Canvas controls moved to top-left on vertical layouts to prevent overlapping with the opened search UI.
-- **Timeline Scrubber Upgrade**: Fixed layout shifts caused by conditional rendering of the Reset button. Upgraded slider track with dynamic gradient colors based on value progress, and styled all scrubber controls with a premium glassmorphism aesthetic. Fixed logic bug where thumb position didn't visually reset on clear.
+### Fixed
+
+- **Mobile Node Drag (Root Fix)**: Fixed the underlying collision between custom pointer touch handlers and D3's native zoom behavior by suppressing D3 zoom events via `stopImmediatePropagation()`.
+- **Mobile UI Controls**: Refactored the floating canvas controls for narrow viewports.
+- **UI Mutual Exclusivity**: Search, Export, and Help panels now automatically close each other.
+- **Search Panel Performance**: Removed the slide-in animation; panel now opens instantly.
+- **Mobile Layout Bounds**: Export menu now dynamically adjusts positioning to stay within viewport bounds.
+- **Timeline Scrubber Upgrade**: Fixed layout shifts caused by conditional rendering of the Reset button.
 - **Page Selector**: Refactored with premium glassmorphism styling, hover glows, and a custom caret icon.
 
 ## [1.25.4] - 2026-07-05
 
-### 🐛 Bug Fixes
-- **Wiki-link Click (Root Fix)**: Fixed `DOMPurify` stripping `href="#wiki-..."` attributes in both `EditorPanel.tsx` preview and `NoteMiniCard.tsx`. Added `ALLOWED_URI_REGEXP` to explicitly permit the `#wiki-` scheme — wiki-links now render as clickable anchors and correctly navigate to the target note on both desktop and mobile.
-- **Swipe-up False Trigger**: Fixed the mobile mini card swipe-up gesture firing when scrolling the note preview content. The gesture now only triggers when the swipe originates from the drag handle at the top of the card, not from the scrollable text area.
+### Fixed
+
+- **Wiki-link Click (Root Fix)**: Fixed `DOMPurify` stripping `href="#wiki-..."` attributes. Added `ALLOWED_URI_REGEXP` to explicitly permit the `#wiki-` scheme.
+- **Swipe-up False Trigger**: Fixed the mobile mini card swipe-up gesture firing when scrolling the note preview content.
 
 ## [1.25.3] - 2026-07-05
 
-### 🐛 Bug Fixes
-- **Mobile Node Drag (Partial Fix)**: Completely rewrote touch drag handling. D3 drag is now mouse-only; touch drag uses native `setPointerCapture()` with a dedicated `pointerdown → pointermove → pointerup` path on the canvas. (Note: D3 zoom was still catching the events and panning the canvas simultaneously; fully fixed in v1.25.5.)
-- **Mobile UI Bounds**: Canvas control buttons (Sidebar, Export, Help) now stack vertically (`flex-direction: column`) so they never overflow horizontally on narrow screens. Fixed z-index token references across modals and overlay elements.
-- **Z-Index System**: Replaced magic `z-index` numbers with a 11-tier CSS token scale (`--z-canvas-overlay` → `--z-toast: 9999`).
+### Added
 
-### ✨ Improvements
-- **Premium Canvas Button Style**: Floating canvas controls upgraded to glassmorphism with gradient border, violet glow on hover, lift + scale active animation.
-- **Button Design System**: Unified `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-icon`, `.btn-danger`, `.btn-sm/md/lg` classes with glassmorphism, shimmer sheen, and micro-animations applied across all interactive elements.
+- **Premium Canvas Button Style**: Floating canvas controls upgraded to glassmorphism with gradient border and glow effects.
+- **Button Design System**: Unified button classes with glassmorphism, shimmer sheen, and micro-animations.
+
+### Fixed
+
+- **Mobile Node Drag (Partial Fix)**: Completely rewrote touch drag handling using native `setPointerCapture()`.
+- **Mobile UI Bounds**: Canvas control buttons now stack vertically so they never overflow horizontally.
+- **Z-Index System**: Replaced magic `z-index` numbers with a 11-tier CSS token scale.
 - **Review Modal**: Now uses `glass-panel`, correct `overflow`, and safe-area padding.
-
-
 
 ## [1.25.2] - 2026-07-05
 
-### 🐛 Bug Fixes
-- **Mobile Node Unpinning**: Fixed an issue where the long-press unpin gesture would immediately re-pin the node. The unpin gesture now correctly frees nodes. (Note: dragging a node to a new position on mobile was still broken — D3 drag `event.x/y` coordinate mapping was incorrect for touch; fully fixed in v1.25.5.)
-- **Wiki-link Rendering**: Added `[[Note Title]]` → `#wiki-` link conversion in the Editor preview and Mobile Mini Card so wiki-links appear as visible anchor elements. (Note: the links were still not clickable due to DOMPurify stripping `#wiki-` hrefs; fully fixed in v1.25.4.)
-- **Mobile Mini Card Content**: Wiki-link text in the mobile floating Note Mini Card now renders as styled anchor elements (previously rendered as plain text).
-- **Mobile Layout Bounds**: Fixed canvas control overlays (sidebar button, export button, help button) colliding with the bottom navigation and timeline scrubber in vertical mode by safely anchoring them to the top of the viewport.
+### Fixed
 
-
+- **Mobile Node Unpinning**: Fixed an issue where the long-press unpin gesture would immediately re-pin the node.
+- **Wiki-link Rendering**: Added `[[Note Title]]` → `#wiki-` link conversion in the Editor preview and Mobile Mini Card.
+- **Mobile Mini Card Content**: Wiki-link text now renders as styled anchor elements.
+- **Mobile Layout Bounds**: Fixed canvas control overlays colliding with the bottom navigation and timeline scrubber by anchoring them to the top of the viewport.
 
 ## [1.25.1] - 2026-07-05
 
-### 🐛 Bug Fixes
-- **Desktop Header UI**: Removed the redundant search button icon from the top-right desktop header, since the primary floating search button provides the same functionality.
+### Fixed
 
-
+- **Desktop Header UI**: Removed the redundant search button icon from the top-right desktop header.
 
 ## [1.25.0] - 2026-07-05
 
-### 📱 Mobile View UX Fixes
-- **Long-Press to Unpin**: Implemented native long-press gesture (hold 500ms) to unpin pinned nodes on touch screens. This only freed pinned nodes — dragging nodes to a new position on mobile was still non-functional at this version.
-- **Mobile Page Management**: Replaced placeholder page title pill in mobile header with a fully functional dropdown selector to easily switch between graph pages. Added edit and delete buttons to mobile view.
-- **Review Modal Crash Fix**: Fixed a silent initialization crash in the Spaced Repetition Review modal on slower devices by adding a robust loading state when checking for due notes.
+### Added
 
+- **Long-Press to Unpin**: Implemented native long-press gesture (hold 500ms) to unpin pinned nodes on touch screens.
+- **Mobile Page Management**: Replaced placeholder page title pill with a fully functional dropdown selector.
+
+### Fixed
+
+- **Review Modal Crash Fix**: Fixed a silent initialization crash in the Spaced Repetition Review modal on slower devices.
 
 ## [1.24.0] - 2026-07-04
 
-### ✨ System Audit & Refactoring
+### Changed
+
 - **Complete Codebase Audit**: Successfully audited and cleaned up the entire project directory.
-- **Strict Typing Enforcement**: Eliminated 40+ remaining TypeScript compilation errors, removing loose `any` types in favor of `unknown` for safer try/catch logic.
-- **Performance Fixes**: Fixed cascading `setState` render loops in complex modals (`AskAiModal`, `CommandPalette`, `ColorPicker`, `DiscoveryDigestModal`).
-- **Dependency Cleanups**: Fixed extensive `react-hooks/exhaustive-deps` missing dependencies across `App.tsx` and `GraphCanvas.tsx`.
-- **Removed Tech Debt**: Cleaned up legacy scripts, redundant console logs, and intermediate test files from the root.
+- **Strict Typing Enforcement**: Eliminated 40+ remaining TypeScript compilation errors.
+- **Performance Fixes**: Fixed cascading `setState` render loops in complex modals.
+- **Dependency Cleanups**: Fixed extensive `react-hooks/exhaustive-deps` missing dependencies.
+- **Removed Tech Debt**: Cleaned up legacy scripts, redundant console logs, and intermediate test files.
 
-### 📱 Mobile UI Enhancements
-- **New Mobile Navigation**: Replaced the mobile search bar with a dedicated quick-add node button for better accessibility.
-- **Menu Animations**: Added fluid slide animations to the mobile menu. Attempted to improve touch drag responsiveness — tap-to-select reliability improved, but free dragging of nodes on mobile remained non-functional.
-- **Graph Controls**: Intelligently hid bulky GraphCanvas controls (zoom/help boxes) on mobile screens for an unobstructed view.
-- **Bug Fixes**: Resolved layout collapse in settings scroll, timeline scrubber clipping, and mobile nav button bounding sizes.
+### Added
 
-## [1.23.0] — 2026-07-04
+- **New Mobile Navigation**: Replaced the mobile search bar with a dedicated quick-add node button.
+- **Menu Animations**: Added fluid slide animations to the mobile menu.
+- **Graph Controls**: Intelligently hid bulky GraphCanvas controls on mobile screens.
 
-### ✨ AI Batch Action Engine
-- AI Co-Author can now generate entire connected sub-graphs from a single prompt.
-- The AI safely proposes multiple notes and links inside a unified JSON array payload.
-- Safe actions (creating notes, creating links) execute instantly in batch.
-- Unsafe actions (editing or deleting notes) are staged and presented for sequential user confirmation via an updated slide-up toast.
+### Fixed
 
-## [1.22.1] — 2026-07-04
+- Resolved layout collapse in settings scroll, timeline scrubber clipping, and mobile nav button bounding sizes.
 
-### 🐛 Bug Fixes
+## [1.23.0] - 2026-07-04
+
+### Added
+
+- **AI Batch Action Engine**: AI Co-Author can now generate entire connected sub-graphs from a single prompt. Safe actions execute instantly; unsafe actions are staged for user confirmation.
+
+## [1.22.1] - 2026-07-04
+
+### Fixed
+
 - Fixed mobile popup swipe-up gesture triggering unintentionally when scrolling note content.
-- Corrected the mobile sidebar / editor slide animation to appear from the bottom instead of sliding from the side.
-- Fixed node interaction radius on mobile so tapping a node more reliably selects it. (Note: dragging nodes to move them on mobile remained broken at this version.)
+- Corrected the mobile sidebar/editor slide animation to appear from the bottom.
+- Fixed node interaction radius on mobile so tapping a node more reliably selects it.
 
-## [1.22.0] — 2026-07-04
+## [1.22.0] - 2026-07-04
 
-### 🧠 AI Intelligence Layer
-- **AI Connection Discovery**: After writing a note, the system silently scans your graph and suggests potential links with a 1-sentence reason, helping you discover hidden connections.
-- **"Why Connected?" Edge Explanations**: Hovering over any edge on the Graph Canvas now generates and caches an AI explanation of the semantic relationship between those two connected ideas.
-- **Daily Discovery Digest**: Upon first opening the app each day, a new modal surprises you with a fascinating connection between a forgotten note (> 1 month old) and a recent thought.
+### Added
 
-- **Graph-Aware Spaced Repetition**: Review sessions are now clustered intelligently. When you review a note, its overdue linked neighbors are interleaved next, allowing you to study concepts in natural associative flows rather than randomly.
+- **AI Connection Discovery**: After writing a note, the system silently scans your graph and suggests potential links with a 1-sentence reason.
+- **"Why Connected?" Edge Explanations**: Hovering over any edge on the Graph Canvas now generates and caches an AI explanation.
+- **Daily Discovery Digest**: Upon first opening the app each day, a new modal surprises you with a fascinating connection between a forgotten note and a recent thought.
+- **Graph-Aware Spaced Repetition**: Review sessions are now clustered intelligently — overdue linked neighbors are interleaved.
 
-### 🐛 Bug Fixes
+### Fixed
+
 - Fixed structural CSS issues that caused the mobile bottom navigation bar to be clipped entirely off-screen.
-- Corrected `.right-sidebar` positioning on mobile screens to respect navigation bar height, resolving scrolling bugs.
-- Stopped forcing `44px` minimum dimensions on generic button elements which deformed compact utility icons.
+- Corrected `.right-sidebar` positioning on mobile screens to respect navigation bar height.
+- Stopped forcing `44px` minimum dimensions on generic button elements.
 - Prevented the app header from excessive wrapping on small screens.
 
-### 🔧 Improvements
-- Replaced the text-based `⌘K` search hint in the header with a dedicated, clickable Search icon button for better accessibility.
-- Removed the 30-minute GitHub Pages deployment cooldown/timeout from the CI/CD pipeline.
+### Changed
 
-## [1.21.0] — 2026-07-03
+- Replaced the text-based `⌘K` search hint with a dedicated, clickable Search icon button.
+- Removed the 30-minute GitHub Pages deployment cooldown from the CI/CD pipeline.
 
-### ✨ Royal UI Overhaul
-- Complete visual redesign with deep violet + electric cyan + gold palette
-- Premium glassmorphism panels with gradient borders and glow effects
-- Gradient logo text, shimmer primary button animation
-- Richer midnight cosmic background
-- Improved graph node rendering with radial fills and active glow rings
+## [1.21.0] - 2026-07-03
 
-### 📱 Full Responsive Design (All Devices)
-- Four-tier breakpoint system: < 480px / 480–767px / 768–1023px / ≥ 1024px
-- Proper safe-area inset support for iOS and Android notch/home-bar
-- Mobile floating mini-card on node tap (bottom sheet with preview)
-- Mobile bottom navigation bar (Graph / Editor / Search / Menu)
-- Compact mobile header (icon-only) with slide-up action drawer
-- Tablet header with icon-only buttons and tooltips
-- Split-view editor disabled below 1024px (best UX approach)
-- Touch-optimized graph canvas: tap-to-select nodes, larger tap radius
+### Changed
 
-### 🐛 Bug Fixes
-- Fixed global `button` override regression breaking all button sizes
-- Fixed `isSearchOpen` initial state not reacting to window resize
-- Fixed mobile sidebar slide direction (now slides from right, not bottom)
-- Fixed split-view rendering on small screens (now disabled < 1024px)
-- Fixed ghost "Open Editor" button appearing behind mobile sidebar
-- Fixed `insertText()` using wrong DOM lookup instead of ref
+- **Royal UI Overhaul**: Complete visual redesign with deep violet + electric cyan + gold palette.
+- **Premium glassmorphism panels** with gradient borders and glow effects.
+- **Gradient logo text**, shimmer primary button animation.
+- **Improved graph node rendering** with radial fills and active glow rings.
 
-- Fixed wiki-link click listener memory leak (duplicate handlers)
-- Fixed canvas controls clipping behind iOS/Android home indicator
-- Fixed `var(--text-color)` undefined token in page selector
-- Fixed canvas help box overflow on narrow screens
-- Fixed modal button clipping behind iPhone home bar
-- Fixed AI summary panel overflowing editor area
+### Added
 
+- **Full Responsive Design**: Four-tier breakpoint system (<480px, 480-767px, 768-1023px, ≥1024px).
+- **Safe-area inset support** for iOS and Android notch/home-bar.
+- **Mobile floating mini-card** on node tap (bottom sheet with preview).
+- **Mobile bottom navigation bar** (Graph / Editor / Search / Menu).
+- **Compact mobile header** with slide-up action drawer.
+- **Touch-optimized graph canvas**: tap-to-select nodes, larger tap radius.
 
-### 🔧 Improvements
-- Sidebar width now clamped to `clamp(340px, 30vw, 520px)` on desktop
-- Search filter panel widened to 360px with better tag cloud display
-- Slash menu now positions correctly at cursor location
-- Timeline slider capped to viewport width on all screen sizes
+### Fixed
+
+- Fixed global `button` override regression breaking all button sizes.
+- Fixed `isSearchOpen` initial state not reacting to window resize.
+- Fixed mobile sidebar slide direction.
+- Fixed split-view rendering on small screens.
+- Fixed ghost "Open Editor" button appearing behind mobile sidebar.
+- Fixed `insertText()` using wrong DOM lookup instead of ref.
+- Fixed wiki-link click listener memory leak.
+- Fixed canvas controls clipping behind iOS/Android home indicator.
+- Fixed `var(--text-color)` undefined token in page selector.
+- Fixed canvas help box overflow on narrow screens.
+- Fixed modal button clipping behind iPhone home bar.
+- Fixed AI summary panel overflowing editor area.
+
+### Changed
+
+- Sidebar width now clamped to `clamp(340px, 30vw, 520px)` on desktop.
+- Search filter panel widened to 360px.
+- Slash menu now positions correctly at cursor location.
 
 ## [1.20.0] - 2026-07-03
 
-### 🏗️ Architecture
-- **Local-First Rebuild**: Completely removed the experimental Node.js sync server (`yjs` & `y-webrtc`) in favour of a purely offline, local-first architecture — improved privacy and significantly reduced bundle size.
+### Changed
 
-### 🐛 Bug Fixes
-- **AI CORS Handling**: Fixed a critical CORS preflight issue where custom proxy headers (`Originator`, `User-Agent`) were incorrectly sent to direct browser endpoints. The AI client now only applies spoof headers when communicating via a proxy URL or AgentRouter.
+- **Local-First Rebuild**: Completely removed the experimental Node.js sync server (`yjs` & `y-webrtc`) in favour of a purely offline, local-first architecture.
 
-### ✨ Improvements
-- **Universal Model Config**: Unlocked the Model name input field and "Detect Models" button for all AI providers (OpenAI, DeepSeek, Anthropic, Google). Users can directly specify or detect fine-tuned model IDs across any platform.
+### Fixed
+
+- **AI CORS Handling**: Fixed a critical CORS preflight issue where custom proxy headers were incorrectly sent to direct browser endpoints.
+
+### Added
+
+- **Universal Model Config**: Unlocked the Model name input field and "Detect Models" button for all AI providers.
 - **UI Animations**: Added smooth CSS transitions to the search overlay toggle button.
 
 ## [1.19.4] - 2026-07-02
 
-### 🐛 Bug Fixes
-- **Offline Mode**: The public Yjs demo server fallback (`wss://demos.yjs.dev`) was rejecting connections on GitHub Pages. The app now detects GitHub Pages and gracefully falls back to *Offline / Single-Player Mode* instead of repeatedly failing to connect.
+### Fixed
+
+- **Offline Mode**: The public Yjs demo server fallback was rejecting connections on GitHub Pages. The app now detects GitHub Pages and gracefully falls back to Offline Mode.
 
 ## [1.19.3] - 2026-07-02
 
-### 🐛 Bug Fixes
-- **GitHub Pages Compatibility**: Added intelligent fallback logic to AI Proxy and Sync features. The app now gracefully intercepts connection attempts instead of timing out when hosted on `github.io`, displaying a clear alert.
-- **Sync Fallback**: Automatically redirects to a public demo server (`wss://demos.yjs.dev/aethermind`) when on `github.io` so basic syncing continues without a custom backend.
-- **AgentRouter Auth**: Improved error handling for 401 Unauthorized responses — an explicit alert now surfaces instead of silently failing in the console.
+### Fixed
+
+- **GitHub Pages Compatibility**: Added intelligent fallback logic to AI Proxy and Sync features.
+- **Sync Fallback**: Automatically redirects to a public demo server when on `github.io`.
+- **AgentRouter Auth**: Improved error handling for 401 Unauthorized responses.
 
 ## [1.19.2] - 2026-07-02
 
-### 🐛 Bug Fixes
-- **Mixed Content Security**: Implemented dynamic protocol resolution for the `y-websocket` client and AI Proxy. The app now upgrades `ws://` → `wss://` and `http://` → `https://` when loaded in a secure context (e.g. GitHub Pages), preventing hard browser security blocks.
+### Fixed
+
+- **Mixed Content Security**: Implemented dynamic protocol resolution for the `y-websocket` client and AI Proxy. The app now upgrades `ws://` → `wss://` and `http://` → `https://` when loaded in a secure context.
 
 ## [1.19.1] - 2026-07-02
 
-### 🐛 Bug Fixes
-- **Sync Protocol**: Rewrote the WebSocket client in `syncManager.ts` to use the official `WebsocketProvider` from `y-websocket`, fixing critical `Unexpected end of array` crashes caused by raw Yjs buffers being pushed incorrectly.
-- **Node v26 Compatibility**: Hardened the sync server by pinning `y-websocket` to v2.0.4 (restoring the `bin/utils` export) and upgrading `lib0` to fix binary parser incompatibilities on modern Node versions.
+### Fixed
+
+- **Sync Protocol**: Rewrote the WebSocket client to use the official `WebsocketProvider` from `y-websocket`, fixing critical `Unexpected end of array` crashes.
+- **Node v26 Compatibility**: Hardened the sync server by pinning `y-websocket` to v2.0.4.
 
 ## [1.19.0] - 2026-07-01
 
-### ✨ Improvements
-- **AgentRouter WAF Bypass**: Integrated advanced header spoofing (`Originator: codex_cli_rs`) into the AI proxy to bypass strict client firewalls on third-party gateways like AgentRouter and OpenRouter.
-- **AI Summary UI**: Refined the AI Summarise popup — removed redundant close buttons and applied premium gradient style to the "Insert into Note" button.
-- **Sync Automation**: Integrated `concurrently` so `npm run dev` automatically starts both the Vite frontend and backend sync server. Fixed zombie port process locking.
+### Added
 
-### 🐛 Bug Fixes
-- **API URL Normalisation**: Hardened URL path handling for custom AI base URLs, eliminating double `/v1/v1` concatenation errors and gracefully handling missing model endpoints (404 silencing).
+- **AgentRouter WAF Bypass**: Integrated advanced header spoofing into the AI proxy to bypass strict client firewalls.
+- **AI Summary UI**: Refined the AI Summarise popup with premium gradient style.
+- **Sync Automation**: Integrated `concurrently` so `npm run dev` automatically starts both the Vite frontend and backend sync server.
+
+### Fixed
+
+- **API URL Normalisation**: Hardened URL path handling for custom AI base URLs, eliminating double `/v1/v1` concatenation errors.
 
 ## [1.18.0] - 2026-07-01
 
-### 🐛 Bug Fixes
+### Fixed
+
 - **Responsive Overflow**: Added bounding sizes for sidebars and panels to prevent overflow off-screen on smaller viewports.
 
 ## [1.17.0] - 2026-06-30
 
-### ✨ Improvements
-- **Collapsible Search & Branding**: The search and filter overlay is now collapsible to save screen space, with fluid slide animations. Replaced the default Vite logo with the official AetherMind Brain logo.
+### Added
+
+- **Collapsible Search & Branding**: The search and filter overlay is now collapsible with fluid slide animations. Replaced the default Vite logo with the official AetherMind Brain logo.
 
 ## [1.16.0] - 2026-06-30
 
-### 📱 Responsive UI
-- **Layout Overhaul**: Implemented responsive layouts across all components. Components automatically resize and re-flow into a mobile-friendly layout on smaller screens. The sidebar converts into a fluid overlay; the top navigation wraps dynamically.
+### Added
+
+- **Responsive UI**: Implemented responsive layouts across all components. Components automatically resize and re-flow into a mobile-friendly layout on smaller screens.
 
 ## [1.15.1] - 2026-06-29
 
-### ✨ Improvements
+### Added
+
 - **Animation Overhaul**: Added fluid, bouncy CSS `@keyframes` (spring-like cubic-beziers and blur filters) to all transition states globally.
 
-### 🐛 Bug Fixes
+### Fixed
+
 - **Sidebar Transition**: Corrected missing width transitions for the right-sidebar toggle.
 
 ## [1.15.0] - 2026-06-29
 
-### 🏗️ Architecture
-- **Modular Settings**: Completely refactored the monolithic `SettingsModal.tsx` into tabbed components (`AiSettingsTab`, `SyncSettingsTab`, `DataSettingsTab`). Added `React.lazy` to `GraphCanvas` to reduce initial bundle load time.
+### Changed
 
-### 🔒 Security
-- **XSS Mitigation**: Installed DOMPurify to sanitise Markdown preview output in `EditorPanel.tsx`, mitigating Stored XSS vulnerabilities.
+- **Modular Settings**: Completely refactored the monolithic `SettingsModal.tsx` into tabbed components. Added `React.lazy` to `GraphCanvas`.
 
-### ♿ Accessibility
-- **ARIA Labels**: Added `aria-label` to all icon-only buttons across `ColorPicker`, `ConfirmModal`, `PromptModal`, `RenamePageModal`, `ReviewModal`, and `EditorPanel`.
+### Added
 
-### 🔧 Improvements
-- **SEO & Metadata**: Injected descriptive title tags, meta descriptions, and Open Graph data into `index.html`.
-- **Performance**: Refactored global CSS transitions — removed layout-thrashing `transition: all` patterns, constraining transitions to composite-only properties (`transform`, `opacity`) for smooth 60fps graph interactions.
+- **XSS Mitigation**: Installed DOMPurify to sanitise Markdown preview output.
+- **ARIA Labels**: Added `aria-label` to all icon-only buttons.
+- **SEO & Metadata**: Injected descriptive title tags, meta descriptions, and Open Graph data.
+- **Performance**: Refactored global CSS transitions to composite-only properties for smooth 60fps interactions.
 
 ## [1.14.0] - 2026-06-28
 
-### 🏗️ Architecture
-- **Codebase Audit**: Removed junk files, added `.env` to `.gitignore`, and scrubbed sensitive debug logs from `syncManager.ts`.
+### Changed
 
-### 🔒 Security
-- **Dependency Patches**: Ran `npm audit fix` across client and `sync-server` to patch nested prototype pollution vulnerabilities.
+- **Codebase Audit**: Removed junk files, added `.env` to `.gitignore`, and scrubbed sensitive debug logs.
 
-### 📄 Documentation
+### Security
+
+- **Dependency Patches**: Ran `npm audit fix` to patch nested prototype pollution vulnerabilities.
+
+### Added
+
 - **README**: Created `README.md` documenting the local-first architecture, ML setup, and sync server deployment.
 
 ## [1.13.0] - 2026-06-27
 
-### ✨ Improvements
-- **AI Settings UI**: The "Model Name" field is now hidden unless required (Custom or Vercel AI Gateway), making the settings panel cleaner.
+### Changed
+
+- **AI Settings UI**: The "Model Name" field is now hidden unless required (Custom or Vercel AI Gateway).
 - **Provider Consistency**: Base URLs are strictly enforced and locked to official endpoints for standard providers.
-- **Dropdown Styling**: Styled the AI Provider dropdown to match the global glassmorphic `meta-select` design.
-- **Vercel AI Gateway**: Unlocked base URL and model name fields for Vercel AI Gateway to support user-specific endpoints.
+- **Dropdown Styling**: Styled the AI Provider dropdown to match the global glassmorphic design.
+- **Vercel AI Gateway**: Unlocked base URL and model name fields for Vercel AI Gateway.
 
 ## [1.12.0] - 2026-06-26
 
-### ✨ Improvements
+### Added
+
 - **Custom Modals**: Replaced all native browser popups (`alert`, `confirm`, `prompt`) with advanced glassmorphic modals and toast notifications.
-- **Multi-Provider AI**: Implemented native browser support for Anthropic, DeepSeek, OpenAI, Google, OpenRouter, and Vercel AI Gateway without requiring external proxies.
+- **Multi-Provider AI**: Implemented native browser support for Anthropic, DeepSeek, OpenAI, Google, OpenRouter, and Vercel AI Gateway.
 
 ## [1.11.0] - 2026-06-25
 
+### Fixed
 
-
-### 🐛 Bug Fixes
 - Fixed sidebar to consistently default to Preview Mode when opening a new node.
 
 ## [1.10.5] - 2026-06-24
 
-### 🐛 Bug Fixes
-- Made sidebar placeholder text and empty-state text unselectable to improve UI feel.
+### Fixed
+
+- Made sidebar placeholder text and empty-state text unselectable.
 
 ## [1.10.4] - 2026-06-24
 
-### ✨ Improvements
-- **Button Redesign**: Redesigned sidebar icon buttons and tab buttons with premium glassmorphism styling, shadows, and hover animations.
+### Changed
+
+- **Button Redesign**: Redesigned sidebar icon buttons and tab buttons with premium glassmorphism styling.
 
 ## [1.10.3] - 2026-06-24
 
-### 🐛 Bug Fixes
+### Fixed
+
 - Repositioned "Help" and "Sidebar" buttons to the top-right corner of the graph canvas.
-- Fixed node color reactivity — changes to default node colors in Settings now update the graph immediately.
-- Fixed node aura and link color to correctly reflect the selected node's color instead of a default heatmap red.
+- Fixed node color reactivity — changes to default node colors now update the graph immediately.
+- Fixed node aura and link color to correctly reflect the selected node's color.
 
-## [1.10.0] — [1.10.2] - 2026-06-23
+## [1.10.0] - 2026-06-23
 
-### ✨ New Features
+### Added
+
 - **AI Integration**: Added "Ask AI" modal and "Auto-tagging" features supporting OpenAI and Anthropic.
 
-### 🎨 UI/UX
+### Changed
+
 - Added premium dark mode styles and glassmorphism elements across the app.
 
 ## [1.9.0] - 2026-06-22
 
-### ✨ New Features
-- **Web Clipper Extension**: Created a Chrome extension to save web pages directly into AetherMind.
+### Added
 
+- **Web Clipper Extension**: Created a Chrome extension to save web pages directly into AetherMind.
 
 ## [1.8.0] - 2026-06-21
 
-### ✨ New Features
+### Added
+
 - **Timeline Slider & Journal Calendar**: View notes chronologically and scrub through knowledge base history.
-- **Pages**: Introduced the Pages concept — group multiple notes under specific workspaces (e.g. Default Graph vs. custom pages).
+- **Pages**: Introduced the Pages concept — group multiple notes under specific workspaces.
 
 ## [1.7.0] - 2026-06-20
 
-### ✨ New Features
+### Added
 
 - **Export to HTML**: Added note export as standalone HTML files.
 
 ## [1.6.0] - 2026-06-19
 
-### ✨ New Features
+### Added
+
 - **Command Palette**: Added `Ctrl+K` / `Cmd+K` command palette for quick navigation and actions.
 - **Global Search**: Added full-text search bar across all notes.
 
 ## [1.5.0] - 2026-06-18
 
-### ✨ New Features
+### Added
+
 - **Markdown Enhancements**: Added Prism.js syntax highlighting for code blocks.
 - **Wiki Links**: Added `[[Note Title]]` syntax to automatically create graph connections between notes.
 
-## [1.0.0] — [1.4.0] - 2026-06-01
+## [1.0.0] - 2026-06-01
 
-### 🚀 Initial Release
+### Added
+
 - **Local-First Architecture**: Built on Dexie.js (IndexedDB) — all data stored offline in the browser.
 - **D3.js Force Graph**: Implemented a force-directed graph simulation for organic, interconnected note navigation.
 - **Core Features**: Note creation, editing, tagging, and category colour customisation.
